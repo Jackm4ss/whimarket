@@ -3,18 +3,35 @@ import React from 'react';
 export const ShopBanner: React.FC = () => {
   return (
     <div className="w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-4 pb-6">
-      {/* Banner Card matching exact 1088x200 banner mockup with organic curved purple wave background */}
-      <div className="relative w-full rounded-2xl sm:rounded-3xl bg-[#4D18C8] overflow-hidden min-h-[175px] sm:min-h-[185px] lg:h-[195px] flex items-center justify-between px-6 sm:px-10 lg:px-14 shadow-lg shadow-[#4D18C8]/15">
+      {/* Banner Card matching exact 1088x200 banner mockup with custom vector background */}
+      <div className="relative w-full rounded-2xl sm:rounded-3xl bg-[#491FB6] overflow-hidden min-h-[175px] sm:min-h-[185px] lg:h-[195px] flex items-center justify-between px-6 sm:px-10 lg:px-14 shadow-lg shadow-[#491FB6]/15">
         
-        {/* Organic Light Purple / Lavender Curved Wave Shapes in the Background */}
-        <div className="absolute right-0 top-0 bottom-0 w-[60%] sm:w-[50%] lg:w-[46%] pointer-events-none overflow-hidden">
-          {/* Main Large Arch/Dome Wave */}
-          <div className="absolute -bottom-10 right-4 sm:right-8 w-[380px] sm:w-[460px] h-[280px] sm:h-[320px] rounded-t-full bg-[#6229DE]/65 blur-[1px]" />
-          {/* Secondary softer wave curve */}
-          <div className="absolute -bottom-16 right-[-20px] w-[300px] sm:w-[360px] h-[240px] sm:h-[280px] rounded-t-full bg-[#753CEB]/45" />
-          {/* Subtle ambient glow behind items */}
-          <div className="absolute right-20 top-6 w-36 h-36 rounded-full bg-white/10 blur-2xl" />
-        </div>
+        {/* ==================== EXACT CUSTOM VECTOR BACKGROUND SHAPES ==================== */}
+        <svg
+          className="absolute right-0 top-0 bottom-0 h-full w-auto pointer-events-none z-0"
+          viewBox="0 0 600 200"
+          preserveAspectRatio="none"
+          fill="none"
+        >
+          {/* Main Arched Dome Wave (#7444DF / #7846E2) */}
+          <path
+            d="M 140 200 C 140 70, 240 12, 340 12 C 430 12, 520 50, 600 95 L 600 200 Z"
+            fill="#7444DF"
+            fillOpacity="0.85"
+          />
+          {/* Secondary Soft Ambient Wave (#8A56EC) */}
+          <path
+            d="M 280 0 C 380 0, 500 25, 600 70 L 600 0 Z"
+            fill="#8A56EC"
+            fillOpacity="0.45"
+          />
+          {/* Bottom Left Curve Accent Under Sneaker */}
+          <path
+            d="M 0 200 C 20 165, 80 145, 150 160 C 200 170, 230 200, 230 200 Z"
+            fill="#6027D1"
+            fillOpacity="0.75"
+          />
+        </svg>
 
         {/* Left Headline & Typography Area */}
         <div className="relative z-10 max-w-[560px] text-left py-4">
@@ -28,7 +45,7 @@ export const ShopBanner: React.FC = () => {
         </div>
 
         {/* Center Sparkle Stars */}
-        <div className="hidden md:flex absolute left-[46%] lg:left-[51%] top-1/2 -translate-y-1/2 flex-col items-center pointer-events-none z-10">
+        <div className="hidden md:flex absolute left-[47%] lg:left-[51%] top-1/2 -translate-y-1/2 flex-col items-center pointer-events-none z-10">
           {/* Top-left larger 4-point sparkle star */}
           <div className="text-white transform -translate-x-3 -translate-y-2">
             <svg className="w-6 h-6 fill-white drop-shadow-sm" viewBox="0 0 24 24">
@@ -44,10 +61,10 @@ export const ShopBanner: React.FC = () => {
         </div>
 
         {/* Right Visual Stage (White Pedestal Disc + Nike Dunk + Chanel Bag + Sticky Note) */}
-        <div className="relative z-20 hidden sm:flex items-end justify-end h-full shrink-0 pb-1.5">
+        <div className="relative z-20 hidden sm:flex items-end justify-end h-full shrink-0 pb-1 sm:pb-2">
           
           {/* White Circular Stage Pedestal Surface */}
-          <div className="absolute -bottom-8 right-6 sm:right-8 w-[320px] sm:w-[360px] lg:w-[410px] h-[36px] sm:h-[42px] bg-gradient-to-b from-[#FFFFFF] via-[#F6F6F9] to-[#D8D8E2] rounded-full shadow-[0_12px_28px_rgba(0,0,0,0.25)] border-t border-white/80 pointer-events-none" />
+          <div className="absolute -bottom-7 right-6 sm:right-8 w-[320px] sm:w-[360px] lg:w-[410px] h-[36px] sm:h-[42px] bg-gradient-to-b from-[#FFFFFF] via-[#F6F6F9] to-[#D8D8E2] rounded-full shadow-[0_12px_28px_rgba(0,0,0,0.25)] border-t border-white/80 pointer-events-none" />
 
           {/* Stage Assets Container */}
           <div className="relative flex items-end gap-2 sm:gap-2.5 lg:gap-3.5 pr-2">
@@ -60,6 +77,7 @@ export const ShopBanner: React.FC = () => {
                 className="h-full w-auto object-contain drop-shadow-[0_12px_20px_rgba(0,0,0,0.30)] transform -rotate-[4deg] hover:rotate-0 transition-transform duration-300"
               />
             </div>
+
             {/* 2. Black Quilted Flap Bag with Gold Chain Draped Forward */}
             <div className="relative z-20 h-[95px] sm:h-[115px] lg:h-[130px] w-auto shrink-0 mb-1">
               <img
