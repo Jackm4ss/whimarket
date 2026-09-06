@@ -416,8 +416,8 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
               </div>
             </div>
 
-            {/* Mobile-Only Stats Row strictly for < 640px matching user reference 1:1 */}
-            <div className="flex sm:hidden items-center justify-between w-full pt-3 pb-3 mb-1 px-2">
+            {/* Mobile-Only Stats Row strictly for < 640px: with outer left and right separators */}
+            <div className="flex sm:hidden items-center justify-between w-full pt-3 pb-3 mb-1 px-1 border-x border-gray-200/80">
               {/* Rating */}
               <div className="flex flex-col items-center text-center flex-1">
                 <svg className="w-5 h-5 text-amber-400 fill-current mb-1" viewBox="0 0 20 20">
