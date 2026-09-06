@@ -16,7 +16,7 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
   onNavigateHome,
   onNavigateShop,
 }) => {
-  const [activeTab, setActiveTab] = useState<'produk' | 'tentang' | 'ulasan'>('produk');
+  const [activeTab, setActiveTab] = useState<'produk' | 'ulasan'>('produk');
   const [isFollowing, setIsFollowing] = useState(false);
   const [isShareCopied, setIsShareCopied] = useState(false);
   const [isBioExpanded, setIsBioExpanded] = useState(false);
@@ -297,7 +297,10 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
                   {/* Bergabung */}
                   <div className="inline-flex items-center gap-1.5 shrink-0">
                     <svg className="w-[18px] h-[18px] text-gray-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
                     </svg>
                     <span className="text-gray-500 font-normal whitespace-nowrap text-[13px]">Bergabung sejak Mar 2024</span>
                   </div>
@@ -410,7 +413,10 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
 
               <div className="inline-flex items-center gap-1.5 shrink-0">
                 <svg className="w-[17px] h-[17px] text-gray-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
                 </svg>
                 <span className="text-gray-500 font-normal whitespace-nowrap text-[12.5px] sm:text-[13px]">Bergabung sejak Mar 2024</span>
               </div>
@@ -491,22 +497,6 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
 
             <div className="relative flex flex-col items-center flex-1 lg:flex-initial">
               <button
-                onClick={() => setActiveTab('tentang')}
-                className={`pb-3 transition-colors cursor-pointer px-3 text-center w-full lg:w-auto ${
-                  activeTab === 'tentang'
-                    ? 'text-[#4F26A6]'
-                    : 'text-gray-500 hover:text-gray-900'
-                }`}
-              >
-                Tentang
-              </button>
-              {activeTab === 'tentang' && (
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-[90px] sm:w-[105px] lg:w-[115px] h-[3.5px] bg-[#4F26A6] rounded-full" />
-              )}
-            </div>
-
-            <div className="relative flex flex-col items-center flex-1 lg:flex-initial">
-              <button
                 onClick={() => setActiveTab('ulasan')}
                 className={`pb-3 transition-colors cursor-pointer px-3 text-center w-full lg:w-auto ${
                   activeTab === 'ulasan'
@@ -564,49 +554,49 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
 
                 <div className="h-[1px] bg-gray-100 my-5" />
 
-                {/* 3 Value Proposition Feature Rows matching exact mockup */}
-                <div className="space-y-4">
+                {/* 3 Value Proposition Feature Rows with comfortable breathing room */}
+                <div className="space-y-2">
                   {/* 1. Akun Terverifikasi */}
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-8 h-8 flex items-center justify-center text-[#5022CE] shrink-0">
+                  <div className="flex items-center gap-4 py-2">
+                    <div className="w-9 h-9 flex items-center justify-center text-[#5022CE] shrink-0">
                       <svg className="w-7 h-7 fill-current" viewBox="0 0 24 24">
                         <path d="M12 2L4 5.5v5.8c0 5.25 3.41 10.15 8 11.35 4.59-1.2 8-6.1 8-11.35V5.5L12 2zm-1.2 14.2l-3.5-3.5 1.41-1.41 2.09 2.08 5.09-5.09 1.41 1.41-6.5 6.51z" />
                       </svg>
                     </div>
                     <div className="flex flex-col">
-                      <h4 className="text-[13.5px] font-bold text-gray-900 leading-tight">
+                      <h4 className="text-[14px] font-bold text-gray-900 leading-snug">
                         Akun Terverifikasi
                       </h4>
-                      <p className="text-[12px] text-gray-500 mt-0.5 leading-tight">
+                      <p className="text-[12.5px] text-gray-500 mt-1 leading-snug">
                         Sudah diverifikasi oleh Whimarket
                       </p>
                     </div>
                   </div>
 
-                  <div className="h-[1px] bg-gray-100 my-1" />
+                  <div className="h-[1px] bg-gray-100/90 my-1.5" />
 
                   {/* 2. Respon Cepat */}
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-8 h-8 flex items-center justify-center text-[#5022CE] shrink-0">
+                  <div className="flex items-center gap-4 py-2">
+                    <div className="w-9 h-9 flex items-center justify-center text-[#5022CE] shrink-0">
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                       </svg>
                     </div>
                     <div className="flex flex-col">
-                      <h4 className="text-[13.5px] font-bold text-gray-900 leading-tight">
+                      <h4 className="text-[14px] font-bold text-gray-900 leading-snug">
                         Respon Cepat
                       </h4>
-                      <p className="text-[12px] text-gray-500 mt-0.5 leading-tight">
+                      <p className="text-[12.5px] text-gray-500 mt-1 leading-snug">
                         Rata-rata membalas &lt; 1 jam
                       </p>
                     </div>
                   </div>
 
-                  <div className="h-[1px] bg-gray-100 my-1" />
+                  <div className="h-[1px] bg-gray-100/90 my-1.5" />
 
                   {/* 3. Pengiriman Aman */}
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-8 h-8 flex items-center justify-center text-[#5022CE] shrink-0">
+                  <div className="flex items-center gap-4 py-2">
+                    <div className="w-9 h-9 flex items-center justify-center text-[#5022CE] shrink-0">
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <rect x="3" y="6" width="18" height="15" rx="3" />
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 6V4a2 2 0 012-2h2a2 2 0 012 2v2" />
@@ -615,10 +605,10 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
                       </svg>
                     </div>
                     <div className="flex flex-col">
-                      <h4 className="text-[13.5px] font-bold text-gray-900 leading-tight">
+                      <h4 className="text-[14px] font-bold text-gray-900 leading-snug">
                         Pengiriman Aman
                       </h4>
-                      <p className="text-[12px] text-gray-500 mt-0.5 leading-tight">
+                      <p className="text-[12.5px] text-gray-500 mt-1 leading-snug">
                         Setiap pesanan diproses dengan aman
                       </p>
                     </div>
@@ -686,138 +676,6 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
             </div>
           </div>
         )}
-        {/* Tab 2: Tentang Rachel Vennya matching exact mockup card */}
-        {activeTab === 'tentang' && (
-          <div className="mt-8 flex flex-col lg:flex-row items-start gap-8">
-            {/* Left Card: 100% exact to user mockup */}
-            <div className="w-full max-w-[390px] bg-white rounded-3xl p-6 sm:p-7 border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
-              {/* Card Title */}
-              <h3 className="text-[17px] sm:text-[18px] font-bold text-[#111827] mb-3 tracking-tight">
-                Tentang Rachel Vennya
-              </h3>
-
-              {/* Bio Paragraph */}
-              <div className="text-[13px] sm:text-[13.5px] text-gray-600 leading-relaxed space-y-2">
-                <p>
-                  Di sini aku jual barang pre-loved pribadi yang masih bagus dan layak pakai. Semoga bisa menemukan pemilik baru yang lebih cinta lagi ♡
-                </p>
-                {isBioExpanded && (
-                  <p className="text-gray-500 pt-1 text-xs sm:text-[12.5px] leading-relaxed border-t border-gray-100 mt-2">
-                    Semua koleksi dijamin original 100%, dirawat dengan baik dari lemari pribadi, dan dikemas secara higienis sebelum dikirimkan ke kamu.
-                  </p>
-                )}
-              </div>
-
-              {/* Baca Selengkapnya Link */}
-              <button
-                type="button"
-                onClick={() => setIsBioExpanded(!isBioExpanded)}
-                className="mt-3.5 inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-bold text-[#4F26A6] hover:text-[#3E1D85] transition-colors cursor-pointer"
-              >
-                <span>{isBioExpanded ? 'Tutup Selengkapnya' : 'Baca Selengkapnya'}</span>
-                <svg
-                  className={`w-3.5 h-3.5 transition-transform duration-200 ${isBioExpanded ? 'rotate-180' : ''}`}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              <div className="h-[1px] bg-gray-100 my-5" />
-
-              {/* 3 Value Proposition Feature Rows */}
-              <div className="space-y-4">
-                {/* 1. Akun Terverifikasi */}
-                <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-full bg-[#5022CE] text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="flex flex-col">
-                    <h4 className="text-[14px] font-bold text-gray-900 leading-tight">
-                      Akun Terverifikasi
-                    </h4>
-                    <p className="text-[12px] text-gray-500 mt-0.5 leading-tight">
-                      Sudah diverifikasi oleh Whimarket
-                    </p>
-                  </div>
-                </div>
-
-                <div className="h-[1px] bg-gray-50 my-1" />
-
-                {/* 2. Respon Cepat */}
-                <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-full bg-white border-2 border-[#5022CE] text-[#5022CE] flex items-center justify-center shrink-0">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                    </svg>
-                  </div>
-                  <div className="flex flex-col">
-                    <h4 className="text-[14px] font-bold text-gray-900 leading-tight">
-                      Respon Cepat
-                    </h4>
-                    <p className="text-[12px] text-gray-500 mt-0.5 leading-tight">
-                      Rata-rata membalas &lt; 1 jam
-                    </p>
-                  </div>
-                </div>
-
-                <div className="h-[1px] bg-gray-50 my-1" />
-
-                {/* 3. Pengiriman Aman */}
-                <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-full bg-white border-2 border-[#5022CE] text-[#5022CE] flex items-center justify-center shrink-0">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                    </svg>
-                  </div>
-                  <div className="flex flex-col">
-                    <h4 className="text-[14px] font-bold text-gray-900 leading-tight">
-                      Pengiriman Aman
-                    </h4>
-                    <p className="text-[12px] text-gray-500 mt-0.5 leading-tight">
-                      Setiap pesanan diproses dengan aman
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Detail Informasi Toko */}
-            <div className="flex-1 bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
-              <h3 className="text-[18px] font-bold text-gray-900 mb-4">Informasi & Kebijakan Toko</h3>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
-                <div className="bg-[#FAF9FC] p-4 rounded-2xl border border-gray-100">
-                  <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Lokasi Pengiriman</p>
-                  <p className="text-sm font-bold text-gray-900 mt-1">Jakarta Selatan, DKI Jakarta</p>
-                </div>
-                <div className="bg-[#FAF9FC] p-4 rounded-2xl border border-gray-100">
-                  <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Jasa Ekspedisi</p>
-                  <p className="text-sm font-bold text-gray-900 mt-1">JNE, SiCepat, GoSend Instant</p>
-                </div>
-                <div className="bg-[#FAF9FC] p-4 rounded-2xl border border-gray-100">
-                  <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Jadwal Pengiriman</p>
-                  <p className="text-sm font-bold text-gray-900 mt-1">Senin - Jumat (1-2 hari kerja)</p>
-                </div>
-                <div className="bg-[#FAF9FC] p-4 rounded-2xl border border-gray-100">
-                  <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Garansi Keaslian</p>
-                  <p className="text-sm font-bold text-gray-900 mt-1">100% Uang Kembali jika Palsu</p>
-                </div>
-              </div>
-
-              <h4 className="text-sm font-bold text-gray-900 mb-2">Catatan dari Seller</h4>
-              <p className="text-xs sm:text-[13px] text-gray-600 leading-relaxed">
-                Halo semuanya! Barang-barang di sini adalah barang pribadi yang aku beli langsung dari official store atau saat traveling. Kondisinya masih sangat terawat. Jika butuh detail foto lebih jelas atau video kondisi barang, bisa langsung chat ya. Terima kasih sudah mampir! ♡
-              </p>
-            </div>
-          </div>
-        )}
-
         {activeTab === 'ulasan' && (
           <div className="mt-8 bg-white rounded-2xl p-6 sm:p-8 border border-gray-100 shadow-sm max-w-4xl">
             <div className="flex items-center gap-4 mb-6">
