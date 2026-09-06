@@ -3,14 +3,14 @@ import { LandingPage } from './pages/LandingPage';
 import { ShopPage } from './pages/ShopPage';
 
 export const App: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<'landing' | 'shop'>('shop');
+  const [currentPage, setCurrentPage] = useState<'landing' | 'shop'>('landing');
 
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash.toLowerCase();
-      if (hash === '#belanja' || hash === '#shop') {
+      if (hash.startsWith('#belanja') || hash.startsWith('#shop')) {
         setCurrentPage('shop');
-      } else if (hash === '#beranda' || hash === '#home') {
+      } else {
         setCurrentPage('landing');
       }
     };

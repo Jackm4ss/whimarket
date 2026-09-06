@@ -67,7 +67,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <nav className="hidden lg:flex items-center gap-9 xl:gap-10 text-[15px] xl:text-[15.5px] font-semibold text-gray-700">
               {/* Beranda */}
               <div className={cn("relative py-1 flex flex-col items-center", activeTab === 'beranda' ? "text-[#4F26A6] font-bold" : "text-gray-700 font-semibold hover:text-[#4F26A6] transition-colors")}>
-                <button type="button" onClick={() => onTabChange?.('beranda')} className="focus:outline-none">Beranda</button>
+                <button type="button" onClick={() => { window.location.hash = '#beranda'; onTabChange?.('beranda'); }} className="focus:outline-none">Beranda</button>
                 {activeTab === 'beranda' && (
                   <span className="absolute -bottom-2 left-0 right-0 h-[3px] bg-[#4F26A6] rounded-full"></span>
                 )}
@@ -77,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div className={cn("relative group py-1 flex flex-col items-center", activeTab === 'belanja' ? "text-[#4F26A6] font-bold" : "text-gray-700 font-semibold")}>
                 <button
                   type="button"
-                  onClick={() => onTabChange?.('belanja')}
+                  onClick={() => { window.location.hash = '#belanja'; onTabChange?.('belanja'); }}
                   className={cn(
                     "flex items-center gap-1.5 transition-colors focus:outline-none py-1",
                     activeTab === 'belanja' ? "text-[#4F26A6]" : "hover:text-[#4F26A6]"
