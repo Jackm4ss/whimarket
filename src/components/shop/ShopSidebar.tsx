@@ -26,14 +26,38 @@ export const ShopSidebar: React.FC<ShopSidebarProps> = ({
     harga: true,
     kondisi: true,
     lokasi: true,
-    seller: true,
-    lainnya: true,
   });
-
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
+  // Searchable location state
+  const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
+  const [locationSearchQuery, setLocationSearchQuery] = useState('');
+
+  const locationsList = [
+    { id: '', name: 'Semua Lokasi' },
+    { id: 'jabodetabek', name: 'Jabodetabek' },
+    { id: 'jakarta-selatan', name: 'Jakarta Selatan' },
+    { id: 'jakarta-barat', name: 'Jakarta Barat' },
+    { id: 'jakarta-pusat', name: 'Jakarta Pusat' },
+    { id: 'jakarta-utara', name: 'Jakarta Utara' },
+    { id: 'jakarta-timur', name: 'Jakarta Timur' },
+    { id: 'bandung', name: 'Bandung' },
+    { id: 'surabaya', name: 'Surabaya' },
+    { id: 'yogyakarta', name: 'Yogyakarta' },
+    { id: 'semarang', name: 'Semarang' },
+    { id: 'medan', name: 'Medan' },
+    { id: 'bali', name: 'Bali & Denpasar' },
+    { id: 'makassar', name: 'Makassar' },
+  ];
+
+  const filteredLocations = locationsList.filter((loc) =>
+    loc.name.toLowerCase().includes(locationSearchQuery.toLowerCase())
+  );
+
+  const selectedLocationName =
+    locationsList.find((l) => l.id === filters.location)?.name || 'Pilih Lokasi';
   const categories = [
     { id: 'all', name: 'Semua Kategori', icon: (
       <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -108,17 +132,17 @@ export const ShopSidebar: React.FC<ShopSidebarProps> = ({
   };
 
   return (
-    <aside className="w-full lg:w-[220px] xl:w-[235px] shrink-0 space-y-5 bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] self-start">
+    <aside className="w-full lg:w-[240px] xl:w-[255px] shrink-0 space-y-6 sm:space-y-7 bg-white rounded-2xl p-5 sm:p-6 border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] self-start">
       {/* 1. Kategori Section */}
       <div>
         <button
           type="button"
           onClick={() => toggleSection('kategori')}
-          className="w-full flex items-center justify-between text-[13.5px] font-bold text-gray-900 mb-2.5"
+          className="w-full flex items-center justify-between text-[14px] sm:text-[14.5px] font-bold text-gray-900 mb-3 sm:mb-3.5"
         >
           <span>Kategori</span>
           <svg
-            className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${openSections.kategori ? '' : 'rotate-180'}`}
+            className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${openSections.kategori ? '' : 'rotate-180'}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -128,7 +152,7 @@ export const ShopSidebar: React.FC<ShopSidebarProps> = ({
         </button>
 
         {openSections.kategori && (
-          <div className="space-y-0.5">
+          <div className="space-y-1.5 sm:space-y-2 pt-1">
             {categories.map((cat) => {
               const isActive = filters.category === cat.id;
               return (
@@ -136,9 +160,9 @@ export const ShopSidebar: React.FC<ShopSidebarProps> = ({
                   key={cat.id}
                   type="button"
                   onClick={() => onFilterChange({ ...filters, category: cat.id })}
-                  className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-[13px] font-medium transition-all ${
                     isActive
-                      ? 'bg-[#EDE4FF] text-[#4F26A6] font-bold'
+                      ? 'bg-[#EDE4FF] text-[#4F26A6] font-bold shadow-2xs'
                       : 'text-gray-600 hover:text-[#4F26A6] hover:bg-gray-50'
                   }`}
                 >
@@ -160,11 +184,11 @@ export const ShopSidebar: React.FC<ShopSidebarProps> = ({
         <button
           type="button"
           onClick={() => toggleSection('harga')}
-          className="w-full flex items-center justify-between text-[13.5px] font-bold text-gray-900 mb-2.5"
+          className="w-full flex items-center justify-between text-[14px] sm:text-[14.5px] font-bold text-gray-900 mb-3 sm:mb-3.5"
         >
           <span>Harga</span>
           <svg
-            className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${openSections.harga ? '' : 'rotate-180'}`}
+            className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${openSections.harga ? '' : 'rotate-180'}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -174,19 +198,63 @@ export const ShopSidebar: React.FC<ShopSidebarProps> = ({
         </button>
 
         {openSections.harga && (
-          <div className="pt-1">
-            {/* Slider bar */}
-            <div className="relative w-full h-4 flex items-center mb-2">
-              <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
-                <div className="h-full bg-[#4F26A6] rounded-full w-full" />
+          <div className="pt-1.5 space-y-3">
+            {/* Real Interactive Dual-Thumb Range Slider */}
+            <div className="relative w-full flex items-center h-6">
+              {/* Background Track */}
+              <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-[#4F26A6] rounded-full"
+                  style={{
+                    marginLeft: `${(filters.priceRange[0] / 50000000) * 100}%`,
+                    width: `${((filters.priceRange[1] - filters.priceRange[0]) / 50000000) * 100}%`,
+                  }}
+                />
               </div>
-              <div className="absolute left-0 w-3.5 h-3.5 bg-[#4F26A6] rounded-full ring-2 ring-white shadow-xs cursor-pointer" />
-              <div className="absolute right-0 w-3.5 h-3.5 bg-[#4F26A6] rounded-full ring-2 ring-white shadow-xs cursor-pointer" />
+
+              {/* Min Input Slider */}
+              <input
+                type="range"
+                min="0"
+                max="50000000"
+                step="500000"
+                value={filters.priceRange[0]}
+                onChange={(e) => {
+                  const val = Math.min(Number(e.target.value), filters.priceRange[1] - 500000);
+                  onFilterChange({ ...filters, priceRange: [val, filters.priceRange[1]] });
+                }}
+                className="absolute inset-0 w-full appearance-none bg-transparent pointer-events-auto cursor-pointer accent-[#4F26A6] opacity-0 z-20"
+              />
+
+              {/* Max Input Slider */}
+              <input
+                type="range"
+                min="0"
+                max="50000000"
+                step="500000"
+                value={filters.priceRange[1]}
+                onChange={(e) => {
+                  const val = Math.max(Number(e.target.value), filters.priceRange[0] + 500000);
+                  onFilterChange({ ...filters, priceRange: [filters.priceRange[0], val] });
+                }}
+                className="absolute inset-0 w-full appearance-none bg-transparent pointer-events-auto cursor-pointer accent-[#4F26A6] opacity-0 z-30"
+              />
+
+              {/* Visual Draggable Thumb Knobs */}
+              <div
+                className="absolute w-4 h-4 bg-[#4F26A6] rounded-full ring-2 ring-white shadow-md pointer-events-none transition-transform -translate-x-1/2 z-10"
+                style={{ left: `${(filters.priceRange[0] / 50000000) * 100}%` }}
+              />
+              <div
+                className="absolute w-4 h-4 bg-[#4F26A6] rounded-full ring-2 ring-white shadow-md pointer-events-none transition-transform -translate-x-1/2 z-10"
+                style={{ left: `${(filters.priceRange[1] / 50000000) * 100}%` }}
+              />
             </div>
-            {/* Price labels: Rp 0 ... Rp 50.000.000 */}
-            <div className="flex items-center justify-between text-[10.5px] text-gray-400 font-medium">
-              <span>Rp 0</span>
-              <span>Rp 50.000.000</span>
+
+            {/* Dynamic Interactive Price Labels */}
+            <div className="flex items-center justify-between text-xs text-gray-500 font-semibold pt-0.5">
+              <span>Rp {filters.priceRange[0].toLocaleString('id-ID')}</span>
+              <span>Rp {filters.priceRange[1].toLocaleString('id-ID')}</span>
             </div>
           </div>
         )}
@@ -199,11 +267,11 @@ export const ShopSidebar: React.FC<ShopSidebarProps> = ({
         <button
           type="button"
           onClick={() => toggleSection('kondisi')}
-          className="w-full flex items-center justify-between text-[13.5px] font-bold text-gray-900 mb-2.5"
+          className="w-full flex items-center justify-between text-[14px] sm:text-[14.5px] font-bold text-gray-900 mb-3 sm:mb-3.5"
         >
           <span>Kondisi</span>
           <svg
-            className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${openSections.kondisi ? '' : 'rotate-180'}`}
+            className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${openSections.kondisi ? '' : 'rotate-180'}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -213,7 +281,7 @@ export const ShopSidebar: React.FC<ShopSidebarProps> = ({
         </button>
 
         {openSections.kondisi && (
-          <div className="space-y-2 pt-0.5">
+          <div className="space-y-3 sm:space-y-3.5 pt-1">
             {conditions.map((item) => {
               const isChecked = item.id === 'all'
                 ? filters.condition.includes('all')
@@ -222,7 +290,7 @@ export const ShopSidebar: React.FC<ShopSidebarProps> = ({
               return (
                 <label
                   key={item.id}
-                  className="flex items-center gap-2 cursor-pointer select-none group text-xs text-gray-600"
+                  className="flex items-center gap-3 cursor-pointer select-none group text-xs sm:text-[13px] text-gray-600 hover:text-gray-900 py-0.5"
                 >
                   <input
                     type="checkbox"
@@ -231,19 +299,19 @@ export const ShopSidebar: React.FC<ShopSidebarProps> = ({
                     className="sr-only"
                   />
                   <div
-                    className={`w-3.5 h-3.5 rounded-[3px] border flex items-center justify-center transition-colors ${
+                    className={`w-4 h-4 sm:w-4.5 sm:h-4.5 rounded-[4px] border flex items-center justify-center transition-colors shrink-0 ${
                       isChecked
                         ? 'bg-[#4F26A6] border-[#4F26A6]'
                         : 'border-gray-300 bg-white group-hover:border-gray-400'
                     }`}
                   >
                     {isChecked && (
-                      <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
                     )}
                   </div>
-                  <span className={isChecked ? 'text-gray-900 font-semibold' : ''}>
+                  <span className={isChecked ? 'text-gray-900 font-semibold' : 'text-gray-700 font-medium'}>
                     {item.label}
                   </span>
                 </label>
@@ -252,7 +320,6 @@ export const ShopSidebar: React.FC<ShopSidebarProps> = ({
           </div>
         )}
       </div>
-
       <div className="h-[1px] bg-gray-100 w-full" />
 
       {/* 4. Lokasi Section */}
@@ -260,11 +327,11 @@ export const ShopSidebar: React.FC<ShopSidebarProps> = ({
         <button
           type="button"
           onClick={() => toggleSection('lokasi')}
-          className="w-full flex items-center justify-between text-[13.5px] font-bold text-gray-900 mb-2.5"
+          className="w-full flex items-center justify-between text-[14px] sm:text-[14.5px] font-bold text-gray-900 mb-3 sm:mb-3.5"
         >
           <span>Lokasi</span>
           <svg
-            className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${openSections.lokasi ? '' : 'rotate-180'}`}
+            className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${openSections.lokasi ? '' : 'rotate-180'}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -274,124 +341,85 @@ export const ShopSidebar: React.FC<ShopSidebarProps> = ({
         </button>
 
         {openSections.lokasi && (
-          <div className="relative">
-            <select
-              value={filters.location}
-              onChange={(e) => onFilterChange({ ...filters, location: e.target.value })}
-              className="w-full appearance-none bg-[#FAFAFC] border border-gray-200/90 rounded-xl px-3 py-2 text-xs text-gray-500 focus:outline-none focus:ring-1 focus:ring-[#4F26A6] cursor-pointer"
+          <div className="relative pt-1">
+            {/* Trigger Button */}
+            <button
+              type="button"
+              onClick={() => setIsLocationDropdownOpen(!isLocationDropdownOpen)}
+              className="w-full flex items-center justify-between bg-[#FAFAFC] border border-gray-200 rounded-xl px-4 py-3 text-xs sm:text-[13px] text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 focus:border-[#4F26A6] cursor-pointer transition-all"
             >
-              <option value="">Pilih Lokasi</option>
-              <option value="jakarta">Jakarta</option>
-              <option value="bandung">Bandung</option>
-              <option value="surabaya">Surabaya</option>
-            </select>
-            <svg className="w-3.5 h-3.5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-        )}
-      </div>
+              <span className={filters.location ? 'text-gray-900 font-semibold truncate' : 'text-gray-500 truncate'}>
+                {selectedLocationName}
+              </span>
+              <svg
+                className={`w-4 h-4 text-gray-400 transition-transform duration-200 shrink-0 ${isLocationDropdownOpen ? 'rotate-180 text-[#4F26A6]' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
 
-      <div className="h-[1px] bg-gray-100 w-full" />
-
-      {/* 5. Seller Section */}
-      <div>
-        <button
-          type="button"
-          onClick={() => toggleSection('seller')}
-          className="w-full flex items-center justify-between text-[13.5px] font-bold text-gray-900 mb-2.5"
-        >
-          <span>Seller</span>
-          <svg
-            className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${openSections.seller ? '' : 'rotate-180'}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 15l7-7 7 7" />
-          </svg>
-        </button>
-
-        {openSections.seller && (
-          <div className="relative">
-            <select
-              value={filters.seller}
-              onChange={(e) => onFilterChange({ ...filters, seller: e.target.value })}
-              className="w-full appearance-none bg-[#FAFAFC] border border-gray-200/90 rounded-xl px-3 py-2 text-xs text-gray-500 focus:outline-none focus:ring-1 focus:ring-[#4F26A6] cursor-pointer"
-            >
-              <option value="">Semua Seller</option>
-              <option value="rachel">Rachel Vennya</option>
-              <option value="anya">Anya Geraldine</option>
-              <option value="windah">Windah Basudara</option>
-              <option value="cellos">Celloszx</option>
-            </select>
-            <svg className="w-3.5 h-3.5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-        )}
-      </div>
-
-      <div className="h-[1px] bg-gray-100 w-full" />
-
-      {/* 6. Lainnya Section */}
-      <div>
-        <button
-          type="button"
-          onClick={() => toggleSection('lainnya')}
-          className="w-full flex items-center justify-between text-[13.5px] font-bold text-gray-900 mb-2.5"
-        >
-          <span>Lainnya</span>
-          <svg
-            className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${openSections.lainnya ? '' : 'rotate-180'}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 15l7-7 7 7" />
-          </svg>
-        </button>
-
-        {openSections.lainnya && (
-          <div className="space-y-2 pt-0.5">
-            {[
-              { id: 'garansi', label: 'Ada Garansi Keaslian' },
-              { id: 'siap-kirim', label: 'Siap Dikirim' },
-            ].map((item) => {
-              const isChecked = filters.extra.includes(item.id);
-              return (
-                <label
-                  key={item.id}
-                  className="flex items-center gap-2 cursor-pointer select-none group text-xs text-gray-600"
-                >
+            {/* Searchable Dropdown Floating Panel */}
+            {isLocationDropdownOpen && (
+              <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-gray-100 rounded-2xl shadow-[0_12px_36px_rgba(0,0,0,0.12)] p-2.5 z-50">
+                {/* Search Input Box */}
+                <div className="relative mb-2">
                   <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => handleExtraToggle(item.id)}
-                    className="sr-only"
+                    type="text"
+                    autoFocus
+                    placeholder="Cari kota atau daerah..."
+                    value={locationSearchQuery}
+                    onChange={(e) => setLocationSearchQuery(e.target.value)}
+                    className="w-full h-8 pl-7 pr-2 rounded-lg bg-gray-50 border border-gray-200 text-xs text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#4F26A6] focus:border-[#4F26A6]"
                   />
-                  <div
-                    className={`w-3.5 h-3.5 rounded-[3px] border flex items-center justify-center transition-colors ${
-                      isChecked
-                        ? 'bg-[#4F26A6] border-[#4F26A6]'
-                        : 'border-gray-300 bg-white group-hover:border-gray-400'
-                    }`}
-                  >
-                    {isChecked && (
-                      <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                  </div>
-                  <span className={isChecked ? 'text-gray-900 font-semibold' : ''}>
-                    {item.label}
-                  </span>
-                </label>
-              );
-            })}
+                  <svg className="w-3.5 h-3.5 text-gray-400 absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                </div>
+
+                {/* Filtered Location List Options */}
+                <div className="max-h-48 overflow-y-auto space-y-0.5 divide-y divide-gray-50">
+                  {filteredLocations.length > 0 ? (
+                    filteredLocations.map((loc) => {
+                      const isSelected = filters.location === loc.id;
+                      return (
+                        <button
+                          key={loc.id || 'all'}
+                          type="button"
+                          onClick={() => {
+                            onFilterChange({ ...filters, location: loc.id });
+                            setIsLocationDropdownOpen(false);
+                            setLocationSearchQuery('');
+                          }}
+                          className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between ${
+                            isSelected
+                              ? 'bg-[#F4EEFF] text-[#4F26A6] font-bold'
+                              : 'text-gray-700 hover:bg-gray-50 hover:text-[#4F26A6]'
+                          }`}
+                        >
+                          <span>{loc.name}</span>
+                          {isSelected && (
+                            <svg className="w-3.5 h-3.5 text-[#4F26A6]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          )}
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <div className="py-3 text-center text-xs text-gray-400">
+                      Lokasi tidak ditemukan
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
+
 
       {/* Reset Filter Button */}
       <div className="pt-2">

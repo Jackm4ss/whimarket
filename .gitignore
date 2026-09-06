@@ -4,3 +4,6 @@ node_modules/
 dist/
 __pycache__/
 *.log
+public/*.png
+public/user_mockup*
+public/assets/mockup*

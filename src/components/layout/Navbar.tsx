@@ -23,7 +23,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isBelanjaOpen, setIsBelanjaOpen] = useState(false);
   const [isKategoriOpen, setIsKategoriOpen] = useState(false);
-
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
@@ -67,7 +67,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             <nav className="hidden lg:flex items-center gap-9 xl:gap-10 text-[15px] xl:text-[15.5px] font-semibold text-gray-700">
               {/* Beranda */}
               <div className={cn("relative py-1 flex flex-col items-center", activeTab === 'beranda' ? "text-[#4F26A6] font-bold" : "text-gray-700 font-semibold hover:text-[#4F26A6] transition-colors")}>
-                <button type="button" onClick={() => { window.location.hash = '#beranda'; onTabChange?.('beranda'); }} className="focus:outline-none">Beranda</button>
+                <a
+                  href="/"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.history.pushState({}, '', '/');
+                    onTabChange?.('beranda');
+                  }}
+                  className="focus:outline-none cursor-pointer"
+                >
+                  Beranda
+                </a>
                 {activeTab === 'beranda' && (
                   <span className="absolute -bottom-2 left-0 right-0 h-[3px] bg-[#4F26A6] rounded-full"></span>
                 )}
@@ -75,11 +85,15 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               {/* Dropdown: Belanja */}
               <div className={cn("relative group py-1 flex flex-col items-center", activeTab === 'belanja' ? "text-[#4F26A6] font-bold" : "text-gray-700 font-semibold")}>
-                <button
-                  type="button"
-                  onClick={() => { window.location.hash = '#belanja'; onTabChange?.('belanja'); }}
+                <a
+                  href="/belanja"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.history.pushState({}, '', '/belanja');
+                    onTabChange?.('belanja');
+                  }}
                   className={cn(
-                    "flex items-center gap-1.5 transition-colors focus:outline-none py-1",
+                    "flex items-center gap-1.5 transition-colors focus:outline-none py-1 cursor-pointer",
                     activeTab === 'belanja' ? "text-[#4F26A6]" : "hover:text-[#4F26A6]"
                   )}
                 >
@@ -92,15 +106,72 @@ export const Navbar: React.FC<NavbarProps> = ({
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
                   </svg>
-                </button>
+                </a>
                 {activeTab === 'belanja' && (
                   <span className="absolute -bottom-2 left-0 right-0 h-[3px] bg-[#4F26A6] rounded-full"></span>
                 )}
+
+                {/* Belanja Dropdown Panel */}
+                <div className="absolute left-0 top-full pt-2 w-56 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50 transform translate-y-1 group-hover:translate-y-0 text-left">
+                  <div className="bg-white rounded-2xl shadow-[0_12px_36px_rgba(0,0,0,0.12)] border border-gray-100 p-2 space-y-0.5 font-normal">
+                    {/* Semua Produk */}
+                    <a
+                      href="/belanja"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        window.history.pushState({}, '', '/belanja');
+                        onTabChange?.('belanja');
+                      }}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group/item"
+                    >
+                      <svg className="w-4 h-4 text-gray-500 group-hover/item:text-[#4F26A6] shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                      </svg>
+                      <span>Semua Produk</span>
+                    </a>
+
+                    {/* Produk Terbaru */}
+                    <a
+                      href="#barang-terbaru"
+                      onClick={() => { window.location.hash = '#beranda'; onTabChange?.('beranda'); }}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group/item"
+                    >
+                      <svg className="w-4 h-4 text-gray-500 group-hover/item:text-[#4F26A6] shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                      </svg>
+                      <span>Produk Terbaru</span>
+                    </a>
+
+                    {/* Produk Populer */}
+                    <a
+                      href="#seller-populer"
+                      onClick={() => { window.location.hash = '#beranda'; onTabChange?.('beranda'); }}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group/item"
+                    >
+                      <svg className="w-4 h-4 text-gray-500 group-hover/item:text-[#4F26A6] shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/>
+                      </svg>
+                      <span>Produk Populer</span>
+                    </a>
+
+                    {/* Promo Spesial */}
+                    <a
+                      href="#promo-spesial"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group/item"
+                    >
+                      <svg className="w-4 h-4 text-gray-500 group-hover/item:text-[#4F26A6] shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                      </svg>
+                      <span>Promo Spesial</span>
+                    </a>
+                  </div>
+                </div>
               </div>
 
               {/* Dropdown: Kategori */}
               <div className="relative group py-1">
-                <button className="flex items-center gap-1 text-gray-700 font-semibold hover:text-[#4F26A6] transition-colors focus:outline-none py-1">
+                <button className="flex items-center gap-1.5 text-gray-700 font-semibold hover:text-[#4F26A6] transition-colors focus:outline-none py-1">
+                  <span>Kategori</span>
                   <svg
                     className="w-3 h-3 text-gray-400 group-hover:text-[#4F26A6] transition-transform duration-200 group-hover:rotate-180"
                     fill="none"
@@ -201,20 +272,89 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <div className="hidden lg:block h-6 w-[1px] bg-gray-200 mx-1"></div>
 
-            {/* User Profile or Auth Buttons */}
+            {/* User Profile with Interactive Dropdown */}
             {user ? (
-              <div className="hidden lg:flex items-center gap-2.5 pl-1 cursor-pointer group">
-                <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="w-9 h-9 rounded-full object-cover ring-1 ring-purple-100"
-                />
-                <span className="text-sm font-semibold text-gray-800 group-hover:text-[#4F26A6] transition-colors">
-                  {user.name}
-                </span>
-                <svg className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4F26A6] transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
-                </svg>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="hidden lg:flex items-center gap-2.5 pl-1 cursor-pointer group focus:outline-none"
+                >
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="w-9 h-9 rounded-full object-cover ring-2 ring-purple-100 group-hover:ring-[#4F26A6]/30 transition-all"
+                  />
+                  <span className="text-sm font-semibold text-gray-800 group-hover:text-[#4F26A6] transition-colors">
+                    {user.name}
+                  </span>
+                  <svg
+                    className={`w-3.5 h-3.5 text-gray-400 group-hover:text-[#4F26A6] transition-transform duration-200 ${
+                      isProfileOpen ? 'rotate-180 text-[#4F26A6]' : ''
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Profile Floating Menu Dropdown */}
+                {isProfileOpen && (
+                  <div className="absolute right-0 top-full mt-2.5 w-64 bg-white rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.12)] border border-gray-100 p-3 z-50 text-left space-y-1">
+                    <div className="px-3.5 py-2.5 border-b border-gray-100 mb-1.5">
+                      <p className="text-[11px] text-gray-400 font-medium">Masuk sebagai</p>
+                      <p className="text-sm font-extrabold text-gray-900 truncate mt-0.5">{user.name}</p>
+                    </div>
+
+                    <a
+                      href="#profil"
+                      onClick={() => setIsProfileOpen(false)}
+                      className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13.5px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors"
+                    >
+                      <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <span>Profil Saya</span>
+                    </a>
+
+                    <a
+                      href="#pesanan"
+                      onClick={() => setIsProfileOpen(false)}
+                      className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13.5px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors"
+                    >
+                      <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                      </svg>
+                      <span>Pesanan Saya</span>
+                    </a>
+
+                    <a
+                      href="#wishlist"
+                      onClick={() => setIsProfileOpen(false)}
+                      className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13.5px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors"
+                    >
+                      <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                      <span>Wishlist</span>
+                    </a>
+
+                    <div className="h-[1px] bg-gray-100 my-1.5" />
+
+                    <a
+                      href="#keluar"
+                      onClick={() => setIsProfileOpen(false)}
+                      className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13.5px] font-semibold text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                      <span>Keluar</span>
+                    </a>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="hidden lg:flex items-center gap-2.5">

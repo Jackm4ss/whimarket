@@ -3,26 +3,45 @@ import { LandingPage } from './pages/LandingPage';
 import { ShopPage } from './pages/ShopPage';
 
 export const App: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<'landing' | 'shop'>('landing');
+  const [currentPath, setCurrentPath] = useState<string>(window.location.pathname);
 
   useEffect(() => {
-    const handleHash = () => {
+    const handleLocationChange = () => {
+      const path = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
-      if (hash.startsWith('#belanja') || hash.startsWith('#shop')) {
-        setCurrentPage('shop');
+
+      // Support /belanja, /shop, and backwards compatibility for hash
+      if (
+        path.startsWith('/belanja') ||
+        path.startsWith('/shop') ||
+        hash.startsWith('#belanja') ||
+        hash.startsWith('#shop')
+      ) {
+        setCurrentPath('/belanja');
       } else {
-        setCurrentPage('landing');
+        setCurrentPath('/');
       }
     };
 
-    handleHash();
-    window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
+    handleLocationChange();
+
+    window.addEventListener('popstate', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange);
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange);
+    };
   }, []);
 
-  if (currentPage === 'shop') {
-    return <ShopPage onNavigateHome={() => setCurrentPage('landing')} />;
+  const navigateTo = (url: string) => {
+    window.history.pushState({}, '', url);
+    setCurrentPath(url);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  if (currentPath.startsWith('/belanja') || currentPath.startsWith('/shop')) {
+    return <ShopPage onNavigateHome={() => navigateTo('/')} />;
   }
 
-  return <LandingPage onNavigateShop={() => setCurrentPage('shop')} />;
+  return <LandingPage onNavigateShop={() => navigateTo('/belanja')} />;
 };

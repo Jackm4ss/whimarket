@@ -38,7 +38,7 @@ export const HeroSection: React.FC = () => {
           <div className="flex flex-col xs:flex-row items-stretch xs:items-center justify-center lg:justify-start gap-3 sm:gap-4 mb-6 sm:mb-7 w-full xs:w-auto">
             {/* Primary CTA Button */}
             <a
-              href="#belanja"
+              href="/belanja"
               className="w-full xs:w-[210px] sm:w-[220px] h-12 sm:h-[52px] inline-flex items-center justify-center gap-2.5 sm:gap-3 bg-[#4F26A6] border-2 border-[#4F26A6] text-white text-sm sm:text-[15.5px] font-bold rounded-xl hover:bg-[#3E1D85] hover:border-[#3E1D85] transition-all shadow-md shadow-[#4F26A6]/20"
             >
               <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">

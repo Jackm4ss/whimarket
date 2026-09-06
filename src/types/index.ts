@@ -18,7 +18,7 @@ export interface Creator {
   salesCount: number;
 }
 
-export type ProductCondition = 'New' | 'Like New' | 'Good' | 'Fair';
+export type ProductCondition = 'Seperti Baru' | 'Sangat Baik' | 'Baik' | 'Cukup';
 
 export interface Product {
   id: string;

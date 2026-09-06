@@ -13,7 +13,7 @@ export const SHOP_PRODUCTS_NEW: Product[] = [
     likes: 128,
     image: '/assets/products/prod-dunk.png',
     href: '#detail-dunk',
-    badge: 'Original',
+    condition: 'Seperti Baru',
     category: 'fashion',
   },
   {
@@ -27,6 +27,7 @@ export const SHOP_PRODUCTS_NEW: Product[] = [
     likes: 96,
     image: '/assets/products/prod-bag.png',
     href: '#detail-bag',
+    condition: 'Sangat Baik',
     category: 'tas',
   },
   {
@@ -40,7 +41,7 @@ export const SHOP_PRODUCTS_NEW: Product[] = [
     likes: 72,
     image: '/assets/products/prod-denim.png',
     href: '#detail-denim',
-    badge: 'Terverifikasi',
+    condition: 'Seperti Baru',
     category: 'fashion',
   },
   {
@@ -54,6 +55,7 @@ export const SHOP_PRODUCTS_NEW: Product[] = [
     likes: 64,
     image: '/assets/products/prod-hoodie.png',
     href: '#detail-hoodie',
+    condition: 'Baik',
     category: 'fashion',
   },
 
@@ -69,7 +71,7 @@ export const SHOP_PRODUCTS_NEW: Product[] = [
     likes: 112,
     image: '/assets/products/prod-instax.png',
     href: '#detail-instax',
-    badge: 'Rare',
+    condition: 'Sangat Baik',
     category: 'elektronik',
   },
   {
@@ -83,6 +85,7 @@ export const SHOP_PRODUCTS_NEW: Product[] = [
     likes: 89,
     image: '/assets/products/prod-chanel.png',
     href: '#detail-chanel',
+    condition: 'Seperti Baru',
     category: 'kecantikan',
   },
   {
@@ -96,6 +99,7 @@ export const SHOP_PRODUCTS_NEW: Product[] = [
     likes: 54,
     image: '/assets/products/prod-totebag.png',
     href: '#detail-totebag',
+    condition: 'Baik',
     category: 'tas',
   },
   {
@@ -109,6 +113,7 @@ export const SHOP_PRODUCTS_NEW: Product[] = [
     likes: 76,
     image: '/assets/products/prod-pokemon.png',
     href: '#detail-pokemon',
+    condition: 'Seperti Baru',
     category: 'hobi',
   },
 
@@ -124,6 +129,7 @@ export const SHOP_PRODUCTS_NEW: Product[] = [
     likes: 41,
     image: '/assets/products/prod-hoodie-black.png',
     href: '#detail-hoodie-black',
+    condition: 'Cukup',
     category: 'fashion',
   },
   {
@@ -137,6 +143,7 @@ export const SHOP_PRODUCTS_NEW: Product[] = [
     likes: 68,
     image: '/assets/products/prod-varsity-purple.png',
     href: '#detail-varsity-purple',
+    condition: 'Sangat Baik',
     category: 'fashion',
   },
   {
@@ -150,7 +157,7 @@ export const SHOP_PRODUCTS_NEW: Product[] = [
     likes: 102,
     image: '/assets/products/prod-sony.png',
     href: '#detail-sony',
-    badge: 'Original',
+    condition: 'Seperti Baru',
     category: 'elektronik',
   },
   {
@@ -164,6 +171,7 @@ export const SHOP_PRODUCTS_NEW: Product[] = [
     likes: 95,
     image: '/assets/products/prod-jordan.png',
     href: '#detail-jordan',
+    condition: 'Sangat Baik',
     category: 'fashion',
   },
 ];
