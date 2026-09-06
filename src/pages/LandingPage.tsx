@@ -10,13 +10,21 @@ import { StepsSection } from '@/components/home/StepsSection';
 import { NewsletterSection } from '@/components/home/NewsletterSection';
 import { Footer } from '@/components/layout/Footer';
 
-export const LandingPage: React.FC = () => {
+interface LandingPageProps {
+  onNavigateShop?: () => void;
+}
+
+export const LandingPage: React.FC<LandingPageProps> = ({ onNavigateShop }) => {
   return (
     <div className="min-h-screen flex flex-col justify-between selection:bg-brand-purple selection:text-white bg-[#FAF9FC] text-[#111827]">
-      <Navbar />
+      <Navbar
+        activeTab="beranda"
+        onTabChange={(tab) => {
+          if (tab === 'belanja') onNavigateShop?.();
+        }}
+      />
       <HeroSection />
       <FeatureBar />
-      <CategorySection />
       <ProductsSection />
       <SellersSection />
       <CreatorBanner />

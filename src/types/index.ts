@@ -18,6 +18,8 @@ export interface Creator {
   salesCount: number;
 }
 
+export type ProductCondition = 'New' | 'Like New' | 'Good' | 'Fair';
+
 export interface Product {
   id: string;
   title: string;
@@ -29,8 +31,10 @@ export interface Product {
   likes: number;
   image: string;
   href: string;
+  condition?: ProductCondition;
+  category?: string;
+  isLiked?: boolean;
 }
-
 export interface StepItem {
   stepNumber: number;
   title: string;
