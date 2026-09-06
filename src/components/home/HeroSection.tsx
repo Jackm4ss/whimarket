@@ -1,4 +1,5 @@
 import React from 'react';
+import { VerifiedBadge } from '@/components/common/VerifiedBadge';
 
 export const HeroSection: React.FC = () => {
   return (
@@ -165,9 +166,7 @@ export const HeroSection: React.FC = () => {
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1 sm:gap-1.5">
                   <span className="text-xs sm:text-[13.5px] font-bold text-gray-900 truncate">Rachel Vennya</span>
-                  <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#4F26A6] shrink-0 fill-[#4F26A6]" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor" />
-                  </svg>
+                  <VerifiedBadge size="sm" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
                 <span className="text-[10px] sm:text-[11.5px] text-gray-500 font-medium">@rachelvennya</span>
                 <div className="flex items-center gap-1 text-[9.5px] sm:text-[11px] text-gray-500 font-medium mt-0.5">
@@ -184,9 +183,7 @@ export const HeroSection: React.FC = () => {
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1 sm:gap-1.5">
                   <span className="text-xs sm:text-[13.5px] font-bold text-gray-900 truncate">Jerome Polin</span>
-                  <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#4F26A6] shrink-0 fill-[#4F26A6]" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor" />
-                  </svg>
+                  <VerifiedBadge size="sm" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
                 <span className="text-[10px] sm:text-[11.5px] text-gray-500 font-medium">@jeromepolin</span>
                 <div className="flex items-center gap-1 text-[9.5px] sm:text-[11px] text-gray-500 font-medium mt-0.5">
@@ -203,9 +200,7 @@ export const HeroSection: React.FC = () => {
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1 sm:gap-1.5">
                   <span className="text-xs sm:text-[13.5px] font-bold text-gray-900 truncate">Anya Geraldine</span>
-                  <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#4F26A6] shrink-0 fill-[#4F26A6]" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor" />
-                  </svg>
+                  <VerifiedBadge size="sm" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
                 <span className="text-[10px] sm:text-[11.5px] text-gray-500 font-medium">@anyageraldine</span>
                 <div className="flex items-center gap-1 text-[9.5px] sm:text-[11px] text-gray-500 font-medium mt-0.5">

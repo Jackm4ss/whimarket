@@ -42,7 +42,6 @@ export const StepsSection: React.FC = () => {
                 src={STEPS[0].image}
                 alt={STEPS[0].title}
                 className="relative z-10 max-h-[118px] sm:max-h-[125px] lg:max-h-[96px] w-auto object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-sm"
-                loading="lazy"
               />
             </div>
           </div>
@@ -68,7 +67,6 @@ export const StepsSection: React.FC = () => {
                 src={STEPS[1].image}
                 alt={STEPS[1].title}
                 className="relative z-10 max-h-[118px] sm:max-h-[125px] lg:max-h-[96px] w-auto object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-sm"
-                loading="lazy"
               />
             </div>
           </div>
@@ -94,7 +92,6 @@ export const StepsSection: React.FC = () => {
                 src={STEPS[2].image}
                 alt={STEPS[2].title}
                 className="relative z-10 max-h-[130px] sm:max-h-[138px] lg:max-h-[124px] w-auto object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-sm"
-                loading="lazy"
               />
             </div>
           </div>
@@ -120,7 +117,6 @@ export const StepsSection: React.FC = () => {
                 src={STEPS[3].image}
                 alt={STEPS[3].title}
                 className="relative z-10 max-h-[118px] sm:max-h-[125px] lg:max-h-[96px] w-auto object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-sm"
-                loading="lazy"
               />
             </div>
           </div>

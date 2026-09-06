@@ -1,8 +1,8 @@
 import React from 'react';
 import { Creator } from '@/types';
+import { VerifiedBadge } from '@/components/common/VerifiedBadge';
 
 interface SellerCardProps {
-  seller: Creator;
 }
 
 export const SellerCard: React.FC<SellerCardProps> = ({ seller }) => {
@@ -25,11 +25,7 @@ export const SellerCard: React.FC<SellerCardProps> = ({ seller }) => {
           <h3 className="text-sm sm:text-[15.5px] font-bold text-gray-900 truncate max-w-[130px] sm:max-w-none">
             {seller.name}
           </h3>
-          {seller.verified && (
-            <svg className="w-4 h-4 text-[#4F26A6] fill-[#4F26A6] shrink-0" viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
-            </svg>
-          )}
+          {seller.verified && <VerifiedBadge size="sm" className="w-4 h-4" />}
         </div>
         {/* Role */}
         <span className="text-xs text-gray-400 font-medium mt-0.5 mb-3.5">{seller.role}</span>

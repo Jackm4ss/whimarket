@@ -38,7 +38,6 @@ export const CreatorBanner: React.FC = () => {
             src="/assets/banner.png"
             alt="Jadi Kreator di Whimarket"
             className="relative z-10 w-auto h-[92%] sm:h-[95%] lg:h-[94%] object-contain object-bottom"
-            loading="lazy"
           />
         </div>
       </div>
