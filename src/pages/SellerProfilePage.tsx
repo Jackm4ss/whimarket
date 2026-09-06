@@ -261,45 +261,45 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
                 </p>
 
                 {/* Stats Row */}
-                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[13px] sm:text-[14px] text-gray-600 font-medium">
-                  {/* Rating */}
-                  <div className="flex items-center gap-1.5">
-                    <svg className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[13px] sm:text-[14px] text-gray-600 font-medium">
+                  {/* Rating with solid star */}
+                  <div className="inline-flex items-center gap-1.5 shrink-0">
+                    <svg className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] text-amber-400 fill-current shrink-0" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                     <span className="font-extrabold text-gray-900 text-[14px] sm:text-[15px]">4.9</span>
-                    <span className="text-gray-400 font-normal">(1.2rb ulasan)</span>
+                    <span className="text-gray-400 font-normal whitespace-nowrap text-[12.5px] sm:text-[13px]">(1.2rb ulasan)</span>
                   </div>
 
-                  <span className="text-gray-200 font-light">|</span>
+                  <span className="text-gray-200 font-light hidden sm:inline">|</span>
 
                   {/* Barang Count */}
-                  <div className="flex items-center gap-1.5">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <div className="inline-flex items-center gap-1.5 shrink-0">
+                    <svg className="w-[17px] h-[17px] sm:w-[18px] sm:h-[18px] text-gray-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
-                    <span className="font-semibold text-gray-800">112 Barang</span>
+                    <span className="font-semibold text-gray-800 whitespace-nowrap text-[13px] sm:text-[14px]">112 Barang</span>
                   </div>
 
-                  <span className="text-gray-200 font-light">|</span>
+                  <span className="text-gray-200 font-light hidden sm:inline">|</span>
 
                   {/* Bergabung */}
-                  <div className="flex items-center gap-1.5">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <div className="inline-flex items-center gap-1.5 shrink-0">
+                    <svg className="w-[17px] h-[17px] sm:w-[18px] sm:h-[18px] text-gray-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
-                    <span className="text-gray-500 font-normal">Bergabung sejak Mar 2024</span>
+                    <span className="text-gray-500 font-normal whitespace-nowrap text-[12.5px] sm:text-[13.5px]">Bergabung sejak Mar 2024</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Right: Actions Button (+ Ikuti Toko, More Button) - spacious with breathing room */}
-            <div className="flex items-center gap-3 pt-2 sm:pt-6 self-start md:self-auto pr-1">
+            {/* Right: Actions Button - below banner on desktop md:self-start; on mobile clean spacing below info */}
+            <div className="flex items-center gap-3 pt-4 sm:pt-6 self-start md:self-start pr-1 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => setIsFollowing(!isFollowing)}
-                className={`px-6 sm:px-7 h-11 sm:h-11.5 rounded-xl text-xs sm:text-[14px] font-bold flex items-center gap-2 transition-all cursor-pointer shadow-xs ${
+                className={`flex-1 sm:flex-none px-6 sm:px-7 h-11 sm:h-11.5 rounded-xl text-xs sm:text-[14px] font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs ${
                   isFollowing
                     ? 'bg-gray-100 text-gray-800 hover:bg-gray-200'
                     : 'bg-[#4F26A6] text-white hover:bg-[#3E1D85] shadow-[0_4px_16px_rgba(79,38,166,0.22)]'
@@ -317,7 +317,7 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
 
               <button
                 type="button"
-                className="w-11 h-11 sm:w-11.5 sm:h-11.5 rounded-xl border border-gray-200/90 bg-white hover:bg-gray-50 flex items-center justify-center text-gray-700 transition-colors shadow-2xs cursor-pointer"
+                className="w-11 h-11 sm:w-11.5 sm:h-11.5 rounded-xl border border-gray-200/90 bg-white hover:bg-gray-50 flex items-center justify-center text-gray-700 transition-colors shadow-2xs cursor-pointer shrink-0"
                 title="Menu Lainnya"
               >
                 <svg className="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
