@@ -226,80 +226,91 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
             <span>{isShareCopied ? 'Tersalin!' : 'Bagikan Toko'}</span>
           </button>
         </div>
-        {/* 4. Profile Row (Avatar + Details + Actions) */}
-        <div className="relative pt-0 mb-6">
-          <div className="flex flex-col md:flex-row items-start justify-between gap-4">
-            {/* Left: Avatar overlapping banner bottom + Info */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-start gap-4 sm:gap-6 pl-1 sm:pl-4 w-full sm:w-auto">
-              {/* Circular Avatar: native CSS rounded-full + ring-4 ring-white + shadow-lg */}
-              <div className="-mt-14 sm:-mt-16 md:-mt-18 shrink-0 z-20">
+        {/* 4. Profile Row */}
+        <div className="relative pt-0 mb-6 px-1 sm:px-2">
+          {/* Desktop (lg and above, >=1024px): 100% exact to mockup (Avatar on left, Info next to avatar, Buttons on right) */}
+          <div className="hidden lg:flex items-start justify-between gap-6">
+            {/* Left: Avatar + Full Info side-by-side */}
+            <div className="flex items-start gap-6 pl-4">
+              {/* Circular Avatar */}
+              <div className="-mt-16 xl:-mt-18 shrink-0 z-20">
                 <img
                   src="/assets/avatar-rachel-exact.png"
                   alt="Rachel Vennya"
-                  className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full object-cover ring-4 sm:ring-[5px] ring-white shadow-lg bg-white"
+                  className="w-36 h-36 lg:w-40 lg:h-40 rounded-full object-cover ring-4 sm:ring-[5px] ring-white shadow-lg bg-white"
                 />
               </div>
 
-              {/* Seller Info */}
-              <div className="flex flex-col pt-1 sm:pt-2.5">
+              {/* Seller Info (strictly NEXT to avatar, matching desktop mockup 1:1) */}
+              <div className="flex flex-col pt-2.5">
                 {/* Name + Verified Rosette */}
                 <div className="flex items-center gap-2 mb-1">
-                  <h1 className="text-[22px] sm:text-[25px] md:text-[28px] font-black text-[#111827] tracking-tight leading-tight">
+                  <h1 className="text-[25px] xl:text-[28px] font-black text-[#111827] tracking-tight leading-tight">
                     Rachel Vennya
                   </h1>
-                  <VerifiedBadge size="md" className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
+                  <VerifiedBadge size="md" className="w-5.5 h-5.5 shrink-0" />
                 </div>
 
                 {/* Subtitle / Role */}
-                <p className="text-[13.5px] sm:text-[14.5px] text-gray-500 font-medium mb-1.5">
+                <p className="text-[14px] text-gray-500 font-medium mb-1">
                   Selebgram
                 </p>
 
                 {/* Bio quote */}
-                <p className="text-[13.5px] sm:text-[14.5px] text-gray-700 font-normal mb-3">
+                <p className="text-[14.5px] text-gray-700 font-normal mb-3">
                   &ldquo;Let good things find a new home ♡&rdquo;
                 </p>
 
-                {/* Stats Row */}
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[13px] sm:text-[14px] text-gray-600 font-medium">
-                  {/* Rating with solid star */}
+                {/* Desktop Stats Row: All in one line next to avatar */}
+                <div className="flex items-center gap-3.5 text-[13.5px] text-gray-600 font-medium">
+                  {/* Rating */}
                   <div className="inline-flex items-center gap-1.5 shrink-0">
-                    <svg className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] text-amber-400 fill-current shrink-0" viewBox="0 0 20 20">
+                    <svg className="w-[18px] h-[18px] text-amber-400 fill-current shrink-0" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
-                    <span className="font-extrabold text-gray-900 text-[14px] sm:text-[15px]">4.9</span>
-                    <span className="text-gray-400 font-normal whitespace-nowrap text-[12.5px] sm:text-[13px]">(1.2rb ulasan)</span>
+                    <span className="font-extrabold text-gray-900 text-[15px]">4.9</span>
+                    <span className="text-gray-400 font-normal whitespace-nowrap text-[13px]">(1.2rb ulasan)</span>
                   </div>
 
-                  <span className="text-gray-200 font-light hidden sm:inline">|</span>
+                  <span className="text-gray-200 font-light">|</span>
 
                   {/* Barang Count */}
                   <div className="inline-flex items-center gap-1.5 shrink-0">
-                    <svg className="w-[17px] h-[17px] sm:w-[18px] sm:h-[18px] text-gray-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <svg className="w-[18px] h-[18px] text-gray-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
-                    <span className="font-semibold text-gray-800 whitespace-nowrap text-[13px] sm:text-[14px]">112 Barang</span>
+                    <span className="font-semibold text-gray-800 whitespace-nowrap text-[13.5px]">112 Barang</span>
                   </div>
 
-                  <span className="text-gray-200 font-light hidden sm:inline">|</span>
+                  <span className="text-gray-200 font-light">|</span>
+
+                  {/* Pengikut */}
+                  <div className="inline-flex items-center gap-1.5 shrink-0">
+                    <svg className="w-[18px] h-[18px] text-gray-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span className="font-semibold text-gray-800 whitespace-nowrap text-[13.5px]">12.4rb Pengikut</span>
+                  </div>
+
+                  <span className="text-gray-200 font-light">|</span>
 
                   {/* Bergabung */}
                   <div className="inline-flex items-center gap-1.5 shrink-0">
-                    <svg className="w-[17px] h-[17px] sm:w-[18px] sm:h-[18px] text-gray-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <svg className="w-[18px] h-[18px] text-gray-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
-                    <span className="text-gray-500 font-normal whitespace-nowrap text-[12.5px] sm:text-[13.5px]">Bergabung sejak Mar 2024</span>
+                    <span className="text-gray-500 font-normal whitespace-nowrap text-[13px]">Bergabung sejak Mar 2024</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Right: Actions Button - below banner on desktop md:self-start; on mobile clean spacing below info */}
-            <div className="flex items-center gap-3 pt-4 sm:pt-6 self-start md:self-start pr-1 w-full sm:w-auto">
+            {/* Right: Desktop Action Buttons */}
+            <div className="flex items-center gap-3 pt-6 pr-1 shrink-0">
               <button
                 type="button"
                 onClick={() => setIsFollowing(!isFollowing)}
-                className={`flex-1 sm:flex-none px-6 sm:px-7 h-11 sm:h-11.5 rounded-xl text-xs sm:text-[14px] font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs ${
+                className={`px-7 h-11 sm:h-11.5 rounded-xl text-[14px] font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs ${
                   isFollowing
                     ? 'bg-gray-100 text-gray-800 hover:bg-gray-200'
                     : 'bg-[#4F26A6] text-white hover:bg-[#3E1D85] shadow-[0_4px_16px_rgba(79,38,166,0.22)]'
@@ -327,6 +338,139 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
             </div>
           </div>
 
+          {/* Tablet & Mobile (< 1024px): Responsive layout matching user preference */}
+          <div className="flex flex-col lg:hidden w-full">
+            {/* Top row: Avatar + Name on left, 3-dots button on right */}
+            <div className="flex items-start justify-between w-full gap-2 sm:gap-4">
+              <div className="flex items-end gap-3 sm:gap-6 min-w-0">
+                <div className="-mt-12 sm:-mt-16 shrink-0 z-20">
+                  <img
+                    src="/assets/avatar-rachel-exact.png"
+                    alt="Rachel Vennya"
+                    className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full object-cover ring-4 sm:ring-[5px] ring-white shadow-lg bg-white"
+                  />
+                </div>
+                <div className="flex flex-col pt-5 sm:pt-7 md:pt-8 pb-1 min-w-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <h1 className="text-[19px] sm:text-[25px] font-black text-[#111827] tracking-tight leading-tight whitespace-nowrap">
+                      Rachel Vennya
+                    </h1>
+                    <VerifiedBadge size="md" className="w-4.5 h-4.5 sm:w-5 sm:h-5 shrink-0" />
+                  </div>
+                  <p className="text-[13px] sm:text-[14px] text-gray-500 font-medium mt-0.5">
+                    Selebgram
+                  </p>
+                </div>
+              </div>
+              {/* 3-dots button aligned with name */}
+              <button
+                type="button"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl border border-gray-200/90 bg-white hover:bg-gray-50 items-center justify-center text-gray-700 transition-colors shadow-2xs cursor-pointer shrink-0 mt-5 sm:mt-7 md:mt-8 flex"
+                title="Menu Lainnya"
+              >
+                <svg className="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Below photo: Bio Quote */}
+            <p className="text-[14px] sm:text-[15px] text-gray-700 font-normal mt-3 mb-2.5">
+              &ldquo;Let good things find a new home ♡&rdquo;
+            </p>
+            {/* Tablet Stats Row (sm to lg: >= 640px and < 1024px) */}
+            <div className="hidden sm:flex flex-wrap items-center gap-x-3.5 gap-y-2 text-[13px] sm:text-[14px] text-gray-600 font-medium mb-3">
+              <div className="inline-flex items-center gap-1.5 shrink-0">
+                <svg className="w-[18px] h-[18px] text-amber-400 fill-current shrink-0" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <span className="font-extrabold text-gray-900 text-[14.5px] sm:text-[15px]">4.9</span>
+                <span className="text-gray-400 font-normal whitespace-nowrap text-[12.5px] sm:text-[13px]">(1.2rb ulasan)</span>
+              </div>
+
+              <span className="text-gray-200 font-light">|</span>
+
+              <div className="inline-flex items-center gap-1.5 shrink-0">
+                <svg className="w-[17px] h-[17px] text-gray-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                <span className="font-semibold text-gray-800 whitespace-nowrap text-[13px] sm:text-[14px]">112 Barang</span>
+              </div>
+
+              <span className="text-gray-200 font-light">|</span>
+
+              <div className="inline-flex items-center gap-1.5 shrink-0">
+                <svg className="w-[17px] h-[17px] text-gray-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="font-semibold text-gray-800 whitespace-nowrap text-[13px] sm:text-[14px]">12.4rb Pengikut</span>
+              </div>
+
+              <span className="text-gray-200 font-light">|</span>
+
+              <div className="inline-flex items-center gap-1.5 shrink-0">
+                <svg className="w-[17px] h-[17px] text-gray-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span className="text-gray-500 font-normal whitespace-nowrap text-[12.5px] sm:text-[13px]">Bergabung sejak Mar 2024</span>
+              </div>
+            </div>
+
+            {/* Mobile-Only Stats Row strictly for < 640px matching user reference 1:1 */}
+            <div className="flex sm:hidden items-center justify-between w-full pt-3 pb-3 mb-1 px-2">
+              {/* Rating */}
+              <div className="flex flex-col items-center text-center flex-1">
+                <svg className="w-5 h-5 text-amber-400 fill-current mb-1" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <span className="text-[19px] font-black text-[#111827] leading-none">4.9</span>
+                <span className="text-[12px] text-gray-400 font-normal mt-1.5 whitespace-nowrap">(1.2rb ulasan)</span>
+              </div>
+
+              <div className="h-8 w-[1px] bg-gray-200/80 shrink-0" />
+
+              {/* Barang */}
+              <div className="flex flex-col items-center text-center flex-1">
+                <svg className="w-5 h-5 text-[#4F26A6] stroke-current fill-none mb-1" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                <span className="text-[19px] font-black text-[#111827] leading-none">112</span>
+                <span className="text-[12px] text-gray-400 font-normal mt-1.5 whitespace-nowrap">Barang</span>
+              </div>
+
+              <div className="h-8 w-[1px] bg-gray-200/80 shrink-0" />
+
+              {/* Pengikut */}
+              <div className="flex flex-col items-center text-center flex-1">
+                <svg className="w-5 h-5 text-[#4F26A6] stroke-current fill-none mb-1" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="text-[19px] font-black text-[#111827] leading-none">12.4rb</span>
+                <span className="text-[12px] text-gray-400 font-normal mt-1.5 whitespace-nowrap">Pengikut</span>
+              </div>
+            </div>
+            {/* + Ikuti Toko Button */}
+            <div className="w-full pt-1">
+              <button
+                type="button"
+                onClick={() => setIsFollowing(!isFollowing)}
+                className={`w-full sm:w-auto px-7 h-11 sm:h-11.5 rounded-xl text-xs sm:text-[14px] font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs ${
+                  isFollowing
+                    ? 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                    : 'bg-[#4F26A6] text-white hover:bg-[#3E1D85] shadow-[0_4px_16px_rgba(79,38,166,0.22)]'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  {isFollowing ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  )}
+                </svg>
+                <span>{isFollowing ? 'Mengikuti' : 'Ikuti Toko'}</span>
+              </button>
+            </div>
+          </div>
           {/* 5. Tabs Navigation: Clean background (no gray line), purple active indicator extending beyond text */}
           <div className="flex items-center gap-10 sm:gap-14 text-[15px] sm:text-[16px] md:text-[17px] font-bold mt-8 pl-4">
             <div className="relative flex flex-col items-center">
