@@ -230,8 +230,8 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
         </div>
         {/* 4. Profile Row */}
         <div className="relative pt-0 mb-6 px-1 sm:px-2">
-          {/* Desktop (lg and above, >=1024px): 100% exact to mockup (Avatar on left, Info next to avatar, Buttons on right) */}
-          <div className="hidden lg:flex items-start justify-between gap-6">
+          {/* Desktop & Tablet (md and above, >=768px): 100% exact to mockup (Avatar on left, Info next to avatar, Buttons on right) */}
+          <div className="hidden md:flex items-start justify-between gap-6">
             {/* Left: Avatar + Full Info side-by-side */}
             <div className="flex items-start gap-6 pl-4">
               {/* Circular Avatar */}
@@ -343,8 +343,8 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
             </div>
           </div>
 
-          {/* Tablet & Mobile (< 1024px): Responsive layout matching user preference */}
-          <div className="flex flex-col lg:hidden w-full">
+          {/* Mobile Only (< 768px): Responsive layout matching user mobile preference */}
+          <div className="flex flex-col md:hidden w-full">
             {/* Top row: Avatar + Name on left, 3-dots button on right */}
             <div className="flex items-start justify-between w-full gap-2 sm:gap-4">
               <div className="flex items-end gap-3 sm:gap-6 min-w-0">
@@ -822,9 +822,9 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
               <div className="space-y-6 divide-y divide-gray-100">
                 {/* Review Item 1: Anya Geraldine */}
                 <div className="pt-6 first:pt-0">
-                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                    {/* Left: Reviewer details, rating stars, comment, photo thumbnails */}
-                    <div className="flex-1 min-w-0">
+                  <div className="flex flex-col md:flex-row md:items-stretch justify-between gap-6">
+                    {/* Left: Reviewer details, rating stars, comment, photo thumbnails with vertical divider */}
+                    <div className="flex-1 min-w-0 md:pr-6 md:border-r md:border-gray-200/80">
                       {/* Reviewer Name, avatar, verified purchase pill */}
                       <div className="flex items-center gap-3 mb-2">
                         <img
@@ -872,30 +872,30 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
                         />
                       </div>
                     </div>
-
-                    {/* Right: Attached Product Preview Box (enlarged card matching mockup) */}
-                    <div className="w-full md:w-[280px] lg:w-[300px] bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-100 shadow-xs flex items-center gap-4 shrink-0">
-                      <img
-                        src="/assets/mini-prod-bag.png"
-                        alt="Tas Charles & Keith Black"
-                        className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl object-cover bg-gray-50 shrink-0 border border-gray-100/80"
-                      />
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-[13.5px] sm:text-[14px] font-bold text-gray-900 truncate leading-tight">Tas Charles &amp; Keith Black</span>
-                        <span className="text-[17px] sm:text-[18px] font-black text-[#5022CE] mt-1 leading-tight">Rp 850.000</span>
-                        <a href="#produk" className="text-[12px] sm:text-[12.5px] text-[#5022CE] hover:text-[#3E1D85] font-bold mt-2 inline-flex items-center gap-1 transition-colors">
+                    {/* Right: Product Preview with fixed width to eliminate zigzag and align perfectly */}
+                    <div className="flex items-center gap-3.5 sm:gap-4 shrink-0 pt-3 md:pt-0 w-full md:w-[280px]">
+                      <div className="w-[84px] h-[84px] sm:w-[90px] sm:h-[90px] rounded-2xl bg-[#ECE8F1] shrink-0 overflow-hidden">
+                        <img
+                          src="/assets/products/prod-bag.png"
+                          alt="Tas Charles & Keith Black"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex flex-col justify-center min-w-0">
+                        <span className="text-[12.5px] sm:text-[13px] font-bold text-gray-900 leading-tight truncate">Tas Charles &amp; Keith Black</span>
+                        <span className="text-[13.5px] sm:text-[14px] font-extrabold text-[#5022CE] mt-0.5 leading-tight">Rp 850.000</span>
+                        <a href="#produk" className="text-[12px] sm:text-[13px] text-[#5022CE] hover:text-[#3E1D85] font-bold mt-2 sm:mt-2.5 inline-flex items-center gap-1.5 transition-colors group">
                           <span>Lihat Produk</span>
-                          <span>&rarr;</span>
+                          <span className="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
                         </a>
                       </div>
                     </div>
                   </div>
                 </div>
-
                 {/* Review Item 2: Fuji An */}
                 <div className="pt-6">
-                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
+                  <div className="flex flex-col md:flex-row md:items-stretch justify-between gap-6">
+                    <div className="flex-1 min-w-0 md:pr-6 md:border-r md:border-gray-200/80">
                       <div className="flex items-center gap-3 mb-2">
                         <img
                           src="/assets/avatars/avatar-fuji.png"
@@ -939,28 +939,29 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
                         />
                       </div>
                     </div>
-                    <div className="w-full md:w-[280px] lg:w-[300px] bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-100 shadow-xs flex items-center gap-4 shrink-0">
-                      <img
-                        src="/assets/mini-prod-hoodie.png"
-                        alt="Hoodie Plan Do"
-                        className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl object-cover bg-gray-50 shrink-0 border border-gray-100/80"
-                      />
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-[13.5px] sm:text-[14px] font-bold text-gray-900 truncate leading-tight">Hoodie Plan Do</span>
-                        <span className="text-[17px] sm:text-[18px] font-black text-[#5022CE] mt-1 leading-tight">Rp 500.000</span>
-                        <a href="#produk" className="text-[12px] sm:text-[12.5px] text-[#5022CE] hover:text-[#3E1D85] font-bold mt-2 inline-flex items-center gap-1 transition-colors">
+                    <div className="flex items-center gap-3.5 sm:gap-4 shrink-0 pt-3 md:pt-0 w-full md:w-[280px]">
+                      <div className="w-[84px] h-[84px] sm:w-[90px] sm:h-[90px] rounded-2xl bg-[#ECE8F1] shrink-0 overflow-hidden">
+                        <img
+                          src="/assets/products/prod-hoodie.png"
+                          alt="Hoodie Plan Do"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex flex-col justify-center min-w-0">
+                        <span className="text-[12.5px] sm:text-[13px] font-bold text-gray-900 leading-tight truncate">Hoodie Plan Do</span>
+                        <span className="text-[13.5px] sm:text-[14px] font-extrabold text-[#5022CE] mt-0.5 leading-tight">Rp 500.000</span>
+                        <a href="#produk" className="text-[12px] sm:text-[13px] text-[#5022CE] hover:text-[#3E1D85] font-bold mt-2 sm:mt-2.5 inline-flex items-center gap-1.5 transition-colors group">
                           <span>Lihat Produk</span>
-                          <span>&rarr;</span>
+                          <span className="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
                         </a>
                       </div>
                     </div>
                   </div>
                 </div>
-
                 {/* Review Item 3: Raisy Febian */}
                 <div className="pt-6">
-                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
+                  <div className="flex flex-col md:flex-row md:items-stretch justify-between gap-6">
+                    <div className="flex-1 min-w-0 md:pr-6 md:border-r md:border-gray-200/80">
                       <div className="flex items-center gap-3 mb-2">
                         <img
                           src="/assets/avatars/avatar-raisy.png"
@@ -1004,18 +1005,20 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
                         />
                       </div>
                     </div>
-                    <div className="w-full md:w-[280px] lg:w-[300px] bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-100 shadow-xs flex items-center gap-4 shrink-0">
-                      <img
-                        src="/assets/mini-prod-pokemon.png"
-                        alt="Kartu Pokemon Rare"
-                        className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl object-cover bg-gray-50 shrink-0 border border-gray-100/80"
-                      />
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-[13.5px] sm:text-[14px] font-bold text-gray-900 truncate leading-tight">Kartu Pokemon Rare</span>
-                        <span className="text-[17px] sm:text-[18px] font-black text-[#5022CE] mt-1 leading-tight">Rp 1.500.000</span>
-                        <a href="#produk" className="text-[12px] sm:text-[12.5px] text-[#5022CE] hover:text-[#3E1D85] font-bold mt-2 inline-flex items-center gap-1 transition-colors">
+                    <div className="flex items-center gap-3.5 sm:gap-4 shrink-0 pt-3 md:pt-0 w-full md:w-[280px]">
+                      <div className="w-[84px] h-[84px] sm:w-[90px] sm:h-[90px] rounded-2xl bg-[#ECE8F1] shrink-0 overflow-hidden">
+                        <img
+                          src="/assets/products/prod-pokemon.png"
+                          alt="Kartu Pokemon Rare"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex flex-col justify-center min-w-0">
+                        <span className="text-[12.5px] sm:text-[13px] font-bold text-gray-900 leading-tight truncate">Kartu Pokemon Rare</span>
+                        <span className="text-[13.5px] sm:text-[14px] font-extrabold text-[#5022CE] mt-0.5 leading-tight">Rp 1.500.000</span>
+                        <a href="#produk" className="text-[12px] sm:text-[13px] text-[#5022CE] hover:text-[#3E1D85] font-bold mt-2 sm:mt-2.5 inline-flex items-center gap-1.5 transition-colors group">
                           <span>Lihat Produk</span>
-                          <span>&rarr;</span>
+                          <span className="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
                         </a>
                       </div>
                     </div>
