@@ -12,9 +12,10 @@ import { Footer } from '@/components/layout/Footer';
 
 interface LandingPageProps {
   onNavigateShop?: () => void;
+  onNavigateSeller?: (id?: string) => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onNavigateShop }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onNavigateShop, onNavigateSeller }) => {
   return (
     <div className="min-h-screen flex flex-col justify-between selection:bg-brand-purple selection:text-white bg-[#FAF9FC] text-[#111827]">
       <Navbar
