@@ -3,35 +3,17 @@ import React from 'react';
 export const ShopBanner: React.FC = () => {
   return (
     <div className="w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-4 pb-6">
-      {/* Banner Card matching exact 1088x200 banner mockup with custom vector background */}
-      <div className="relative w-full rounded-2xl sm:rounded-3xl bg-[#491FB6] overflow-hidden min-h-[175px] sm:min-h-[185px] lg:h-[195px] flex items-center justify-between px-6 sm:px-10 lg:px-14 shadow-lg shadow-[#491FB6]/15">
+      {/* Banner Card using user-provided exact custom vector mockup asset */}
+      <div className="relative w-full rounded-2xl sm:rounded-3xl bg-[#4813CD] overflow-hidden min-h-[175px] sm:min-h-[185px] lg:h-[195px] flex items-center justify-between px-6 sm:px-10 lg:px-14 shadow-lg shadow-[#4813CD]/15">
         
-        {/* ==================== EXACT CUSTOM VECTOR BACKGROUND SHAPES ==================== */}
-        <svg
-          className="absolute right-0 top-0 bottom-0 h-full w-auto pointer-events-none z-0"
-          viewBox="0 0 600 200"
-          preserveAspectRatio="none"
-          fill="none"
-        >
-          {/* Main Arched Dome Wave (#7444DF / #7846E2) */}
-          <path
-            d="M 140 200 C 140 70, 240 12, 340 12 C 430 12, 520 50, 600 95 L 600 200 Z"
-            fill="#7444DF"
-            fillOpacity="0.85"
+        {/* ==================== EXACT USER VECTOR BACKGROUND ASSET ==================== */}
+        <div className="absolute right-0 top-0 bottom-0 h-full w-auto pointer-events-none z-0">
+          <img
+            src="/assets/banner-vector-bg.png"
+            alt=""
+            className="h-full w-auto object-cover object-right"
           />
-          {/* Secondary Soft Ambient Wave (#8A56EC) */}
-          <path
-            d="M 280 0 C 380 0, 500 25, 600 70 L 600 0 Z"
-            fill="#8A56EC"
-            fillOpacity="0.45"
-          />
-          {/* Bottom Left Curve Accent Under Sneaker */}
-          <path
-            d="M 0 200 C 20 165, 80 145, 150 160 C 200 170, 230 200, 230 200 Z"
-            fill="#6027D1"
-            fillOpacity="0.75"
-          />
-        </svg>
+        </div>
 
         {/* Left Headline & Typography Area */}
         <div className="relative z-10 max-w-[560px] text-left py-4">
