@@ -716,33 +716,23 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
                     { star: 2, count: '8', pct: 1.5 },
                     { star: 1, count: '4', pct: 1 },
                   ].map((row) => (
-                    <div key={row.star} className="flex items-center gap-2.5 text-xs text-gray-600 font-medium">
-                      <span className="w-3 font-bold text-gray-900">{row.star}</span>
-                      <svg className="w-3.5 h-3.5 text-amber-400 fill-current shrink-0" viewBox="0 0 20 20">
+                    <div key={row.star} className="flex items-center gap-3 text-gray-700 font-medium">
+                      <span className="w-3.5 text-sm font-extrabold text-gray-900">{row.star}</span>
+                      <svg className="w-4 h-4 text-amber-400 fill-current shrink-0" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
                       {/* Bar Track */}
-                      <div className="flex-1 h-2 bg-purple-50 rounded-full overflow-hidden">
+                      <div className="flex-1 h-2.5 bg-purple-50 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-[#5022CE] rounded-full transition-all duration-300"
                           style={{ width: `${row.pct}%` }}
                         />
                       </div>
-                      <span className="w-9 text-right text-gray-400 text-[11px] font-semibold">{row.count}</span>
+                      <span className="w-11 text-right text-gray-500 text-[12.5px] font-bold">{row.count}</span>
                     </div>
                   ))}
                 </div>
 
-                {/* Tulis Ulasan Button */}
-                <button
-                  type="button"
-                  className="w-full py-3 rounded-2xl border-2 border-[#5022CE] text-[#5022CE] hover:bg-[#5022CE] hover:text-white font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs mb-6"
-                >
-                  <svg className="w-4 h-4 stroke-current fill-none" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                  <span>Tulis Ulasan</span>
-                </button>
 
                 {/* Ulasan Asli Verifikasi Box: Nested INSIDE the card below button matching exact mockup */}
                 <div className="bg-[#F6F4F9] rounded-2xl p-4 flex items-center gap-3.5">
