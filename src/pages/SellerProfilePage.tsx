@@ -20,9 +20,11 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
   const [isFollowing, setIsFollowing] = useState(false);
   const [isShareCopied, setIsShareCopied] = useState(false);
   const [isBioExpanded, setIsBioExpanded] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedReviewFilter, setSelectedReviewFilter] = useState<string>('all');
+  const [reviewSort, setReviewSort] = useState<string>('terbaru');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'terbaru' | 'harga-terendah' | 'harga-tertinggi'>('terbaru');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Filter products for Rachel Vennya or high quality catalog
   const [products, setProducts] = useState<Product[]>(() => {
@@ -676,61 +678,350 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
             </div>
           </div>
         )}
+        {/* Tab Ulasan: Exact 1:1 Redesign from Mockup */}
         {activeTab === 'ulasan' && (
-          <div className="mt-8 bg-white rounded-2xl p-6 sm:p-8 border border-gray-100 shadow-sm max-w-4xl">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="flex items-center gap-2">
-                <svg className="w-8 h-8 text-amber-400 fill-current" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-                <span className="text-3xl font-black text-gray-900">4.9</span>
-              </div>
-              <div>
-                <p className="text-sm font-bold text-gray-900">Penilaian Toko</p>
-                <p className="text-xs text-gray-500">Dari 1.248 pembeli terverifikasi</p>
-              </div>
-            </div>
+          <div className="mt-8 flex flex-col lg:flex-row items-start gap-8 w-full">
+            {/* Left Column: Overall Rating Card & Verified Notice Box */}
+            <div className="w-full lg:w-[310px] xl:w-[330px] shrink-0 space-y-4">
+              {/* Card 1: Rating Keseluruhan Card */}
+              <div className="bg-white rounded-3xl p-6 sm:p-7 border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+                <h3 className="text-[17px] font-bold text-[#111827] tracking-tight mb-4">
+                  Rating Keseluruhan
+                </h3>
 
-            <div className="space-y-4 divide-y divide-gray-100">
-              {[
-                {
-                  name: 'Nadia P.',
-                  date: '2 hari lalu',
-                  rating: 5,
-                  comment: 'Barangnya bener-bener mulus kayak baru! Packaging rapi banget dan ada kartu ucapan terima kasihnya. Super recommended!',
-                  product: 'Nike Dunk Low Purple',
-                },
-                {
-                  name: 'Fikri A.',
-                  date: '1 minggu lalu',
-                  rating: 5,
-                  comment: 'Tasnya original 100%, ada receipt dan dustbag lengkap. Pengiriman dari Rachel juga cepet banget.',
-                  product: 'Tas Michael Kors Original Brown',
-                },
-                {
-                  name: 'Siti Rahma',
-                  date: '2 minggu lalu',
-                  rating: 5,
-                  comment: 'Bagus banget jaketnya, wangi lagi pas nyampe. Seneng banget bisa punya preloved dari Kak Rachel ♡',
-                  product: 'Varsity Jacket Whimarket Exclusive',
-                },
-              ].map((rev, idx) => (
-                <div key={idx} className="pt-4 first:pt-0">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-sm font-bold text-gray-900">{rev.name}</span>
-                    <span className="text-xs text-gray-400">{rev.date}</span>
-                  </div>
-                  <div className="flex items-center gap-1 mb-2">
-                    {[...Array(rev.rating)].map((_, i) => (
-                      <svg key={i} className="w-3.5 h-3.5 text-amber-400 fill-current" viewBox="0 0 20 20">
+                {/* Score & Stars */}
+                <div className="flex items-center gap-3 mb-1">
+                  <span className="text-[44px] font-black text-[#111827] leading-none tracking-tight">
+                    4.9
+                  </span>
+                  <div className="flex items-center gap-1 text-amber-400">
+                    {[...Array(5)].map((_, i) => (
+                      <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
                     ))}
                   </div>
-                  <p className="text-xs sm:text-[13px] text-gray-700 mb-1.5 leading-relaxed">{rev.comment}</p>
-                  <p className="text-[11px] text-[#4F26A6] font-semibold">Produk: {rev.product}</p>
                 </div>
-              ))}
+
+                <p className="text-xs text-gray-500 font-medium mb-6">
+                  dari 1.278 ulasan
+                </p>
+
+                {/* Breakdown Bars: 5, 4, 3, 2, 1 */}
+                <div className="space-y-2.5 mb-6">
+                  {[
+                    { star: 5, count: '1.086', pct: 85 },
+                    { star: 4, count: '142', pct: 15 },
+                    { star: 3, count: '38', pct: 4 },
+                    { star: 2, count: '8', pct: 1.5 },
+                    { star: 1, count: '4', pct: 1 },
+                  ].map((row) => (
+                    <div key={row.star} className="flex items-center gap-2.5 text-xs text-gray-600 font-medium">
+                      <span className="w-3 font-bold text-gray-900">{row.star}</span>
+                      <svg className="w-3.5 h-3.5 text-amber-400 fill-current shrink-0" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      {/* Bar Track */}
+                      <div className="flex-1 h-2 bg-purple-50 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-[#5022CE] rounded-full transition-all duration-300"
+                          style={{ width: `${row.pct}%` }}
+                        />
+                      </div>
+                      <span className="w-9 text-right text-gray-400 text-[11px] font-semibold">{row.count}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Tulis Ulasan Button */}
+                <button
+                  type="button"
+                  className="w-full py-3 rounded-2xl border-2 border-[#5022CE] text-[#5022CE] hover:bg-[#5022CE] hover:text-white font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs mb-6"
+                >
+                  <svg className="w-4 h-4 stroke-current fill-none" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  <span>Tulis Ulasan</span>
+                </button>
+
+                {/* Ulasan Asli Verifikasi Box: Nested INSIDE the card below button matching exact mockup */}
+                <div className="bg-[#F6F4F9] rounded-2xl p-4 flex items-center gap-3.5">
+                  <div className="w-9 h-9 rounded-2xl bg-[#E8E2F4] flex items-center justify-center text-[#5022CE] shrink-0">
+                    <svg className="w-5 h-5 fill-none stroke-current" strokeWidth="2.2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                  <div className="text-[12.5px] text-gray-900 font-semibold leading-snug">
+                    <p>Ulasan asli dari pembeli</p>
+                    <p>terverifikasi di Whimarket.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Semua Ulasan Header, Star Filter Pills, and Review Item Cards */}
+            <div className="flex-1 w-full min-w-0 bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+              {/* Header row: Semua Ulasan title and Urutkan dropdown */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <div>
+                  <h2 className="text-[20px] sm:text-[22px] font-extrabold text-[#111827] tracking-tight">
+                    Semua Ulasan
+                  </h2>
+                  <p className="text-xs sm:text-[13px] text-gray-500 font-normal mt-0.5">
+                    Lihat pengalaman pembeli lain berbelanja di toko Rachel Vennya.
+                  </p>
+                </div>
+
+                {/* Urutkan Dropdown */}
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <span className="text-xs text-gray-400 font-medium">Urutkan:</span>
+                  <select
+                    value={reviewSort}
+                    onChange={(e) => setReviewSort(e.target.value)}
+                    aria-label="Urutan Ulasan"
+                    className="bg-white border border-gray-200/90 rounded-xl px-3.5 py-2 text-xs sm:text-[13px] font-bold text-gray-800 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 cursor-pointer shadow-2xs"
+                  >
+                    <option value="terbaru">Terbaru</option>
+                    <option value="tertinggi">Rating Tertinggi</option>
+                    <option value="terendah">Rating Terendah</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Star Filter Pills Row: Semua (1.278), 5 star (1.086), 4 star (142), 3 star (38), 2 star (8), 1 star (4) */}
+              <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto pb-4 mb-6 border-b border-gray-100 scrollbar-none">
+                {[
+                  { id: 'all', label: 'Semua (1.278)' },
+                  { id: '5', label: '5', count: '1.086', star: true },
+                  { id: '4', label: '4', count: '142', star: true },
+                  { id: '3', label: '3', count: '38', star: true },
+                  { id: '2', label: '2', count: '8', star: true },
+                  { id: '1', label: '1', count: '4', star: true },
+                ].map((pill) => (
+                  <button
+                    key={pill.id}
+                    onClick={() => setSelectedReviewFilter(pill.id)}
+                    className={`px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-[12.5px] font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                      selectedReviewFilter === pill.id
+                        ? 'border-2 border-[#5022CE] text-[#5022CE] bg-purple-50/50'
+                        : 'border border-gray-200/80 text-gray-700 bg-white hover:bg-gray-50'
+                    }`}
+                  >
+                    <span>{pill.label}</span>
+                    {pill.star && (
+                      <svg className="w-3.5 h-3.5 text-amber-400 fill-current shrink-0" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    )}
+                    {pill.count && <span className="text-gray-400 font-normal">({pill.count})</span>}
+                  </button>
+                ))}
+              </div>
+
+              {/* Review Item List */}
+              <div className="space-y-6 divide-y divide-gray-100">
+                {/* Review Item 1: Anya Geraldine */}
+                <div className="pt-6 first:pt-0">
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                    {/* Left: Reviewer details, rating stars, comment, photo thumbnails */}
+                    <div className="flex-1 min-w-0">
+                      {/* Reviewer Name, avatar, verified purchase pill */}
+                      <div className="flex items-center gap-3 mb-2">
+                        <img
+                          src="/assets/avatar-anya.png"
+                          alt="Anya Geraldine"
+                          className="w-10 h-10 rounded-full object-cover ring-1 ring-gray-100 shrink-0"
+                        />
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-[14.5px] font-bold text-gray-900">Anya Geraldine</h4>
+                            <span className="text-xs text-gray-400 font-normal">3 hari lalu</span>
+                          </div>
+                          {/* Stars */}
+                          <div className="flex items-center gap-1 text-amber-400 mt-1">
+                            {[...Array(5)].map((_, i) => (
+                              <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Comment */}
+                      <p className="text-xs sm:text-[13.5px] text-gray-700 leading-relaxed mb-3">
+                        Barangnya masih super bagus, sesuai deskripsi! Packing rapi banget dan pengiriman cepat. Makasih ka Rachel ♡
+                      </p>
+
+                      {/* 3 Real Product Photo Thumbnails from mockup */}
+                      <div className="flex items-center gap-2.5">
+                        <img
+                          src="/assets/review-chanel-1.png"
+                          alt="Review Chanel 1"
+                          className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs"
+                        />
+                        <img
+                          src="/assets/review-chanel-2.png"
+                          alt="Review Chanel 2"
+                          className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs"
+                        />
+                        <img
+                          src="/assets/review-chanel-3.png"
+                          alt="Review Chanel 3"
+                          className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Right: Attached Product Preview Box (enlarged card matching mockup) */}
+                    <div className="w-full md:w-[280px] lg:w-[300px] bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-100 shadow-xs flex items-center gap-4 shrink-0">
+                      <img
+                        src="/assets/mini-prod-bag.png"
+                        alt="Tas Charles & Keith Black"
+                        className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl object-cover bg-gray-50 shrink-0 border border-gray-100/80"
+                      />
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[13.5px] sm:text-[14px] font-bold text-gray-900 truncate leading-tight">Tas Charles &amp; Keith Black</span>
+                        <span className="text-[17px] sm:text-[18px] font-black text-[#5022CE] mt-1 leading-tight">Rp 850.000</span>
+                        <a href="#produk" className="text-[12px] sm:text-[12.5px] text-[#5022CE] hover:text-[#3E1D85] font-bold mt-2 inline-flex items-center gap-1 transition-colors">
+                          <span>Lihat Produk</span>
+                          <span>&rarr;</span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Review Item 2: Fuji An */}
+                <div className="pt-6">
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-2">
+                        <img
+                          src="/assets/avatars/avatar-fuji.png"
+                          alt="Fuji An"
+                          className="w-10 h-10 rounded-full object-cover ring-1 ring-gray-100 shrink-0"
+                        />
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-[14.5px] font-bold text-gray-900">Fuji An</h4>
+                            <span className="text-xs text-gray-400 font-normal">1 minggu lalu</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-amber-400 mt-1">
+                            {[...Array(5)].map((_, i) => (
+                              <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <p className="text-xs sm:text-[13.5px] text-gray-700 leading-relaxed mb-3">
+                        Hoodie-nya masih like new! Bahannya tebal dan nyaman banget dipakai. Suka banget, makasih! ♡
+                      </p>
+
+                      <div className="flex items-center gap-2.5">
+                        <img
+                          src="/assets/review-hoodie-1.png"
+                          alt="Review Hoodie 1"
+                          className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs"
+                        />
+                        <img
+                          src="/assets/review-hoodie-2.png"
+                          alt="Review Hoodie 2"
+                          className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs"
+                        />
+                        <img
+                          src="/assets/review-hoodie-3.png"
+                          alt="Review Hoodie 3"
+                          className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs"
+                        />
+                      </div>
+                    </div>
+                    <div className="w-full md:w-[280px] lg:w-[300px] bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-100 shadow-xs flex items-center gap-4 shrink-0">
+                      <img
+                        src="/assets/mini-prod-hoodie.png"
+                        alt="Hoodie Plan Do"
+                        className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl object-cover bg-gray-50 shrink-0 border border-gray-100/80"
+                      />
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[13.5px] sm:text-[14px] font-bold text-gray-900 truncate leading-tight">Hoodie Plan Do</span>
+                        <span className="text-[17px] sm:text-[18px] font-black text-[#5022CE] mt-1 leading-tight">Rp 500.000</span>
+                        <a href="#produk" className="text-[12px] sm:text-[12.5px] text-[#5022CE] hover:text-[#3E1D85] font-bold mt-2 inline-flex items-center gap-1 transition-colors">
+                          <span>Lihat Produk</span>
+                          <span>&rarr;</span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Review Item 3: Raisy Febian */}
+                <div className="pt-6">
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-2">
+                        <img
+                          src="/assets/avatars/avatar-raisy.png"
+                          alt="Raisy Febian"
+                          className="w-10 h-10 rounded-full object-cover ring-1 ring-gray-100 shrink-0"
+                        />
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-[14.5px] font-bold text-gray-900">Raisy Febian</h4>
+                            <span className="text-xs text-gray-400 font-normal">2 minggu lalu</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-amber-400 mt-1">
+                            {[...Array(5)].map((_, i) => (
+                              <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <p className="text-xs sm:text-[13.5px] text-gray-700 leading-relaxed mb-3">
+                        Kondisi kartu masih sangat baik, original. Pengemasan juga aman banget. Recommended seller! 🙌
+                      </p>
+
+                      <div className="flex items-center gap-2.5">
+                        <img
+                          src="/assets/review-pokemon-1.png"
+                          alt="Review Pokemon 1"
+                          className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs"
+                        />
+                        <img
+                          src="/assets/review-pokemon-2.png"
+                          alt="Review Pokemon 2"
+                          className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs"
+                        />
+                        <img
+                          src="/assets/review-pokemon-3.png"
+                          alt="Review Pokemon 3"
+                          className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs"
+                        />
+                      </div>
+                    </div>
+                    <div className="w-full md:w-[280px] lg:w-[300px] bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-100 shadow-xs flex items-center gap-4 shrink-0">
+                      <img
+                        src="/assets/mini-prod-pokemon.png"
+                        alt="Kartu Pokemon Rare"
+                        className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl object-cover bg-gray-50 shrink-0 border border-gray-100/80"
+                      />
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[13.5px] sm:text-[14px] font-bold text-gray-900 truncate leading-tight">Kartu Pokemon Rare</span>
+                        <span className="text-[17px] sm:text-[18px] font-black text-[#5022CE] mt-1 leading-tight">Rp 1.500.000</span>
+                        <a href="#produk" className="text-[12px] sm:text-[12.5px] text-[#5022CE] hover:text-[#3E1D85] font-bold mt-2 inline-flex items-center gap-1 transition-colors">
+                          <span>Lihat Produk</span>
+                          <span>&rarr;</span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}

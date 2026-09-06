@@ -4,8 +4,29 @@ import { ShopPage } from './pages/ShopPage';
 import { SellerProfilePage } from './pages/SellerProfilePage';
 
 export const App: React.FC = () => {
-  const [currentPath, setCurrentPath] = useState<string>(window.location.pathname);
-
+  const [currentPath, setCurrentPath] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (
+        path.startsWith('/seller') ||
+        path.startsWith('/kreator') ||
+        hash.startsWith('#seller')
+      ) {
+        return '/seller/rachel-vennya';
+      }
+      if (
+        path.startsWith('/belanja') ||
+        path.startsWith('/shop') ||
+        hash.startsWith('#belanja') ||
+        hash.startsWith('#shop')
+      ) {
+        return '/belanja';
+      }
+      return '/';
+    }
+    return '/';
+  });
   useEffect(() => {
     const handleLocationChange = () => {
       const path = window.location.pathname.toLowerCase();
