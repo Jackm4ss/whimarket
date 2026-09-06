@@ -19,6 +19,7 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
   const [activeTab, setActiveTab] = useState<'produk' | 'tentang' | 'ulasan'>('produk');
   const [isFollowing, setIsFollowing] = useState(false);
   const [isShareCopied, setIsShareCopied] = useState(false);
+  const [isBioExpanded, setIsBioExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'terbaru' | 'harga-terendah' | 'harga-tertinggi'>('terbaru');
@@ -325,132 +326,350 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
               </button>
             </div>
           </div>
-          {/* 5. Tabs Navigation: Produk | Tentang | Ulasan - Enlarged typography and spacing */}
-          <div className="border-b border-gray-200/80 flex items-center gap-8 sm:gap-10 text-[15px] sm:text-[16px] md:text-[17px] font-bold mt-8">
-            <button
-              onClick={() => setActiveTab('produk')}
-              className={`pb-3.5 relative transition-colors cursor-pointer ${
-                activeTab === 'produk'
-                  ? 'text-[#4F26A6]'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              <span>Produk</span>
+
+          {/* 5. Tabs Navigation: Clean background (no gray line), purple active indicator extending beyond text */}
+          <div className="flex items-center gap-10 sm:gap-14 text-[15px] sm:text-[16px] md:text-[17px] font-bold mt-8 pl-4">
+            <div className="relative flex flex-col items-center">
+              <button
+                onClick={() => setActiveTab('produk')}
+                className={`pb-3 transition-colors cursor-pointer px-3 text-center ${
+                  activeTab === 'produk'
+                    ? 'text-[#4F26A6]'
+                    : 'text-gray-500 hover:text-gray-900'
+                }`}
+              >
+                Produk
+              </button>
               {activeTab === 'produk' && (
-                <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#4F26A6] rounded-full" />
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-[105px] sm:w-[115px] h-[3.5px] bg-[#4F26A6] rounded-full" />
               )}
-            </button>
+            </div>
 
-            <button
-              onClick={() => setActiveTab('tentang')}
-              className={`pb-3.5 relative transition-colors cursor-pointer ${
-                activeTab === 'tentang'
-                  ? 'text-[#4F26A6]'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              <span>Tentang</span>
+            <div className="relative flex flex-col items-center">
+              <button
+                onClick={() => setActiveTab('tentang')}
+                className={`pb-3 transition-colors cursor-pointer px-3 text-center ${
+                  activeTab === 'tentang'
+                    ? 'text-[#4F26A6]'
+                    : 'text-gray-500 hover:text-gray-900'
+                }`}
+              >
+                Tentang
+              </button>
               {activeTab === 'tentang' && (
-                <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#4F26A6] rounded-full" />
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-[105px] sm:w-[115px] h-[3.5px] bg-[#4F26A6] rounded-full" />
               )}
-            </button>
+            </div>
 
-            <button
-              onClick={() => setActiveTab('ulasan')}
-              className={`pb-3.5 relative transition-colors cursor-pointer ${
-                activeTab === 'ulasan'
-                  ? 'text-[#4F26A6]'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              <span>Ulasan</span>
+            <div className="relative flex flex-col items-center">
+              <button
+                onClick={() => setActiveTab('ulasan')}
+                className={`pb-3 transition-colors cursor-pointer px-3 text-center ${
+                  activeTab === 'ulasan'
+                    ? 'text-[#4F26A6]'
+                    : 'text-gray-500 hover:text-gray-900'
+                }`}
+              >
+                Ulasan
+              </button>
               {activeTab === 'ulasan' && (
-                <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#4F26A6] rounded-full" />
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-[105px] sm:w-[115px] h-[3.5px] bg-[#4F26A6] rounded-full" />
               )}
-            </button>
+            </div>
           </div>
         </div>
         {activeTab === 'produk' && (
-          <div className="mt-8">
-            {/* Filter & Sort Bar */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-              {/* Category Pills - Enlarged */}
-              <div className="flex items-center gap-2.5 sm:gap-3 overflow-x-auto w-full sm:w-auto pb-1.5 sm:pb-0 scrollbar-none">
-                {[
-                  { id: 'all', label: 'Semua' },
-                  { id: 'fashion', label: 'Fashion' },
-                  { id: 'tas', label: 'Tas & Aksesoris' },
-                  { id: 'kecantikan', label: 'Kecantikan' },
-                  { id: 'merch', label: 'Merchandise' },
-                ].map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setSelectedCategory(cat.id)}
-                    className={`px-5 sm:px-5.5 py-2.5 rounded-xl sm:rounded-2xl text-[13.5px] sm:text-[14.5px] font-bold whitespace-nowrap transition-all cursor-pointer ${
-                      selectedCategory === cat.id
-                        ? 'bg-[#4F26A6] text-white shadow-sm'
-                        : 'bg-white text-gray-700 hover:bg-gray-100 hover:text-gray-900 border border-gray-200/90'
-                    }`}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
+          <div className="mt-8 flex flex-col lg:flex-row items-start gap-6 xl:gap-8">
+            {/* Left Column: Tentang Rachel Vennya Card matching exact mockup */}
+            <div className="w-full lg:w-[320px] xl:w-[340px] shrink-0">
+              <div className="bg-white rounded-3xl p-6 sm:p-7 border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+                {/* Card Title */}
+                <h3 className="text-[17px] font-bold text-[#111827] mb-3 tracking-tight">
+                  Tentang Rachel Vennya
+                </h3>
 
-              {/* Product Count & Sort */}
-              <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4">
-                <span className="text-xs sm:text-[13px] text-gray-500 font-medium">
-                  Menampilkan <strong className="text-gray-900">{filteredProducts.length}</strong> produk
-                </span>
+                {/* Bio Description */}
+                <div className="text-[13px] sm:text-[13.5px] text-gray-600 leading-relaxed space-y-2">
+                  <p>
+                    Di sini aku jual barang pre-loved pribadi yang masih bagus dan layak pakai. Semoga bisa menemukan pemilik baru yang lebih cinta lagi ♡
+                  </p>
+                  {isBioExpanded && (
+                    <p className="text-gray-500 pt-1 text-xs sm:text-[12.5px] leading-relaxed border-t border-gray-100 mt-2">
+                      Semua koleksi dijamin original 100%, dirawat dengan baik dari lemari pribadi, dan dikemas secara higienis sebelum dikirimkan ke kamu.
+                    </p>
+                  )}
+                </div>
 
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  aria-label="Urutan Produk"
-                  className="bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs sm:text-[13px] font-semibold text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 cursor-pointer"
+                {/* Toggle Read More */}
+                <button
+                  type="button"
+                  onClick={() => setIsBioExpanded(!isBioExpanded)}
+                  className="mt-3.5 inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-bold text-[#4F26A6] hover:text-[#3E1D85] transition-colors cursor-pointer"
                 >
-                  <option value="terbaru">Terbaru</option>
-                  <option value="harga-terendah">Harga Terendah</option>
-                  <option value="harga-tertinggi">Harga Tertinggi</option>
-                </select>
+                  <span>{isBioExpanded ? 'Tutup Selengkapnya' : 'Baca Selengkapnya'}</span>
+                  <svg
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${isBioExpanded ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                <div className="h-[1px] bg-gray-100 my-5" />
+
+                {/* 3 Value Proposition Feature Rows matching exact mockup */}
+                <div className="space-y-4">
+                  {/* 1. Akun Terverifikasi */}
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-8 h-8 flex items-center justify-center text-[#5022CE] shrink-0">
+                      <svg className="w-7 h-7 fill-current" viewBox="0 0 24 24">
+                        <path d="M12 2L4 5.5v5.8c0 5.25 3.41 10.15 8 11.35 4.59-1.2 8-6.1 8-11.35V5.5L12 2zm-1.2 14.2l-3.5-3.5 1.41-1.41 2.09 2.08 5.09-5.09 1.41 1.41-6.5 6.51z" />
+                      </svg>
+                    </div>
+                    <div className="flex flex-col">
+                      <h4 className="text-[13.5px] font-bold text-gray-900 leading-tight">
+                        Akun Terverifikasi
+                      </h4>
+                      <p className="text-[12px] text-gray-500 mt-0.5 leading-tight">
+                        Sudah diverifikasi oleh Whimarket
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="h-[1px] bg-gray-100 my-1" />
+
+                  {/* 2. Respon Cepat */}
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-8 h-8 flex items-center justify-center text-[#5022CE] shrink-0">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                    </div>
+                    <div className="flex flex-col">
+                      <h4 className="text-[13.5px] font-bold text-gray-900 leading-tight">
+                        Respon Cepat
+                      </h4>
+                      <p className="text-[12px] text-gray-500 mt-0.5 leading-tight">
+                        Rata-rata membalas &lt; 1 jam
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="h-[1px] bg-gray-100 my-1" />
+
+                  {/* 3. Pengiriman Aman */}
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-8 h-8 flex items-center justify-center text-[#5022CE] shrink-0">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <rect x="3" y="6" width="18" height="15" rx="3" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 6V4a2 2 0 012-2h2a2 2 0 012 2v2" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 12v3" />
+                        <circle cx="12" cy="13.5" r="1" fill="currentColor" />
+                      </svg>
+                    </div>
+                    <div className="flex flex-col">
+                      <h4 className="text-[13.5px] font-bold text-gray-900 leading-tight">
+                        Pengiriman Aman
+                      </h4>
+                      <p className="text-[12px] text-gray-500 mt-0.5 leading-tight">
+                        Setiap pesanan diproses dengan aman
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Product Cards Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
-              {filteredProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onLikeToggle={handleLikeToggle}
-                />
-              ))}
+            {/* Right Column: Catalog (Category Pills, Sorting, Product Grid) */}
+            <div className="flex-1 w-full min-w-0">
+              {/* Filter & Sort Bar */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                {/* Category Pills */}
+                <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto w-full sm:w-auto pb-1.5 sm:pb-0 scrollbar-none">
+                  {[
+                    { id: 'all', label: 'Semua' },
+                    { id: 'fashion', label: 'Fashion' },
+                    { id: 'tas', label: 'Tas & Aksesoris' },
+                    { id: 'kecantikan', label: 'Kecantikan' },
+                    { id: 'merch', label: 'Merchandise' },
+                  ].map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setSelectedCategory(cat.id)}
+                      className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-[13px] sm:text-[14px] font-bold whitespace-nowrap transition-all cursor-pointer ${
+                        selectedCategory === cat.id
+                          ? 'bg-[#4F26A6] text-white shadow-sm'
+                          : 'bg-white text-gray-700 hover:bg-gray-100 hover:text-gray-900 border border-gray-200/90'
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Product Count & Sort */}
+                <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4">
+                  <span className="text-xs sm:text-[13px] text-gray-500 font-medium">
+                    Menampilkan <strong className="text-gray-900">{filteredProducts.length}</strong> produk
+                  </span>
+
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                    aria-label="Urutan Produk"
+                    className="bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs sm:text-[13px] font-semibold text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 cursor-pointer"
+                  >
+                    <option value="terbaru">Terbaru</option>
+                    <option value="harga-terendah">Harga Terendah</option>
+                    <option value="harga-tertinggi">Harga Tertinggi</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Product Cards Grid: 2 cols on mobile, 3 cols on tablet, 3-4 cols on desktop */}
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
+                {filteredProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onLikeToggle={handleLikeToggle}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         )}
-
+        {/* Tab 2: Tentang Rachel Vennya matching exact mockup card */}
         {activeTab === 'tentang' && (
-          <div className="mt-8 bg-white rounded-2xl p-6 sm:p-8 border border-gray-100 shadow-sm max-w-3xl">
-            <h3 className="text-lg font-bold text-gray-900 mb-3">Tentang Rachel Vennya</h3>
-            <p className="text-gray-600 text-sm leading-relaxed mb-4">
-              Selamat datang di toko resmi preloved Rachel Vennya di WhiMarket! Semua barang yang dijual di sini merupakan koleksi pribadi yang dirawat dengan sangat baik dan dijamin 100% keasliannya.
-            </p>
-            <p className="text-gray-600 text-sm leading-relaxed mb-6">
-              Sebagian hasil penjualan dari toko ini akan disalurkan untuk program pemberdayaan sosial dan donasi kemanusiaan.
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
-              <div>
-                <p className="text-xs text-gray-400 font-medium">Lokasi Pengiriman</p>
-                <p className="text-sm font-bold text-gray-900 mt-0.5">Jakarta Selatan</p>
+          <div className="mt-8 flex flex-col lg:flex-row items-start gap-8">
+            {/* Left Card: 100% exact to user mockup */}
+            <div className="w-full max-w-[390px] bg-white rounded-3xl p-6 sm:p-7 border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+              {/* Card Title */}
+              <h3 className="text-[17px] sm:text-[18px] font-bold text-[#111827] mb-3 tracking-tight">
+                Tentang Rachel Vennya
+              </h3>
+
+              {/* Bio Paragraph */}
+              <div className="text-[13px] sm:text-[13.5px] text-gray-600 leading-relaxed space-y-2">
+                <p>
+                  Di sini aku jual barang pre-loved pribadi yang masih bagus dan layak pakai. Semoga bisa menemukan pemilik baru yang lebih cinta lagi ♡
+                </p>
+                {isBioExpanded && (
+                  <p className="text-gray-500 pt-1 text-xs sm:text-[12.5px] leading-relaxed border-t border-gray-100 mt-2">
+                    Semua koleksi dijamin original 100%, dirawat dengan baik dari lemari pribadi, dan dikemas secara higienis sebelum dikirimkan ke kamu.
+                  </p>
+                )}
               </div>
-              <div>
-                <p className="text-xs text-gray-400 font-medium">Rata-rata Pengiriman</p>
-                <p className="text-sm font-bold text-gray-900 mt-0.5">1-2 Hari Kerja</p>
+
+              {/* Baca Selengkapnya Link */}
+              <button
+                type="button"
+                onClick={() => setIsBioExpanded(!isBioExpanded)}
+                className="mt-3.5 inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-bold text-[#4F26A6] hover:text-[#3E1D85] transition-colors cursor-pointer"
+              >
+                <span>{isBioExpanded ? 'Tutup Selengkapnya' : 'Baca Selengkapnya'}</span>
+                <svg
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${isBioExpanded ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              <div className="h-[1px] bg-gray-100 my-5" />
+
+              {/* 3 Value Proposition Feature Rows */}
+              <div className="space-y-4">
+                {/* 1. Akun Terverifikasi */}
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-full bg-[#5022CE] text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="flex flex-col">
+                    <h4 className="text-[14px] font-bold text-gray-900 leading-tight">
+                      Akun Terverifikasi
+                    </h4>
+                    <p className="text-[12px] text-gray-500 mt-0.5 leading-tight">
+                      Sudah diverifikasi oleh Whimarket
+                    </p>
+                  </div>
+                </div>
+
+                <div className="h-[1px] bg-gray-50 my-1" />
+
+                {/* 2. Respon Cepat */}
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-full bg-white border-2 border-[#5022CE] text-[#5022CE] flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                  </div>
+                  <div className="flex flex-col">
+                    <h4 className="text-[14px] font-bold text-gray-900 leading-tight">
+                      Respon Cepat
+                    </h4>
+                    <p className="text-[12px] text-gray-500 mt-0.5 leading-tight">
+                      Rata-rata membalas &lt; 1 jam
+                    </p>
+                  </div>
+                </div>
+
+                <div className="h-[1px] bg-gray-50 my-1" />
+
+                {/* 3. Pengiriman Aman */}
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-full bg-white border-2 border-[#5022CE] text-[#5022CE] flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                  </div>
+                  <div className="flex flex-col">
+                    <h4 className="text-[14px] font-bold text-gray-900 leading-tight">
+                      Pengiriman Aman
+                    </h4>
+                    <p className="text-[12px] text-gray-500 mt-0.5 leading-tight">
+                      Setiap pesanan diproses dengan aman
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-gray-400 font-medium">Respon Chat</p>
-                <p className="text-sm font-bold text-gray-900 mt-0.5">&plusmn; 15 Menit</p>
+            </div>
+
+            {/* Right: Detail Informasi Toko */}
+            <div className="flex-1 bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+              <h3 className="text-[18px] font-bold text-gray-900 mb-4">Informasi & Kebijakan Toko</h3>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
+                <div className="bg-[#FAF9FC] p-4 rounded-2xl border border-gray-100">
+                  <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Lokasi Pengiriman</p>
+                  <p className="text-sm font-bold text-gray-900 mt-1">Jakarta Selatan, DKI Jakarta</p>
+                </div>
+                <div className="bg-[#FAF9FC] p-4 rounded-2xl border border-gray-100">
+                  <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Jasa Ekspedisi</p>
+                  <p className="text-sm font-bold text-gray-900 mt-1">JNE, SiCepat, GoSend Instant</p>
+                </div>
+                <div className="bg-[#FAF9FC] p-4 rounded-2xl border border-gray-100">
+                  <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Jadwal Pengiriman</p>
+                  <p className="text-sm font-bold text-gray-900 mt-1">Senin - Jumat (1-2 hari kerja)</p>
+                </div>
+                <div className="bg-[#FAF9FC] p-4 rounded-2xl border border-gray-100">
+                  <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Garansi Keaslian</p>
+                  <p className="text-sm font-bold text-gray-900 mt-1">100% Uang Kembali jika Palsu</p>
+                </div>
               </div>
+
+              <h4 className="text-sm font-bold text-gray-900 mb-2">Catatan dari Seller</h4>
+              <p className="text-xs sm:text-[13px] text-gray-600 leading-relaxed">
+                Halo semuanya! Barang-barang di sini adalah barang pribadi yang aku beli langsung dari official store atau saat traveling. Kondisinya masih sangat terawat. Jika butuh detail foto lebih jelas atau video kondisi barang, bisa langsung chat ya. Terima kasih sudah mampir! ♡
+              </p>
             </div>
           </div>
         )}
