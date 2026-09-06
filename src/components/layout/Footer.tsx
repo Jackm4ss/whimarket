@@ -213,7 +213,7 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Copyright Separator Line */}
-        <hr className="border-none h-[1.5px] bg-[#94A3B8] opacity-80 w-full my-0" />
+        <div className="h-[1px] bg-gray-200/80 w-full my-0" />
         <div className="pt-6 sm:pt-7 flex items-center justify-center text-center">
           <p className="text-xs sm:text-[13px] text-gray-500 font-medium">
             &copy; 2026 Whimarket. All rights reserved.

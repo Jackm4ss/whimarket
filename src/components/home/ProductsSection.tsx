@@ -1,8 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { PRODUCTS } from '@/data/landingData';
 import { ProductCard } from '@/components/common/ProductCard';
 
 export const ProductsSection: React.FC = () => {
+  const [products, setProducts] = useState(PRODUCTS);
+
+  const handleLikeToggle = (id: string) => {
+    setProducts((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              isLiked: !item.isLiked,
+              likes: item.isLiked ? item.likes - 1 : item.likes + 1,
+            }
+          : item
+      )
+    );
+  };
+
   return (
     <section className="w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-2 pb-20">
       {/* Section Header */}
@@ -32,8 +48,8 @@ export const ProductsSection: React.FC = () => {
 
       {/* 5 Product Cards Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
-        {PRODUCTS.map((product) => (
-          <ProductCard key={product.id} product={product} />
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} onLikeToggle={handleLikeToggle} />
         ))}
       </div>
     </section>
