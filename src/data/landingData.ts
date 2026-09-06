@@ -1,0 +1,88 @@
+import { Category, Creator, Product, StepItem } from '../types';
+
+export const CATEGORIES: Category[] = [
+  { id: 'fashion', name: 'Fashion', image: '/assets/categories/card-fashion.png', href: '#kategori-fashion', bgColor: '#4F18C8' },
+  { id: 'tas', name: 'Tas & Aksesoris', image: '/assets/categories/card-tas.png', href: '#kategori-tas', bgColor: '#F59E0B' },
+  { id: 'hobi', name: 'Hobi & Koleksi', image: '/assets/categories/card-hobi.png', href: '#kategori-hobi', bgColor: '#4F18C8' },
+  { id: 'merch', name: 'Merchandise', image: '/assets/categories/card-merch.png', href: '#kategori-merchandise', bgColor: '#F59E0B' },
+  { id: 'elektronik', name: 'Elektronik', image: '/assets/categories/card-elektronik.png', href: '#kategori-elektronik', bgColor: '#4F18C8' },
+  { id: 'kecantikan', name: 'Kecantikan', image: '/assets/categories/card-kecantikan.png', href: '#kategori-kecantikan', bgColor: '#F59E0B' },
+];
+
+export const PRODUCTS: Product[] = [
+  {
+    id: 'prod_1',
+    title: 'Jaket Denim Vintage',
+    sellerName: 'Raisy Febian',
+    sellerAvatar: '/assets/avatars/avatar-raisy.png',
+    verified: true,
+    priceText: 'Rp 450.000',
+    priceNumber: 450000,
+    likes: 124,
+    image: '/assets/products/prod-denim.png',
+    href: '#detail-denim',
+  },
+  {
+    id: 'prod_2',
+    title: 'Hoodie Dream Plan Do',
+    sellerName: 'Celloszx',
+    sellerAvatar: '/assets/avatars/avatar-cellos.png',
+    verified: true,
+    priceText: 'Rp 320.000',
+    priceNumber: 320000,
+    likes: 89,
+    image: '/assets/products/prod-hoodie.png',
+    href: '#detail-hoodie',
+  },
+  {
+    id: 'prod_3',
+    title: 'Totebag Limited Edition',
+    sellerName: 'Windah Basudara',
+    sellerAvatar: '/assets/avatars/avatar-windah.png',
+    verified: true,
+    priceText: 'Rp 180.000',
+    priceNumber: 180000,
+    likes: 256,
+    image: '/assets/products/prod-totebag.png',
+    href: '#detail-totebag',
+  },
+  {
+    id: 'prod_4',
+    title: 'Kartu Pokemon Rare',
+    sellerName: 'MiawAug',
+    sellerAvatar: '/assets/avatars/avatar-miawaug.png',
+    verified: true,
+    priceText: 'Rp 1.500.000',
+    priceNumber: 1500000,
+    likes: 512,
+    image: '/assets/products/prod-pokemon.png',
+    href: '#detail-pokemon',
+  },
+  {
+    id: 'prod_5',
+    title: 'Parfum Original Rare',
+    sellerName: 'Anya Geraldine',
+    sellerAvatar: '/assets/avatar-anya.png',
+    verified: true,
+    priceText: 'Rp 650.000',
+    priceNumber: 650000,
+    likes: 80,
+    image: '/assets/products/prod-parfum.png',
+    href: '#detail-parfum',
+  },
+];
+
+export const SELLERS: Creator[] = [
+  { id: 'sel_1', name: 'Raisa Andriana', handle: '@raisa6690', role: 'Artis', avatar: '/assets/avatars/avatar-raisa.png', verified: true, rating: 4.9, itemCount: 128, salesCount: 120 },
+  { id: 'sel_2', name: 'Verrell Bramasta', handle: '@bramastavrl', role: 'Aktor', avatar: '/assets/avatars/avatar-verrell.png', verified: true, rating: 4.8, itemCount: 96, salesCount: 85 },
+  { id: 'sel_3', name: 'Fuji An', handle: '@fuji_an', role: 'Kreator', avatar: '/assets/avatars/avatar-fuji.png', verified: true, rating: 4.9, itemCount: 142, salesCount: 180 },
+  { id: 'sel_4', name: 'Windah Basudara', handle: '@windahbasudara', role: 'Streamer', avatar: '/assets/avatars/avatar-windah.png', verified: true, rating: 5.0, itemCount: 210, salesCount: 290 },
+  { id: 'sel_5', name: 'Rachel Vennya', handle: '@rachelvennya', role: 'Kreator', avatar: '/assets/avatar-rachel.png', verified: true, rating: 4.9, itemCount: 115, salesCount: 120 },
+];
+
+export const STEPS: StepItem[] = [
+  { stepNumber: 1, title: 'Temukan Barang Favorit', description: 'Jelajahi barang dari figur publik favoritmu.', image: '/assets/steps/step-1-clean.png' },
+  { stepNumber: 2, title: 'Transaksi Aman', description: 'Lakukan pembayaran dengan sistem escrow Whimarket.', image: '/assets/steps/step-2-clean.png' },
+  { stepNumber: 3, title: 'Barang Dikirim', description: 'Penjual mengirim barang setelah pembayaran terverifikasi.', image: '/assets/steps/step-3-truck.png' },
+  { stepNumber: 4, title: 'Barang Diterima', description: 'Barang sampai di tanganmu dengan aman!', image: '/assets/steps/step-4-clean.png' },
+];
