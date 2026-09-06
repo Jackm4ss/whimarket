@@ -138,7 +138,7 @@ export const ShopSidebar: React.FC<ShopSidebarProps> = ({
                   onClick={() => onFilterChange({ ...filters, category: cat.id })}
                   className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     isActive
-                      ? 'bg-[#F4EEFF] text-[#4F26A6] font-bold'
+                      ? 'bg-[#EDE4FF] text-[#4F26A6] font-bold'
                       : 'text-gray-600 hover:text-[#4F26A6] hover:bg-gray-50'
                   }`}
                 >
@@ -278,7 +278,7 @@ export const ShopSidebar: React.FC<ShopSidebarProps> = ({
             <select
               value={filters.location}
               onChange={(e) => onFilterChange({ ...filters, location: e.target.value })}
-              className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 focus:border-[#4F26A6] cursor-pointer"
+              className="w-full appearance-none bg-[#FAFAFC] border border-gray-200/90 rounded-xl px-3 py-2 text-xs text-gray-500 focus:outline-none focus:ring-1 focus:ring-[#4F26A6] cursor-pointer"
             >
               <option value="">Pilih Lokasi</option>
               <option value="jakarta">Jakarta</option>
@@ -317,7 +317,7 @@ export const ShopSidebar: React.FC<ShopSidebarProps> = ({
             <select
               value={filters.seller}
               onChange={(e) => onFilterChange({ ...filters, seller: e.target.value })}
-              className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 focus:border-[#4F26A6] cursor-pointer"
+              className="w-full appearance-none bg-[#FAFAFC] border border-gray-200/90 rounded-xl px-3 py-2 text-xs text-gray-500 focus:outline-none focus:ring-1 focus:ring-[#4F26A6] cursor-pointer"
             >
               <option value="">Semua Seller</option>
               <option value="rachel">Rachel Vennya</option>

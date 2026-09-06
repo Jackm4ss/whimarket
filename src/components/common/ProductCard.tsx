@@ -28,16 +28,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onLikeToggle,
           </div>
         )}
 
-        {/* Condition Tag at Bottom Left */}
+        {/* Condition Tag at Bottom Left - only render if product explicitly has condition */}
         {product.condition && (
           <div className="absolute bottom-2.5 left-2.5 z-10">
-            <span className={`px-2 py-0.5 rounded-md text-[10.5px] font-bold ${conditionBadgeStyle}`}>
+            <span className={`px-2 py-0.5 rounded-[5px] text-[10px] font-bold ${conditionBadgeStyle}`}>
               {product.condition}
             </span>
           </div>
         )}
 
-        {/* Wishlist Heart Button at Top Right */}
+        {/* Wishlist Heart Button at Top Right matching mockup (borderless, transparent bg with grey outline heart) */}
         <button
           type="button"
           onClick={(e) => {
@@ -45,14 +45,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onLikeToggle,
             e.stopPropagation();
             onLikeToggle?.(product.id);
           }}
-          className="absolute top-2.5 right-2.5 z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-sm border border-gray-100 flex items-center justify-center text-gray-400 hover:text-[#4F26A6] transition-colors"
+          className="absolute top-2.5 right-2.5 z-10 p-1 flex items-center justify-center text-gray-500 hover:text-[#4F26A6] transition-colors"
           title="Simpan ke Wishlist"
         >
-          <svg className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${product.isLiked ? 'fill-[#4F26A6] text-[#4F26A6]' : 'fill-none stroke-currentColor'}`} viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg className={`w-4 h-4 ${product.isLiked ? 'fill-[#4F26A6] text-[#4F26A6]' : 'fill-none stroke-current'}`} viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
           </svg>
         </button>
-
         <img
           src={product.image}
           alt={product.title}
