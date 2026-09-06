@@ -19,6 +19,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onLikeToggle,
   return (
     <div className={`bg-white rounded-2xl border border-gray-100/90 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col group ${className || ''}`}>
       <div className="w-full aspect-square bg-[#F4F4F6] overflow-hidden relative flex items-center justify-center p-2.5">
+        {/* Custom Purple Badge (Original, Terverifikasi, Rare) at Top Left */}
+        {product.badge && (
+          <div className="absolute top-2.5 left-2.5 z-10">
+            <span className="px-2 py-0.5 rounded-[5px] text-[10px] font-bold bg-[#4F26A6] text-white shadow-xs">
+              {product.badge}
+            </span>
+          </div>
+        )}
+
         {/* Condition Tag at Bottom Left */}
         {product.condition && (
           <div className="absolute bottom-2.5 left-2.5 z-10">

@@ -34,6 +34,7 @@ export interface Product {
   condition?: ProductCondition;
   category?: string;
   isLiked?: boolean;
+  badge?: 'Original' | 'Terverifikasi' | 'Rare';
 }
 export interface StepItem {
   stepNumber: number;
