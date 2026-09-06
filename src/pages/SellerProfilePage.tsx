@@ -471,12 +471,12 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
               </button>
             </div>
           </div>
-          {/* 5. Tabs Navigation: Clean background (no gray line), purple active indicator extending beyond text */}
-          <div className="flex items-center gap-10 sm:gap-14 text-[15px] sm:text-[16px] md:text-[17px] font-bold mt-8 pl-4">
-            <div className="relative flex flex-col items-center">
+          {/* 5. Tabs Navigation: on mobile/tablet justified evenly across width; on desktop left-aligned with pl-4 */}
+          <div className="flex items-center justify-around sm:justify-around lg:justify-start gap-2 sm:gap-6 lg:gap-14 text-[15px] sm:text-[16px] md:text-[17px] font-bold mt-8 px-2 sm:px-4 lg:px-0 lg:pl-4 w-full">
+            <div className="relative flex flex-col items-center flex-1 lg:flex-initial">
               <button
                 onClick={() => setActiveTab('produk')}
-                className={`pb-3 transition-colors cursor-pointer px-3 text-center ${
+                className={`pb-3 transition-colors cursor-pointer px-3 text-center w-full lg:w-auto ${
                   activeTab === 'produk'
                     ? 'text-[#4F26A6]'
                     : 'text-gray-500 hover:text-gray-900'
@@ -485,14 +485,14 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
                 Produk
               </button>
               {activeTab === 'produk' && (
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-[105px] sm:w-[115px] h-[3.5px] bg-[#4F26A6] rounded-full" />
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-[90px] sm:w-[105px] lg:w-[115px] h-[3.5px] bg-[#4F26A6] rounded-full" />
               )}
             </div>
 
-            <div className="relative flex flex-col items-center">
+            <div className="relative flex flex-col items-center flex-1 lg:flex-initial">
               <button
                 onClick={() => setActiveTab('tentang')}
-                className={`pb-3 transition-colors cursor-pointer px-3 text-center ${
+                className={`pb-3 transition-colors cursor-pointer px-3 text-center w-full lg:w-auto ${
                   activeTab === 'tentang'
                     ? 'text-[#4F26A6]'
                     : 'text-gray-500 hover:text-gray-900'
@@ -501,14 +501,14 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
                 Tentang
               </button>
               {activeTab === 'tentang' && (
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-[105px] sm:w-[115px] h-[3.5px] bg-[#4F26A6] rounded-full" />
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-[90px] sm:w-[105px] lg:w-[115px] h-[3.5px] bg-[#4F26A6] rounded-full" />
               )}
             </div>
 
-            <div className="relative flex flex-col items-center">
+            <div className="relative flex flex-col items-center flex-1 lg:flex-initial">
               <button
                 onClick={() => setActiveTab('ulasan')}
-                className={`pb-3 transition-colors cursor-pointer px-3 text-center ${
+                className={`pb-3 transition-colors cursor-pointer px-3 text-center w-full lg:w-auto ${
                   activeTab === 'ulasan'
                     ? 'text-[#4F26A6]'
                     : 'text-gray-500 hover:text-gray-900'
@@ -517,7 +517,7 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
                 Ulasan
               </button>
               {activeTab === 'ulasan' && (
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-[105px] sm:w-[115px] h-[3.5px] bg-[#4F26A6] rounded-full" />
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-[90px] sm:w-[105px] lg:w-[115px] h-[3.5px] bg-[#4F26A6] rounded-full" />
               )}
             </div>
           </div>
