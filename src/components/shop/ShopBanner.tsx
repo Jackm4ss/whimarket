@@ -4,7 +4,7 @@ export const ShopBanner: React.FC = () => {
   return (
     <div className="w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-4 pb-6">
       {/* Banner Card matching exact 1058x200 banner mockup pixel-perfectly */}
-      <div className="relative w-full rounded-2xl sm:rounded-3xl bg-[#4A19BB] overflow-hidden min-h-[175px] sm:min-h-[185px] lg:h-[200px] flex items-center justify-between shadow-lg shadow-[#4A19BB]/15">
+      <div className="relative w-full rounded-2xl sm:rounded-3xl bg-[#5022CE] overflow-hidden min-h-[175px] sm:min-h-[185px] lg:h-[200px] flex items-center justify-between shadow-lg shadow-[#5022CE]/15">
         
         {/* ==================== EXACT USER BANNER ASSET (RIGHT HALF) ==================== */}
         <div className="absolute right-0 top-0 bottom-0 h-full w-auto pointer-events-none z-0 hidden sm:block">
