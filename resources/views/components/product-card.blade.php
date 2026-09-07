@@ -31,7 +31,7 @@
             src="{{ $product['image'] }}"
             alt="{{ $product['title'] }}"
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 z-0"
-            loading="lazy"
+            decoding="async"
         />
 
         <!-- Condition Tag Badge -->
@@ -53,7 +53,7 @@
                     src="{{ $product['sellerAvatar'] }}"
                     alt="{{ $product['sellerName'] }}"
                     class="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover shrink-0 ring-1 ring-gray-100"
-                    loading="lazy"
+                    decoding="async"
                 />
                 <span class="text-xs sm:text-[13px] font-bold text-gray-900 truncate">
                     {{ $product['sellerName'] }}

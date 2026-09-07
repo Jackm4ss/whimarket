@@ -9,7 +9,7 @@
                     src="{{ $seller['avatar'] }}"
                     alt="{{ $seller['name'] }}"
                     class="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
+                    decoding="async"
                 />
             </div>
         </div>

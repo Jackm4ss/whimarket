@@ -1,6 +1,6 @@
 @props(['sellers'])
 
-<section id="seller-populer" class="w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-2 pb-24 relative" x-data="{
+<section id="seller-populer" class="w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-2 pb-3 sm:pb-24 relative" x-data="{
     scroll(direction) {
         const container = this.$refs.sliderTrack;
         const amount = direction === 'left' ? -260 : 260;
@@ -68,7 +68,7 @@
         </div>
 
         <!-- Mobile Navigation Controls -->
-        <div class="flex lg:hidden items-center justify-center gap-3 mt-6">
+        <div class="flex lg:hidden items-center justify-center gap-3 mt-3 sm:mt-6">
             <button
                 type="button"
                 @click="scroll('left')"

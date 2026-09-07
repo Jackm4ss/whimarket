@@ -1,6 +1,6 @@
 @props(['products'])
 
-<section id="barang-terbaru" class="w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-2 pb-20">
+<section id="barang-terbaru" class="w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-1 sm:pt-2 pb-14 sm:pb-20">
     <div class="flex items-center justify-between mb-6 sm:mb-8">
         <h2 class="text-xl sm:text-2xl lg:text-[28px] font-extrabold text-[#111827] tracking-tight">
             Barang Terbaru

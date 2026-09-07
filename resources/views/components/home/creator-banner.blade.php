@@ -1,4 +1,4 @@
-<section class="w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-2 pb-24">
+<section class="w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-0 sm:pt-2 pb-10 sm:pb-24">
     <div class="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_14px_40px_rgba(79,38,166,0.18)] bg-[#501EB4] flex flex-col lg:flex-row items-center lg:items-stretch justify-between min-h-[260px] sm:min-h-[290px] lg:h-[305px] xl:h-[320px]">
         <!-- Left Content -->
         <div class="z-20 w-full lg:w-[52%] p-7 sm:p-10 lg:pl-16 xl:pl-20 lg:pr-6 py-10 sm:py-12 flex flex-col items-center lg:items-start text-center lg:text-left justify-center">
