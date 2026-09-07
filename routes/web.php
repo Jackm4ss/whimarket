@@ -12,9 +12,12 @@ Route::get('/', function () {
     ]);
 });
 Route::get('/belanja', function () {
+    $category = request()->query('kategori', 'all');
+
     return view('shop', [
         'products' => MarketData::shopProducts(),
         'categories' => MarketData::categories(),
+        'initialCategory' => $category,
     ]);
 });
 Route::get('/seller', function () {

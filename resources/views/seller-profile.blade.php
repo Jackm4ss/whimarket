@@ -1,9 +1,9 @@
 <x-layouts.app
     title="Rachel Vennya - Toko Resmi WhiMarket"
     activeTab="belanja"
-    :wishlistCount="2"
-    :cartCount="1"
-    :user="['name' => 'Halo, Dimas', 'avatar' => '/assets/avatar-jerome.png']"
+    :wishlistCount="0"
+    :cartCount="0"
+    :user="null"
 >
     <main
         class="flex-1 w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-3 pb-20"

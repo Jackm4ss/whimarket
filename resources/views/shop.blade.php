@@ -1,9 +1,9 @@
 <x-layouts.app
     title="WhiMarket - Marketplace Pre-loved & Merchandise"
     activeTab="belanja"
-    :wishlistCount="2"
-    :cartCount="3"
-    :user="['name' => 'Halo, Dimas', 'avatar' => '/assets/avatar-anya.png']"
+    :wishlistCount="0"
+    :cartCount="0"
+    :user="null"
 >
     <!-- Top Purple Hero Banner -->
     <x-shop.shop-banner />
@@ -170,11 +170,12 @@
                     category: 'fashion'
                 }
             ],
-            selectedCategory: 'all',
+            selectedCategory: '{{ $initialCategory ?? 'all' }}',
             priceRange: [0, 50000000],
             selectedConditions: ['all'],
             selectedLocation: '',
             sortBy: 'terbaru',
+            sortDropdownOpen: false,
             viewMode: 'grid',
             isMobileFilterOpen: false,
             currentPage: 1,
@@ -525,28 +526,25 @@
                     <span>›</span>
                     <a href="/belanja" class="hover:text-[#4F26A6] transition-colors">Kategori</a>
                     <span>›</span>
-                    <span class="text-gray-700 font-semibold">Semua Produk</span>
+                    <span class="text-gray-700 font-semibold" x-text="selectedCategory === 'all' ? 'Semua Produk' : (selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1))"></span>
                 </nav>
 
                 <!-- Title, Subtitle, and Top Controls -->
                 <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-5 sm:gap-6 pb-6 sm:pb-8 pt-2 sm:pt-3">
                     <div class="space-y-2 sm:space-y-2.5 max-w-xl">
-                        <h2 class="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight leading-snug">
-                            Semua Produk
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight leading-snug" x-text="selectedCategory === 'all' ? 'Semua Produk' : (selectedCategory === 'tas' ? 'Tas & Aksesoris' : (selectedCategory === 'hobi' ? 'Hobi & Koleksi' : (selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1))))">
                         </h2>
                         <p class="text-[13px] sm:text-[14px] text-gray-600 font-normal leading-relaxed">
                             Temukan berbagai barang pre-loved dari artis, selebgram, dan streamer favoritmu.
                         </p>
                     </div>
-
                     <div class="flex flex-col items-end gap-2 shrink-0">
-                        <span class="text-[11.5px] text-gray-400 font-medium">
-                            1.248 barang ditemukan
+                        <span class="text-[11.5px] text-gray-400 font-medium" x-text="filteredProducts.length + ' barang ditemukan'">
                         </span>
 
                         <!-- Controls: Filter Button (Mobile & Tablet), Sorting Dropdown & View Mode Buttons -->
                         <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
-                            <!-- Mobile Filter Trigger Button -->
+                            <!-- Mobile Filter Trigger Button (Left) -->
                             <button
                                 type="button"
                                 @click="isMobileFilterOpen = true"
@@ -558,23 +556,80 @@
                                 <span>Filter</span>
                             </button>
 
-                            <div class="flex items-center gap-2 sm:gap-2.5">
-                                <select
-                                    x-model="sortBy"
-                                    class="appearance-none bg-white border border-gray-200 rounded-xl pl-3.5 pr-8 sm:pl-4 sm:pr-10 py-2 sm:py-2.5 text-xs sm:text-[13px] font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 focus:border-[#4F26A6] cursor-pointer shadow-xs hover:border-gray-300 transition-all min-w-[140px] sm:min-w-[170px]"
+                            <!-- Right Controls Cluster (Sort + View Mode) -->
+                            <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
+                            <div class="relative shrink-0" @click.outside="sortDropdownOpen = false">
+                                <button
+                                    type="button"
+                                    @click="sortDropdownOpen = !sortDropdownOpen"
+                                    class="inline-flex items-center gap-2.5 bg-white border border-gray-200 text-xs sm:text-[13px] font-semibold text-gray-800 rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 focus:border-[#4F26A6] shadow-xs hover:border-gray-300 transition-all cursor-pointer whitespace-nowrap"
                                 >
-                                    <option value="terbaru">Urutan: Terbaru</option>
-                                    <option value="harga-rendah">Harga Terendah</option>
-                                    <option value="harga-tinggi">Harga Tertinggi</option>
-                                    <option value="terpopuler">Terpopuler</option>
-                                </select>
-                                <svg class="w-3.5 h-3.5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 9l-7 7-7-7" />
-                                </svg>
+                                    <span x-text="sortBy === 'terbaru' ? 'Urutan: Terbaru' : (sortBy === 'harga-rendah' ? 'Harga Terendah' : (sortBy === 'harga-tinggi' ? 'Harga Tertinggi' : 'Terpopuler'))"></span>
+                                    <svg
+                                        class="w-3.5 h-3.5 text-gray-400 transition-transform duration-200 shrink-0"
+                                        :class="sortDropdownOpen ? 'rotate-180 text-[#4F26A6]' : ''"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+
+                                <!-- Floating Sort Menu -->
+                                <div
+                                    x-show="sortDropdownOpen"
+                                    x-cloak
+                                    x-transition:enter="transition ease-out duration-150"
+                                    x-transition:enter-start="opacity-0 translate-y-1"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-100"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 translate-y-1"
+                                    class="absolute right-0 top-full mt-1.5 w-48 sm:w-52 bg-white border border-gray-100 rounded-2xl shadow-[0_12px_36px_rgba(0,0,0,0.12)] p-1.5 z-40 space-y-0.5 font-medium text-xs sm:text-[13px] text-gray-700"
+                                    style="display: none;"
+                                >
+                                    <button
+                                        type="button"
+                                        @click="sortBy = 'terbaru'; sortDropdownOpen = false"
+                                        class="w-full text-left px-3 py-2 rounded-xl flex items-center justify-between hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
+                                        :class="sortBy === 'terbaru' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
+                                    >
+                                        <span>Urutan: Terbaru</span>
+                                        <svg x-show="sortBy === 'terbaru'" class="w-3.5 h-3.5 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        @click="sortBy = 'harga-rendah'; sortDropdownOpen = false"
+                                        class="w-full text-left px-3 py-2 rounded-xl flex items-center justify-between hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
+                                        :class="sortBy === 'harga-rendah' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
+                                    >
+                                        <span>Harga Terendah</span>
+                                        <svg x-show="sortBy === 'harga-rendah'" class="w-3.5 h-3.5 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        @click="sortBy = 'harga-tinggi'; sortDropdownOpen = false"
+                                        class="w-full text-left px-3 py-2 rounded-xl flex items-center justify-between hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
+                                        :class="sortBy === 'harga-tinggi' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
+                                    >
+                                        <span>Harga Tertinggi</span>
+                                        <svg x-show="sortBy === 'harga-tinggi'" class="w-3.5 h-3.5 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        @click="sortBy = 'terpopuler'; sortDropdownOpen = false"
+                                        class="w-full text-left px-3 py-2 rounded-xl flex items-center justify-between hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
+                                        :class="sortBy === 'terpopuler' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
+                                    >
+                                        <span>Terpopuler</span>
+                                        <svg x-show="sortBy === 'terpopuler'" class="w-3.5 h-3.5 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
+                                    </button>
+                                </div>
                             </div>
 
-                            <!-- Grid vs List View Mode -->
-                            <div class="flex items-center bg-white border border-gray-200 rounded-xl p-1 shadow-xs gap-1">
+                            <!-- Grid vs List View Mode (Hidden on mobile & tablet, visible on desktop lg) -->
+                            <div class="hidden lg:flex items-center bg-white border border-gray-200 rounded-xl p-1 shadow-xs gap-1">
                                 <button
                                     type="button"
                                     @click="viewMode = 'grid'"
@@ -606,6 +661,7 @@
                                     </svg>
                                 </button>
                             </div>
+                        </div>
                         </div>
                     </div>
                 </div>

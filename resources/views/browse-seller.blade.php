@@ -1,10 +1,9 @@
 <x-layouts.app :title="'Dukung Kreator Favoritmu - WhiMarket'" activeTab="seller">
     <main class="w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-6 sm:py-8" x-data="{
         selectedCategory: 'all',
-        selectedRating: null,
         sortBy: 'terbaru',
+        sortDropdownOpen: false,
         categoryOpen: true,
-        ratingOpen: true,
         filterDrawerOpen: false,
         seller: {
             id: 'sel_rachel',
@@ -23,9 +22,6 @@
         },
         matchesFilter() {
             if (this.selectedCategory !== 'all' && this.seller.category !== this.selectedCategory) {
-                return false;
-            }
-            if (this.selectedRating && Math.floor(this.seller.rating) < this.selectedRating) {
                 return false;
             }
             return true;
@@ -74,223 +70,126 @@
 
         <!-- Main Content Area: Sidebar Filters & Seller Cards Grid -->
         <div class="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
-            <!-- Left Sidebar Filter (Desktop) -->
-            <aside class="hidden lg:block w-64 xl:w-72 shrink-0 space-y-5">
-                <!-- Filter Section 1: Kategori Seller -->
-                <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
-                    <button
-                        type="button"
-                        @click="categoryOpen = !categoryOpen"
-                        class="w-full flex items-center justify-between text-left text-[15px] font-extrabold text-[#111827] focus:outline-none"
-                    >
-                        <span>Kategori Seller</span>
-                        <svg
-                            class="w-4 h-4 text-gray-400 transform transition-transform"
-                            :class="categoryOpen ? 'rotate-180' : ''"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+            <!-- Left Sidebar Filter (Desktop >=1024px) -->
+            <div class="hidden lg:block">
+                <aside class="w-[240px] xl:w-[255px] shrink-0 space-y-6 sm:space-y-7 bg-white rounded-2xl p-5 sm:p-6 border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] self-start">
+                    <!-- 1. Kategori Section -->
+                    <div>
+                        <button
+                            type="button"
+                            @click="categoryOpen = !categoryOpen"
+                            class="w-full flex items-center justify-between text-[14px] sm:text-[14.5px] font-bold text-gray-900 mb-3 sm:mb-3.5"
                         >
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
+                            <span>Kategori Seller</span>
+                            <svg
+                                class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                                :class="categoryOpen ? '' : 'rotate-180'"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7" />
+                            </svg>
+                        </button>
 
-                    <div x-show="categoryOpen" x-transition class="mt-4 space-y-1">
-                        <!-- All Categories -->
+                        <div x-show="categoryOpen" class="space-y-1.5 sm:space-y-2 pt-1">
+                            <!-- All Categories -->
+                            <button
+                                type="button"
+                                @click="selectedCategory = 'all'"
+                                class="w-full flex items-center gap-3 px-3.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-[13px] font-medium transition-all"
+                                :class="selectedCategory === 'all' ? 'bg-[#EDE4FF] text-[#4F26A6] font-bold shadow-2xs' : 'text-gray-600 hover:text-[#4F26A6] hover:bg-gray-50'"
+                            >
+                                <span :class="selectedCategory === 'all' ? 'text-[#4F26A6]' : 'text-gray-400'">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                                    </svg>
+                                </span>
+                                <span>Semua Seller</span>
+                            </button>
+
+                            <!-- Artis -->
+                            <button
+                                type="button"
+                                @click="selectedCategory = 'artis'"
+                                class="w-full flex items-center gap-3 px-3.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-[13px] font-medium transition-all"
+                                :class="selectedCategory === 'artis' ? 'bg-[#EDE4FF] text-[#4F26A6] font-bold shadow-2xs' : 'text-gray-600 hover:text-[#4F26A6] hover:bg-gray-50'"
+                            >
+                                <span :class="selectedCategory === 'artis' ? 'text-[#4F26A6]' : 'text-gray-400'">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </span>
+                                <span>Artis</span>
+                            </button>
+
+                            <!-- Selebgram -->
+                            <button
+                                type="button"
+                                @click="selectedCategory = 'selebgram'"
+                                class="w-full flex items-center gap-3 px-3.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-[13px] font-medium transition-all"
+                                :class="selectedCategory === 'selebgram' ? 'bg-[#EDE4FF] text-[#4F26A6] font-bold shadow-2xs' : 'text-gray-600 hover:text-[#4F26A6] hover:bg-gray-50'"
+                            >
+                                <span :class="selectedCategory === 'selebgram' ? 'text-[#4F26A6]' : 'text-gray-400'">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" />
+                                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                                    </svg>
+                                </span>
+                                <span>Selebgram</span>
+                            </button>
+
+                            <!-- Streamer -->
+                            <button
+                                type="button"
+                                @click="selectedCategory = 'streamer'"
+                                class="w-full flex items-center gap-3 px-3.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-[13px] font-medium transition-all"
+                                :class="selectedCategory === 'streamer' ? 'bg-[#EDE4FF] text-[#4F26A6] font-bold shadow-2xs' : 'text-gray-600 hover:text-[#4F26A6] hover:bg-gray-50'"
+                            >
+                                <span :class="selectedCategory === 'streamer' ? 'text-[#4F26A6]' : 'text-gray-400'">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
+                                        <polyline points="17 2 12 7 7 2" />
+                                    </svg>
+                                </span>
+                                <span>Streamer</span>
+                            </button>
+
+                            <!-- Content Creator -->
+                            <button
+                                type="button"
+                                @click="selectedCategory = 'creator'"
+                                class="w-full flex items-center gap-3 px-3.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-[13px] font-medium transition-all"
+                                :class="selectedCategory === 'creator' ? 'bg-[#EDE4FF] text-[#4F26A6] font-bold shadow-2xs' : 'text-gray-600 hover:text-[#4F26A6] hover:bg-gray-50'"
+                            >
+                                <span :class="selectedCategory === 'creator' ? 'text-[#4F26A6]' : 'text-gray-400'">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                </span>
+                                <span>Content Creator</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="h-[1px] bg-gray-100 w-full"></div>
+
+                    <!-- Reset Filter Button -->
+                    <div class="pt-1">
                         <button
                             type="button"
                             @click="selectedCategory = 'all'"
-                            :class="selectedCategory === 'all' ? 'bg-[#F3EEFF] text-[#481EBC] font-bold' : 'text-gray-700 hover:bg-gray-50 font-medium'"
-                            class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13.5px] transition-colors text-left cursor-pointer"
+                            class="btn-reset-filter w-full py-2.5 rounded-xl font-bold text-xs sm:text-[13.5px] text-center flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
                         >
-                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            <svg class="w-3.5 h-3.5 text-current transition-colors" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
-                            <span>Semua Seller</span>
-                        </button>
-
-                        <!-- Artis -->
-                        <button
-                            type="button"
-                            @click="selectedCategory = 'artis'"
-                            :class="selectedCategory === 'artis' ? 'bg-[#F3EEFF] text-[#481EBC] font-bold' : 'text-gray-700 hover:bg-gray-50 font-medium'"
-                            class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13.5px] transition-colors text-left cursor-pointer"
-                        >
-                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <span>Artis</span>
-                        </button>
-
-                        <!-- Selebgram -->
-                        <button
-                            type="button"
-                            @click="selectedCategory = 'selebgram'"
-                            :class="selectedCategory === 'selebgram' ? 'bg-[#F3EEFF] text-[#481EBC] font-bold' : 'text-gray-700 hover:bg-gray-50 font-medium'"
-                            class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13.5px] transition-colors text-left cursor-pointer"
-                        >
-                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" />
-                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-                            </svg>
-                            <span>Selebgram</span>
-                        </button>
-
-                        <!-- Streamer -->
-                        <button
-                            type="button"
-                            @click="selectedCategory = 'streamer'"
-                            :class="selectedCategory === 'streamer' ? 'bg-[#F3EEFF] text-[#481EBC] font-bold' : 'text-gray-700 hover:bg-gray-50 font-medium'"
-                            class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13.5px] transition-colors text-left cursor-pointer"
-                        >
-                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
-                                <polyline points="17 2 12 7 7 2" />
-                            </svg>
-                            <span>Streamer</span>
-                        </button>
-
-                        <!-- Content Creator -->
-                        <button
-                            type="button"
-                            @click="selectedCategory = 'creator'"
-                            :class="selectedCategory === 'creator' ? 'bg-[#F3EEFF] text-[#481EBC] font-bold' : 'text-gray-700 hover:bg-gray-50 font-medium'"
-                            class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13.5px] transition-colors text-left cursor-pointer"
-                        >
-                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                            <span>Content Creator</span>
+                            <span class="text-current transition-colors">Reset Filter</span>
                         </button>
                     </div>
-                </div>
-
-                <!-- Filter Section 2: Rating Seller -->
-                <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
-                    <button
-                        type="button"
-                        @click="ratingOpen = !ratingOpen"
-                        class="w-full flex items-center justify-between text-left text-[15px] font-extrabold text-[#111827] focus:outline-none"
-                    >
-                        <span>Rating Seller</span>
-                        <svg
-                            class="w-4 h-4 text-gray-400 transform transition-transform"
-                            :class="ratingOpen ? 'rotate-180' : ''"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-
-                    <div x-show="ratingOpen" x-transition class="mt-4 space-y-2.5">
-                        <!-- Rating 5 -->
-                        <label class="flex items-center justify-between text-xs sm:text-[13px] text-gray-700 cursor-pointer group">
-                            <div class="flex items-center gap-2.5">
-                                <input
-                                    type="checkbox"
-                                    :checked="selectedRating === 5"
-                                    @change="selectedRating = selectedRating === 5 ? null : 5"
-                                    class="w-4 h-4 rounded-md border-gray-300 text-[#481EBC] focus:ring-[#481EBC]"
-                                />
-                                <span class="font-bold text-gray-800">5</span>
-                                <div class="flex items-center gap-0.5 text-[#F59E0B]">
-                                    @for($i = 0; $i < 5; $i++)
-                                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                    @endfor
-                                </div>
-                            </div>
-                            <span class="text-xs text-gray-400 font-medium">(42)</span>
-                        </label>
-
-                        <!-- Rating 4 -->
-                        <label class="flex items-center justify-between text-xs sm:text-[13px] text-gray-700 cursor-pointer group">
-                            <div class="flex items-center gap-2.5">
-                                <input
-                                    type="checkbox"
-                                    :checked="selectedRating === 4"
-                                    @change="selectedRating = selectedRating === 4 ? null : 4"
-                                    class="w-4 h-4 rounded-md border-gray-300 text-[#481EBC] focus:ring-[#481EBC]"
-                                />
-                                <span class="font-bold text-gray-800">4</span>
-                                <div class="flex items-center gap-0.5 text-[#F59E0B]">
-                                    @for($i = 0; $i < 4; $i++)
-                                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                    @endfor
-                                    <svg class="w-3.5 h-3.5 text-gray-200 fill-current" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                </div>
-                            </div>
-                            <span class="text-xs text-gray-400 font-medium">(58)</span>
-                        </label>
-
-                        <!-- Rating 3 -->
-                        <label class="flex items-center justify-between text-xs sm:text-[13px] text-gray-700 cursor-pointer group">
-                            <div class="flex items-center gap-2.5">
-                                <input
-                                    type="checkbox"
-                                    :checked="selectedRating === 3"
-                                    @change="selectedRating = selectedRating === 3 ? null : 3"
-                                    class="w-4 h-4 rounded-md border-gray-300 text-[#481EBC] focus:ring-[#481EBC]"
-                                />
-                                <span class="font-bold text-gray-800">3</span>
-                                <div class="flex items-center gap-0.5 text-[#F59E0B]">
-                                    @for($i = 0; $i < 3; $i++)
-                                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                    @endfor
-                                    @for($i = 0; $i < 2; $i++)
-                                        <svg class="w-3.5 h-3.5 text-gray-200 fill-current" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                    @endfor
-                                </div>
-                            </div>
-                            <span class="text-xs text-gray-400 font-medium">(18)</span>
-                        </label>
-
-                        <!-- Rating 2 -->
-                        <label class="flex items-center justify-between text-xs sm:text-[13px] text-gray-700 cursor-pointer group">
-                            <div class="flex items-center gap-2.5">
-                                <input
-                                    type="checkbox"
-                                    :checked="selectedRating === 2"
-                                    @change="selectedRating = selectedRating === 2 ? null : 2"
-                                    class="w-4 h-4 rounded-md border-gray-300 text-[#481EBC] focus:ring-[#481EBC]"
-                                />
-                                <span class="font-bold text-gray-800">2</span>
-                                <div class="flex items-center gap-0.5 text-[#F59E0B]">
-                                    @for($i = 0; $i < 2; $i++)
-                                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                    @endfor
-                                    @for($i = 0; $i < 3; $i++)
-                                        <svg class="w-3.5 h-3.5 text-gray-200 fill-current" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                    @endfor
-                                </div>
-                            </div>
-                            <span class="text-xs text-gray-400 font-medium">(6)</span>
-                        </label>
-
-                        <!-- Rating 1 -->
-                        <label class="flex items-center justify-between text-xs sm:text-[13px] text-gray-700 cursor-pointer group">
-                            <div class="flex items-center gap-2.5">
-                                <input
-                                    type="checkbox"
-                                    :checked="selectedRating === 1"
-                                    @change="selectedRating = selectedRating === 1 ? null : 1"
-                                    class="w-4 h-4 rounded-md border-gray-300 text-[#481EBC] focus:ring-[#481EBC]"
-                                />
-                                <span class="font-bold text-gray-800">1</span>
-                                <div class="flex items-center gap-0.5 text-[#F59E0B]">
-                                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                    @for($i = 0; $i < 4; $i++)
-                                        <svg class="w-3.5 h-3.5 text-gray-200 fill-current" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                    @endfor
-                                </div>
-                            </div>
-                            <span class="text-xs text-gray-400 font-medium">(4)</span>
-                        </label>
-                    </div>
-                </div>
-            </aside>
+                </aside>
+            </div>
 
             <!-- Right Content: Header Row & Seller Card Grid -->
             <section class="flex-1 w-full">
@@ -308,21 +207,90 @@
                         </p>
                     </div>
 
-                    <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
-                        <span class="hidden sm:inline text-xs text-gray-400 font-medium whitespace-nowrap">128 seller ditemukan</span>
-                        <div class="relative inline-block w-full sm:w-auto">
-                            <select
-                                x-model="sortBy"
-                                class="w-full sm:w-auto appearance-none bg-white border border-gray-200 text-xs sm:text-[13px] font-semibold text-gray-700 rounded-xl px-4 py-2.5 pr-8 focus:outline-none focus:ring-2 focus:ring-[#481EBC]/20 focus:border-[#481EBC] shadow-2xs cursor-pointer"
-                            >
-                                <option value="terbaru">Urutkan: Terbaru</option>
-                                <option value="terpopuler">Urutkan: Terpopuler</option>
-                                <option value="rating">Urutkan: Rating Tertinggi</option>
-                                <option value="produk">Urutkan: Produk Terbanyak</option>
-                            </select>
-                            <svg class="w-3.5 h-3.5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 9l-7 7-7-7" />
+                    <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                        <!-- Mobile & Tablet Filter Trigger Button -->
+                        <button
+                            type="button"
+                            @click="filterDrawerOpen = true"
+                            class="lg:hidden inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs sm:text-sm font-semibold text-gray-700 shadow-xs hover:border-[#4F26A6] active:bg-gray-50 transition-all shrink-0 cursor-pointer"
+                        >
+                            <svg class="w-4 h-4 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                             </svg>
+                            <span>Filter</span>
+                        </button>
+
+                        <span class="hidden sm:inline text-xs text-gray-400 font-medium whitespace-nowrap">128 seller ditemukan</span>
+
+                        <!-- Compact Fit-Content Dropdown Aligned to Right -->
+                        <div class="relative shrink-0" @click.outside="sortDropdownOpen = false">
+                            <button
+                                type="button"
+                                @click="sortDropdownOpen = !sortDropdownOpen"
+                                class="inline-flex items-center gap-2.5 bg-white border border-gray-200 text-xs sm:text-[13px] font-semibold text-gray-800 rounded-xl px-3.5 sm:px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 focus:border-[#4F26A6] shadow-xs hover:border-gray-300 transition-all cursor-pointer whitespace-nowrap"
+                            >
+                                <span x-text="sortBy === 'terbaru' ? 'Urutan: Terbaru' : (sortBy === 'terpopuler' ? 'Terpopuler' : (sortBy === 'rating' ? 'Rating Tertinggi' : 'Produk Terbanyak'))"></span>
+                                <svg
+                                    class="w-3.5 h-3.5 text-gray-400 transition-transform duration-200 shrink-0"
+                                    :class="sortDropdownOpen ? 'rotate-180 text-[#4F26A6]' : ''"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+
+                            <!-- Custom Floating Sort Options Panel -->
+                            <div
+                                x-show="sortDropdownOpen"
+                                x-cloak
+                                x-transition:enter="transition ease-out duration-150"
+                                x-transition:enter-start="opacity-0 translate-y-1"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                x-transition:leave="transition ease-in duration-100"
+                                x-transition:leave-start="opacity-100 translate-y-0"
+                                x-transition:leave-end="opacity-0 translate-y-1"
+                                class="absolute right-0 top-full mt-1.5 w-48 sm:w-52 bg-white border border-gray-100 rounded-2xl shadow-[0_12px_36px_rgba(0,0,0,0.12)] p-1.5 z-40 space-y-0.5 font-medium text-xs sm:text-[13px] text-gray-700"
+                                style="display: none;"
+                            >
+                                <button
+                                    type="button"
+                                    @click="sortBy = 'terbaru'; sortDropdownOpen = false"
+                                    class="w-full text-left px-3 py-2 rounded-xl flex items-center justify-between hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
+                                    :class="sortBy === 'terbaru' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
+                                >
+                                    <span>Urutan: Terbaru</span>
+                                    <svg x-show="sortBy === 'terbaru'" class="w-3.5 h-3.5 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="sortBy = 'terpopuler'; sortDropdownOpen = false"
+                                    class="w-full text-left px-3 py-2 rounded-xl flex items-center justify-between hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
+                                    :class="sortBy === 'terpopuler' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
+                                >
+                                    <span>Terpopuler</span>
+                                    <svg x-show="sortBy === 'terpopuler'" class="w-3.5 h-3.5 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="sortBy = 'rating'; sortDropdownOpen = false"
+                                    class="w-full text-left px-3 py-2 rounded-xl flex items-center justify-between hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
+                                    :class="sortBy === 'rating' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
+                                >
+                                    <span>Rating Tertinggi</span>
+                                    <svg x-show="sortBy === 'rating'" class="w-3.5 h-3.5 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="sortBy = 'produk'; sortDropdownOpen = false"
+                                    class="w-full text-left px-3 py-2 rounded-xl flex items-center justify-between hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
+                                    :class="sortBy === 'produk' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
+                                >
+                                    <span>Produk Terbanyak</span>
+                                    <svg x-show="sortBy === 'produk'" class="w-3.5 h-3.5 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -410,7 +378,7 @@
                             <p class="text-sm font-semibold">Tidak ada seller yang cocok dengan filter yang dipilih.</p>
                             <button
                                 type="button"
-                                @click="selectedCategory = 'all'; selectedRating = null;"
+                                @click="selectedCategory = 'all'"
                                 class="mt-3 text-xs font-bold text-[#481EBC] hover:underline"
                             >
                                 Reset Filter
@@ -419,6 +387,120 @@
                     </template>
                 </div>
             </section>
+        </div>
+
+        <!-- Mobile & Tablet Filter Drawer: Full-width Bottom Sheet Drawer (<1024px) -->
+        <div
+            id="seller-filter-drawer-overlay"
+            x-show="filterDrawerOpen"
+            x-cloak
+            x-transition:enter="transition-opacity duration-300 ease-out"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity duration-200 ease-in"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            @click="filterDrawerOpen = false"
+            class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 lg:hidden flex items-end justify-center p-0"
+        >
+            <div
+                @click.stop
+                x-show="filterDrawerOpen"
+                x-cloak
+                x-transition:enter="transition ease-out duration-300 transform"
+                x-transition:enter-start="translate-y-full"
+                x-transition:enter-end="translate-y-0"
+                x-transition:leave="transition ease-in duration-200 transform"
+                x-transition:leave-start="translate-y-0"
+                x-transition:leave-end="translate-y-full"
+                class="bg-white w-full max-w-full max-h-[85vh] sm:max-h-[82vh] rounded-t-[28px] sm:rounded-t-[32px] shadow-[0_-10px_40px_rgba(0,0,0,0.18)] flex flex-col justify-between overflow-hidden"
+            >
+                <!-- Drag Handle Indicator -->
+                <div class="pt-3 pb-1 flex justify-center shrink-0">
+                    <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+                </div>
+
+                <!-- Drawer Header -->
+                <div class="px-5 sm:px-8 pb-3.5 pt-1 border-b border-gray-100 flex items-center justify-between shrink-0">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        </svg>
+                        <h2 class="text-base sm:text-lg font-bold text-gray-900">Filter Seller</h2>
+                    </div>
+                    <button
+                        type="button"
+                        @click="filterDrawerOpen = false"
+                        class="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition-colors focus:outline-none cursor-pointer"
+                        aria-label="Tutup Filter"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Scrollable Filter Content -->
+                <div class="flex-1 overflow-y-auto px-5 sm:px-8 py-4 space-y-6 [scrollbar-width:none]">
+                    <!-- 1. Kategori Section -->
+                    <div>
+                        <button
+                            type="button"
+                            @click="categoryOpen = !categoryOpen"
+                            class="w-full flex items-center justify-between text-[14px] sm:text-[14.5px] font-bold text-gray-900 mb-3"
+                        >
+                            <span>Kategori Seller</span>
+                            <svg
+                                class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                                :class="categoryOpen ? '' : 'rotate-180'"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7" />
+                            </svg>
+                        </button>
+
+                        <div x-show="categoryOpen" class="space-y-1.5 sm:space-y-2 pt-1">
+                            <template x-for="cat in [
+                                { id: 'all', name: 'Semua Seller', icon: '<svg class=\'w-3.5 h-3.5\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' viewBox=\'0 0 24 24\'><rect x=\'3\' y=\'3\' width=\'7\' height=\'7\' rx=\'1.5\'/><rect x=\'14\' y=\'3\' width=\'7\' height=\'7\' rx=\'1.5\'/><rect x=\'14\' y=\'14\' width=\'7\' height=\'7\' rx=\'1.5\'/><rect x=\'3\' y=\'14\' width=\'7\' height=\'7\' rx=\'1.5\'/></svg>' },
+                                { id: 'artis', name: 'Artis', icon: '<svg class=\'w-3.5 h-3.5\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\' /></svg>' },
+                                { id: 'selebgram', name: 'Selebgram', icon: '<svg class=\'w-3.5 h-3.5\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' viewBox=\'0 0 24 24\'><rect x=\'2\' y=\'2\' width=\'20\' height=\'20\' rx=\'5\' ry=\'5\' /><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z\' /><line x1=\'17.5\' y1=\'6.5\' x2=\'17.51\' y2=\'6.5\' /></svg>' },
+                                { id: 'streamer', name: 'Streamer', icon: '<svg class=\'w-3.5 h-3.5\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' viewBox=\'0 0 24 24\'><rect x=\'2\' y=\'7\' width=\'20\' height=\'15\' rx=\'2\' ry=\'2\' /><polyline points=\'17 2 12 7 7 2\' /></svg>' },
+                                { id: 'creator', name: 'Content Creator', icon: '<svg class=\'w-3.5 h-3.5\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z\' /></svg>' }
+                            ]" :key="cat.id">
+                                <button
+                                    type="button"
+                                    @click="selectedCategory = cat.id"
+                                    class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-medium transition-all"
+                                    :class="selectedCategory === cat.id ? 'bg-[#EDE4FF] text-[#4F26A6] font-bold shadow-2xs' : 'text-gray-600 hover:text-[#4F26A6] hover:bg-gray-50'"
+                                >
+                                    <span :class="selectedCategory === cat.id ? 'text-[#4F26A6]' : 'text-gray-400'" x-html="cat.icon"></span>
+                                    <span x-text="cat.name"></span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+
+
+                <!-- Drawer Action Footer (Pinned Bottom) -->
+                <div class="p-5 sm:p-7 pt-3 border-t border-gray-100 flex flex-col gap-2.5 shrink-0 bg-white">
+                    <button
+                        type="button"
+                        @click="filterDrawerOpen = false"
+                        class="w-full py-3 rounded-xl text-center font-bold text-white bg-[#4F26A6] hover:bg-[#3E1D85] shadow-md shadow-[#4F26A6]/20 transition-all text-sm cursor-pointer"
+                    >
+                        Terapkan Filter
+                    </button>
+                    <button
+                        type="button"
+                        @click="selectedCategory = 'all'; filterDrawerOpen = false;"
+                        class="btn-reset-filter w-full py-2.5 rounded-xl text-center font-bold text-xs sm:text-[13px] cursor-pointer shadow-2xs"
+                    >
+                        Reset Filter
+                    </button>
+                </div>
+            </div>
         </div>
     </main>
 </x-layouts.app>
