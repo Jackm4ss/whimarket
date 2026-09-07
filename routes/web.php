@@ -18,9 +18,24 @@ Route::get('/belanja', function () {
         'categories' => MarketData::categories(),
     ]);
 });
-Route::get('/seller/rachel-vennya', function () {
-    return view('seller-profile');
-});
+Route::get('/seller/{username}', function (string $username) {
+    // Strictly require username format starting with @
+    if (!str_starts_with($username, '@')) {
+        abort(404);
+    }
+
+    $handle = strtolower($username);
+    // Currently only @rachel_venya (and @rachelvennya) exists
+    $validHandles = ['@rachel_venya', '@rachelvennya'];
+    
+    if (!in_array($handle, $validHandles, true)) {
+        abort(404);
+    }
+
+    return view('seller-profile', [
+        'username' => '@rachel_venya',
+    ]);
+})->where('username', '@[A-Za-z0-9_.-]+');
 
 // Informasi & Bantuan Pages
 Route::get('/cara-jual', function () {

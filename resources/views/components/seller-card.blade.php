@@ -37,7 +37,7 @@
     </div>
     <!-- CTA Button -->
     <a
-        href="{{ $seller['name'] === 'Rachel Vennya' ? '/seller/rachel-vennya' : '#toko-' . $seller['id'] }}"
+        href="{{ $seller['name'] === 'Rachel Vennya' ? '/seller/@rachel_venya' : ($seller['handle'] ? '/seller/' . $seller['handle'] : '#toko-' . $seller['id']) }}"
         class="w-full py-2.5 rounded-xl border border-purple-200/90 text-[#4F26A6] font-bold text-xs sm:text-[13.5px] hover:bg-[#4F26A6] hover:text-white transition-all text-center"
     >
         Lihat Toko

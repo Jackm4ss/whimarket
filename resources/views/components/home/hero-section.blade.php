@@ -133,7 +133,7 @@
                 </div>
 
                 <!-- Creator 1: Rachel Vennya -->
-                <a href="/seller/rachel-vennya" class="bg-white/95 backdrop-blur-md rounded-2xl p-2 sm:p-2.5 px-3 sm:px-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] border border-gray-100 flex items-center gap-2.5 sm:gap-3 w-[195px] sm:w-[220px] transition-transform hover:-translate-y-0.5">
+                <a href="/seller/@rachel_venya" class="bg-white/95 backdrop-blur-md rounded-2xl p-2 sm:p-2.5 px-3 sm:px-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] border border-gray-100 flex items-center gap-2.5 sm:gap-3 w-[195px] sm:w-[220px] transition-transform hover:-translate-y-0.5">
                     <img src="/assets/avatar-rachel.png" alt="Rachel Vennya" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shrink-0 ring-2 ring-purple-100" />
                     <div class="flex flex-col min-w-0">
                         <div class="flex items-center gap-1 sm:gap-1.5">
