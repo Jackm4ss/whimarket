@@ -505,12 +505,12 @@
                     <button
                         type="button"
                         @click="resetFilters()"
-                        class="w-full py-2.5 rounded-xl border border-purple-200/90 text-[#4F26A6] font-bold text-xs sm:text-[13.5px] hover:bg-[#4F26A6] hover:text-white transition-all text-center flex items-center justify-center gap-2 cursor-pointer"
+                        class="btn-reset-filter w-full py-2.5 rounded-xl font-bold text-xs sm:text-[13.5px] text-center flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
                     >
-                        <svg class="w-3.5 h-3.5 text-[#4F26A6] group-hover:text-white transition-colors" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <svg class="w-3.5 h-3.5 text-current transition-colors" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
-                        <span class="text-[#4F26A6] group-hover:text-white transition-colors">Reset Filter</span>
+                        <span class="text-current transition-colors">Reset Filter</span>
                     </button>
                     </aside>
                 </div>

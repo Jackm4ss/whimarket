@@ -66,3 +66,20 @@
 [x-cloak] {
   display: none !important;
 }
+
+/* Reset Filter Button Hover Enhancement */
+.btn-reset-filter {
+  background-color: transparent;
+  color: #4F26A6;
+  border: 1.5px solid rgba(220, 205, 252, 0.9);
+  transition: all 0.2s ease-in-out;
+}
+.btn-reset-filter:hover {
+  background-color: #4F26A6 !important;
+  color: #FFFFFF !important;
+  border-color: #4F26A6 !important;
+}
+.btn-reset-filter:hover * {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}

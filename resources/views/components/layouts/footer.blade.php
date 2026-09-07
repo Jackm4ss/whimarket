@@ -57,8 +57,14 @@
                     </li>
                     <li>
                         <a href="/belanja" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
-                            <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-                            <span>Barang Terbaru</span>
+                            <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                            <span>Mulai Belanja</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/#seller-populer" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
+                            <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <span>Cari Seller</span>
                         </a>
                     </li>
                 </ul>

@@ -286,7 +286,7 @@
             <button
                 type="button"
                 @click="resetFilters()"
-                class="w-full py-2.5 rounded-xl text-center font-bold text-[#4F26A6] border-2 border-purple-200/90 hover:bg-[#4F26A6]/5 transition-all text-xs sm:text-[13px] cursor-pointer"
+                class="btn-reset-filter w-full py-2.5 rounded-xl text-center font-bold text-xs sm:text-[13px] cursor-pointer shadow-2xs"
             >
                 Reset Filter
             </button>

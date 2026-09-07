@@ -48,17 +48,17 @@
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="flex flex-wrap items-center gap-3 sm:gap-4">
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full">
                         <a
                             href="/belanja"
-                            class="px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white text-xs sm:text-sm font-bold shadow-lg shadow-[#4F26A6]/20 transition-all inline-flex items-center gap-2 cursor-pointer hover:scale-[1.02]"
+                            class="w-full sm:w-auto text-center justify-center px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white text-xs sm:text-sm font-bold shadow-lg shadow-[#4F26A6]/20 transition-all inline-flex items-center gap-2 cursor-pointer hover:scale-[1.02]"
                         >
                             <span>Eksplor Belanja</span>
                             <span>&rarr;</span>
                         </a>
                         <a
                             href="/"
-                            class="px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-white border-2 border-purple-200/90 hover:bg-[#4F26A6]/5 text-[#4F26A6] text-xs sm:text-sm font-bold transition-all cursor-pointer"
+                            class="w-full sm:w-auto text-center justify-center px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-white border-2 border-purple-200/90 hover:bg-[#4F26A6]/5 text-[#4F26A6] text-xs sm:text-sm font-bold transition-all cursor-pointer"
                         >
                             Kembali ke Beranda
                         </a>
@@ -127,10 +127,10 @@
                     Tim Customer Support kami siap mendampingi kamu dalam setiap langkah proses jual beli dan verifikasi akun.
                 </p>
             </div>
-            <div class="flex items-center gap-3 shrink-0">
+            <div class="w-full sm:w-auto flex items-center justify-center shrink-0">
                 <a
                     href="/hubungi-kami"
-                    class="px-6 py-3 rounded-xl bg-[#FDBA2D] hover:bg-[#F59E0B] text-gray-900 text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95"
+                    class="w-full sm:w-auto text-center px-6 py-3 rounded-xl bg-[#FDBA2D] hover:bg-[#F59E0B] text-gray-900 text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95 cursor-pointer"
                 >
                     Hubungi Customer Care
                 </a>
