@@ -5,7 +5,7 @@
     'user' => null
 ])
 
-<div
+<div class="sticky top-0 z-50 w-full"
     x-data="{
         isScrolled: false,
         isProfileOpen: false,
@@ -23,7 +23,7 @@
     <header
         id="main-header"
         :class="isScrolled ? '!bg-white shadow-[0_4px_20px_-2px_rgba(0,0,0,0.06)] !border-gray-100' : 'bg-white/95 sm:bg-white/90 lg:bg-transparent backdrop-blur-md lg:backdrop-blur-none'"
-        class="w-full sticky top-0 z-40 transition-colors duration-200 border-b border-gray-100 lg:border-transparent"
+        class="w-full transition-colors duration-200 border-b border-gray-100 lg:border-transparent"
     >
         <div id="header-container" class="max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-4 sm:py-5 flex items-center justify-between gap-4 lg:gap-6">
             <!-- Left Area: Brand Logo & Navigation Links -->

@@ -51,10 +51,21 @@
                     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full">
                         <a
                             href="/belanja"
-                            class="w-full sm:w-auto text-center justify-center px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white text-xs sm:text-sm font-bold shadow-lg shadow-[#4F26A6]/20 transition-all inline-flex items-center gap-2 cursor-pointer hover:scale-[1.02]"
+                            class="w-full sm:w-auto text-center justify-center px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white text-xs sm:text-sm font-bold shadow-lg shadow-[#4F26A6]/20 transition-all inline-flex items-center gap-2 cursor-pointer hover:scale-[1.02] group"
                         >
                             <span>Eksplor Belanja</span>
-                            <span>&rarr;</span>
+                            <svg
+                                class="w-4 h-4 text-white group-hover:translate-x-1 transition-transform"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                                <polyline points="12 5 19 12 12 19" />
+                            </svg>
                         </a>
                         <a
                             href="/"
@@ -71,6 +82,7 @@
                         <img
                             src="{{ $image ?? '/assets/info/cara-jual.png' }}"
                             alt="{{ $title }}"
+                            decoding="async"
                             class="w-full h-full object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-300"
                         />
                     </div>
@@ -108,31 +120,44 @@
                                 {{ $section['content'] }}
                             </p>
                         </div>
-
-                        <div class="pt-5 mt-5 border-t border-gray-100 flex items-center gap-1.5 text-xs font-bold text-[#4F26A6]">
-                            <span>Pelajari lebih lanjut</span>
-                            <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
-                        </div>
                     </div>
                 @endforeach
             </div>
         </div>
 
-        <!-- Interactive FAQ / Help Banner at the Bottom -->
-        <div class="bg-gradient-to-r from-[#4F26A6] to-[#6A39D4] rounded-3xl p-6 sm:p-8 lg:p-10 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-[0_14px_40px_rgba(79,38,166,0.25)]">
-            <div class="max-w-xl">
-                <span class="text-xs font-extrabold uppercase tracking-wider text-yellow-300">Pusat Bantuan WhiMarket</span>
-                <h3 class="text-lg sm:text-2xl font-black mt-1 leading-tight">Ada pertanyaan lain seputar {{ $title }}?</h3>
-                <p class="text-xs sm:text-sm text-purple-100 mt-2 leading-relaxed font-normal">
-                    Tim Customer Support kami siap mendampingi kamu dalam setiap langkah proses jual beli dan verifikasi akun.
-                </p>
+        <!-- Help / Contact Banner Matching Newsletter Source of Truth -->
+        <div class="bg-[#5B27B5] rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:px-10 lg:py-8 flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-10 shadow-[0_14px_40px_rgba(91,39,181,0.22)] relative overflow-hidden">
+            <!-- Left Side: Icon & Copy -->
+            <div class="flex items-start sm:items-center gap-4 sm:gap-6 w-full lg:w-auto">
+                <div class="shrink-0 w-11 h-11 sm:w-14 sm:h-14 flex items-center justify-center text-white mt-0.5 sm:mt-0">
+                    <svg class="w-9 h-9 sm:w-12 sm:h-12" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M24 6C13.5 6 5 13.6 5 23c0 4.2 1.7 8.1 4.7 11.1L7 42l8.8-3.1C18.4 39.6 21.1 40 24 40c10.5 0 19-7.6 19-17s-8.5-17-19-17z" />
+                        <circle cx="16" cy="23" r="2.2" fill="currentColor" stroke="none" />
+                        <circle cx="24" cy="23" r="2.2" fill="currentColor" stroke="none" />
+                        <circle cx="32" cy="23" r="2.2" fill="currentColor" stroke="none" />
+                    </svg>
+                </div>
+
+                <div class="flex flex-col text-white">
+                    <h3 class="text-[17px] sm:text-xl lg:text-[22px] font-bold tracking-tight leading-[1.35] sm:leading-tight">
+                        Ada pertanyaan lain seputar {{ $title }}?
+                    </h3>
+                    <p class="text-white/80 text-[13px] sm:text-sm lg:text-[14.5px] mt-2 sm:mt-1.5 font-normal leading-relaxed">
+                        Tim Customer Support kami siap mendampingi kamu dalam setiap langkah proses jual beli dan verifikasi akun.
+                    </p>
+                </div>
             </div>
-            <div class="w-full sm:w-auto flex items-center justify-center shrink-0">
+
+            <!-- Right Side: Action Button -->
+            <div class="w-full lg:w-auto shrink-0 flex items-center justify-start lg:justify-end">
                 <a
                     href="/hubungi-kami"
-                    class="w-full sm:w-auto text-center px-6 py-3 rounded-xl bg-[#FDBA2D] hover:bg-[#F59E0B] text-gray-900 text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95 cursor-pointer"
+                    class="w-full sm:w-auto h-11 sm:h-12 px-6 sm:px-7 rounded-xl bg-[#FDBA2D] hover:bg-[#F59E0B] text-[#111827] font-bold text-sm sm:text-[15px] shadow-xs hover:shadow transition-all duration-200 shrink-0 whitespace-nowrap active:scale-[0.98] cursor-pointer inline-flex items-center justify-center gap-2"
                 >
-                    Hubungi Customer Care
+                    <span>Hubungi Customer Care</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
                 </a>
             </div>
         </div>
