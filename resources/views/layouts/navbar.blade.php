@@ -133,7 +133,7 @@
                                 </a>
                                 <a href="/belanja?kategori=kecantikan" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group/item">
                                     <svg class="w-4 h-4 text-gray-500 group-hover/item:text-[#4F26A6] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 2a4 4 0 0 0-4 4c0 3 4 8 4 8s4-5 4-8a4 4 0 0 0-4-4z"/><circle cx="12" cy="6" r="1"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
                                     </svg>
                                     <span>Kecantikan</span>
                                 </a>
@@ -413,7 +413,7 @@
                             <span>Elektronik</span>
                         </a>
                         <a href="/belanja?kategori=kecantikan" class="flex items-center gap-2.5 py-2 px-2.5 rounded-lg hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors">
-                            <svg class="w-4 h-4 text-gray-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2a4 4 0 0 0-4 4c0 3 4 8 4 8s4-5 4-8a4 4 0 0 0-4-4z"/><circle cx="12" cy="6" r="1"/></svg>
+                            <svg class="w-4 h-4 text-gray-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
                             <span>Kecantikan</span>
                         </a>
                         <a href="/belanja" class="flex items-center gap-2.5 py-2 px-2.5 rounded-lg text-[#4F26A6] font-bold hover:bg-[#F3EEFF] transition-colors pt-2 border-t border-gray-100">
