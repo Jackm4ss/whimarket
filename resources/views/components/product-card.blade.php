@@ -1,0 +1,93 @@
+@props(['product', 'className' => ''])
+
+<div
+    x-data="{ isLiked: false, likesCount: {{ $product['likes'] ?? 0 }} }"
+    class="bg-white rounded-2xl border border-gray-100/90 shadow-[0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_26px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col group {{ $className }}"
+>
+    <!-- Product Image Stage -->
+    <div class="w-full aspect-[4/5] bg-gray-100 overflow-hidden relative flex items-center justify-center">
+        <!-- Wishlist Heart Button -->
+        <button
+            type="button"
+            @click.prevent.stop="isLiked = !isLiked; likesCount += (isLiked ? 1 : -1)"
+            class="absolute top-2.5 right-2.5 z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/95 backdrop-blur-xs shadow-md flex items-center justify-center transition-transform hover:scale-105 cursor-pointer"
+            :class="isLiked ? 'text-[#4F26A6]' : 'text-gray-700 hover:text-[#4F26A6]'"
+            title="Simpan ke Wishlist"
+        >
+            <svg
+                class="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-colors"
+                viewBox="0 0 24 24"
+                :fill="isLiked ? 'currentColor' : 'none'"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            >
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+        </button>
+
+        <img
+            src="{{ $product['image'] }}"
+            alt="{{ $product['title'] }}"
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 z-0"
+            loading="lazy"
+        />
+
+        <!-- Condition Tag Badge -->
+        @if(!empty($product['condition']))
+            <div class="absolute bottom-2.5 left-2.5 z-20 pointer-events-none">
+                <span class="px-2.5 sm:px-3 py-1 rounded-lg sm:rounded-xl bg-white text-gray-900 text-[11px] sm:text-[12px] font-bold shadow-md border border-black/5">
+                    {{ $product['condition'] }}
+                </span>
+            </div>
+        @endif
+    </div>
+
+    <!-- Card Info Body -->
+    <div class="p-3.5 sm:p-4 flex flex-col flex-1 justify-between">
+        <div>
+            <!-- Seller Name & Verified Rosette -->
+            <div class="flex items-center gap-2">
+                <img
+                    src="{{ $product['sellerAvatar'] }}"
+                    alt="{{ $product['sellerName'] }}"
+                    class="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover shrink-0 ring-1 ring-gray-100"
+                    loading="lazy"
+                />
+                <span class="text-xs sm:text-[13px] font-bold text-gray-900 truncate">
+                    {{ $product['sellerName'] }}
+                </span>
+                @if(!empty($product['verified']))
+                    <x-verified-badge size="sm" class="w-3.5 h-3.5 shrink-0" />
+                @endif
+            </div>
+
+            <!-- Product Title -->
+            <h3 class="text-[13.5px] sm:text-[14.5px] font-medium text-gray-700 mt-2 mb-3 line-clamp-1">
+                {{ $product['title'] }}
+            </h3>
+        </div>
+
+        <!-- Price & Likes Count -->
+        <div class="flex items-center justify-between pt-1">
+            <span class="text-sm sm:text-[15.5px] font-bold text-[#4F26A6]">
+                {{ $product['priceText'] }}
+            </span>
+            <div class="inline-flex items-center gap-1 text-xs text-gray-400 font-medium">
+                <svg
+                    class="w-3.5 h-3.5 transition-colors"
+                    :class="isLiked ? 'text-[#4F26A6] fill-[#4F26A6]' : 'text-gray-400 fill-none'"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+                <span x-text="likesCount"></span>
+            </div>
+        </div>
+    </div>
+</div>

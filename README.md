@@ -1,97 +1,58 @@
-# WhiMarket
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-> **Modern creator-driven commerce platform connecting audiences with authenticated pre-loved collections and exclusive merchandise from Indonesia's leading public figures.**
+<p align="center">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
 
----
+## About Laravel
 
-## Overview
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-WhiMarket is an e-commerce platform bridging top creators, artists, and streamers with their communities. The landing page is engineered with a mobile-first architecture, sub-millisecond interaction feedback, and strict adherence to brand typography, color harmonies, and responsive fluid layout grids.
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
----
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-## Key Highlights
+## Learning Laravel
 
-- **Hero Experience**: Dynamic category highlights, trust metrics, verified creator endorsements, and handcrafted callouts.
-- **Value Proposition**: 4-pillar trust architecture (Authenticity, Escrow Protection, Direct-from-Creator provenance, and Express Logistics).
-- **Curated Discoverability**: Categorized exploration panels and trending product listings featuring authenticated creator badges.
-- **Creator Social Proof**: Interactive creator directory with rating metrics and frictionless horizontal mobile swipe navigation.
-- **Creator Onboarding Portal**: High-conversion acquisition section for prospective public figures and merchandisers.
-- **Sequential Escrow Guide**: Visual step-by-step transaction flow featuring 3D clay-rendered assets and continuous responsive trace vectors.
-- **Audience Retention**: Integrated newsletter dispatch module with fluid responsive container alignment.
-- **Global Footer Navigation**: Comprehensive directory matrix, localization indicators, and official mobile platform store entries.
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
----
+In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-## Technical Stack
+You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
 
-| Layer | Technology | Rationale |
-| :--- | :--- | :--- |
-| **Markup** | HTML5 Semantic Architecture | High accessibility compliance (WCAG) and SEO indexing. |
-| **Styling** | Tailwind CSS Engine | Utility-first compilation, unified token registry, zero CSS bloat. |
-| **Typography** | Plus Jakarta Sans & Caveat | Primary modern grotesque sans paired with organic handwriting accents. |
-| **Runtime** | Vanilla JavaScript | Zero runtime dependency overhead; native event loops for scroll transitions and navigation drawers. |
+## Agentic Development
 
----
+Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
 
-## Design System Tokens
-
-```css
-/* Core Color Palette */
---brand-purple:       #4F26A6;
---brand-purple-deep:  #4F18C8;
---brand-banner:       #501EB4;
---brand-newsletter:   #5B27B5;
---brand-amber:        #F59E0B;
---brand-gold:         #FDBA2D;
---surface-bg:         #FAF9FC;
---surface-card:       #FFFFFF;
---text-primary:       #111827;
---text-muted:         #6B7280;
-```
-
----
-
-## Project Structure
-
-```text
-whimarket/
-├── public/
-│   ├── index.html              # Production single-page landing application
-│   └── assets/                 # Optimized static media assets
-│       ├── avatars/            # Verified creator portrait assets
-│       ├── categories/         # Category showcase renders
-│       ├── products/           # Featured product collection assets
-│       └── steps/              # Sequential process 3D illustrations
-├── .gitignore                  # Git VCS exclusions
-└── README.md                   # System documentation & technical specifications
-```
-
----
-
-## Local Development
-
-Deploy locally with any zero-configuration static file server:
-
-### Python 3
 ```bash
-python -m http.server 3000 --directory public
+composer require laravel/boost --dev
+
+php artisan boost:install
 ```
 
-### Node.js / npx
-```bash
-npx serve public -p 3000
-```
+Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
 
-### Bun
-```bash
-bun x serve public -p 3000
-```
+## Contributing
 
-Open `http://localhost:3000` in browser.
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
----
+## Code of Conduct
+
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+
+## Security Vulnerabilities
+
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
 ## License
 
-All visual trademarks, brand identities, and proprietary asset illustrations belong to WhiMarket. Open-source code implementation available under the [MIT License](LICENSE).
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

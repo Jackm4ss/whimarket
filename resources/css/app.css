@@ -1,0 +1,68 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+@source '../js/**/*.js';
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-handwriting: 'Caveat', cursive;
+
+  --color-primary-purple: #4F26A6;
+  --color-banner-purple: #5022CE;
+  --color-amber-accent: #F7AC1D;
+  --color-arch-panel: #ECE8F1;
+  --color-page-canvas: #FAF9FC;
+
+  --color-brand-purple: #4F26A6;
+  --color-brand-purple-dark: #3E1D85;
+  --color-brand-purple-deep: #4F18C8;
+  --color-brand-purple-banner: #501EB4;
+  --color-brand-purple-newsletter: #5B27B5;
+  --color-brand-purple-light: #F3EEFF;
+  --color-brand-yellow: #F59E0B;
+  --color-brand-yellow-light: #FEF9EE;
+  --color-brand-gold: #FDBA2D;
+  --color-brand-dark: #111827;
+  --color-brand-gray: #6B7280;
+  --color-brand-gray-muted: #4B5563;
+  --breakpoint-xs: 475px;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    background-color: #FAF9FC;
+    color: #111827;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+.arch-panel {
+  background: #ECE8F1;
+  border-top-left-radius: 240px;
+  border-top-right-radius: 240px;
+}
+
+.tape-strip {
+  background: rgba(226, 218, 202, 0.85);
+  backdrop-filter: blur(1px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transform: rotate(-8deg);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+[x-cloak] {
+  display: none !important;
+}
