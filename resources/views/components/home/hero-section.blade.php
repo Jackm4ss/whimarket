@@ -44,14 +44,14 @@
                 </a>
 
                 <a
-                    href="/#seller-populer"
+                    href="/seller"
                     class="w-full sm:w-[210px] md:w-[220px] h-12 sm:h-[52px] inline-flex items-center justify-center gap-2.5 sm:gap-3 bg-transparent border-2 border-[#4F26A6] text-[#4F26A6] text-sm sm:text-[15.5px] font-bold rounded-xl hover:bg-[#4F26A6]/5 transition-all shrink-0"
                 >
                     <svg class="w-4 h-4 sm:w-5 sm:h-5 text-[#4F26A6]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                        <circle cx="12" cy="7" r="4" />
+                        <circle cx="11" cy="11" r="7" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
-                    <span>Jelajahi Seller</span>
+                    <span>Cari Seller</span>
                 </a>
             </div>
 

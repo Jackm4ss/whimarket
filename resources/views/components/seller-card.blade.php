@@ -1,45 +1,84 @@
 @props(['seller'])
 
-<div class="min-w-[195px] sm:min-w-[215px] lg:min-w-0 shrink-0 lg:shrink bg-white rounded-2xl sm:rounded-3xl border border-gray-100/90 shadow-[0_4px_18px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.07)] hover:-translate-y-1 transition-all duration-300 p-4 sm:p-5 flex flex-col items-center text-center justify-between group snap-start">
-    <div class="flex flex-col items-center w-full">
-        <!-- Avatar Container -->
-        <div class="relative mb-3.5">
-            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 bg-gray-50 ring-1 ring-gray-200/80 shadow-xs overflow-hidden">
-                <img
-                    src="{{ $seller['avatar'] }}"
-                    alt="{{ $seller['name'] }}"
-                    class="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform duration-300"
-                    decoding="async"
-                />
+@php
+    $profileUrl = ($seller['name'] ?? '') === 'Rachel Vennya' 
+        ? '/seller/@rachel_venya' 
+        : (!empty($seller['handle']) ? '/seller/' . $seller['handle'] : '#toko-' . ($seller['id'] ?? '1'));
+    $cardBg = $seller['cardBg'] ?? '/assets/seller-card-cover-rachel.png';
+    $followerCount = $seller['followerCount'] ?? ($seller['salesCount'] ? $seller['salesCount'] . 'rb' : '10.5rb');
+    $reviewCount = $seller['reviewCount'] ?? '1.2rb';
+@endphp
+
+<div class="min-w-[260px] sm:min-w-[280px] lg:min-w-0 shrink-0 lg:shrink bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_32px_rgba(72,30,188,0.08)] transition-all flex flex-col justify-between group overflow-hidden snap-start text-left">
+    <!-- Top Banner Section -->
+    <div class="relative w-full h-[125px] sm:h-[135px] bg-[#E8DEFD] overflow-hidden">
+        <img
+            src="{{ $cardBg }}"
+            alt="{{ $seller['name'] }}"
+            decoding="async"
+            class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+        />
+    </div>
+
+    <!-- Circular Avatar Overlapping Banner and White Card Body -->
+    <div class="relative -mt-8 ml-5 sm:ml-6 z-20 w-[64px] h-[64px] sm:w-[70px] sm:h-[70px] rounded-full p-0.5 bg-white ring-4 ring-white shadow-md overflow-hidden shrink-0">
+        <img
+            src="{{ $seller['avatar'] }}"
+            alt="{{ $seller['name'] }}"
+            decoding="async"
+            class="w-full h-full object-cover rounded-full"
+        />
+    </div>
+
+    <!-- Card Body Information -->
+    <div class="px-5 sm:px-6 pt-2.5 pb-5 sm:pb-6 flex-1 flex flex-col justify-between">
+        <div>
+            <!-- Name & Verified Badge -->
+            <div class="flex items-center gap-1.5 mb-0.5">
+                <h3 class="text-[16px] sm:text-[17.5px] font-extrabold text-[#111827] tracking-tight hover:text-[#481EBC] transition-colors truncate">
+                    <a href="{{ $profileUrl }}">{{ $seller['name'] }}</a>
+                </h3>
+                @if(!empty($seller['verified']))
+                    <x-verified-badge size="sm" class="w-4 h-4 shrink-0" />
+                @endif
+            </div>
+
+            <!-- Role -->
+            <p class="text-xs text-gray-400 font-medium mb-3">{{ $seller['role'] }}</p>
+
+            <!-- Rating Stars & Review Count -->
+            <div class="flex items-center gap-1.5 text-xs text-gray-500 mb-3.5">
+                <div class="flex items-center gap-0.5 text-[#F59E0B]">
+                    @for($i = 0; $i < 5; $i++)
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    @endfor
+                </div>
+                <span class="font-bold text-gray-800">{{ number_format($seller['rating'], 1) }}</span>
+                <span class="text-gray-400 font-normal">({{ $reviewCount }} ulasan)</span>
+            </div>
+
+            <!-- Horizontal Divider Separator Line -->
+            <div class="w-full border-t border-gray-200 my-3.5"></div>
+
+            <!-- Stats Columns: Barang & Pengikut with Vertical Separator -->
+            <div class="grid grid-cols-2 divide-x divide-gray-200 text-center mb-5">
+                <div class="pr-2">
+                    <span class="text-[17px] sm:text-[18px] font-extrabold text-[#111827] block leading-tight">{{ $seller['itemCount'] }}</span>
+                    <span class="text-[12px] text-gray-400 font-medium block mt-0.5">Barang</span>
+                </div>
+                <div class="pl-2">
+                    <span class="text-[17px] sm:text-[18px] font-extrabold text-[#111827] block leading-tight">{{ $followerCount }}</span>
+                    <span class="text-[12px] text-gray-400 font-medium block mt-0.5">Pengikut</span>
+                </div>
             </div>
         </div>
-        <!-- Name & Verified -->
-        <div class="flex items-center justify-center gap-1.5 w-full">
-            <h3 class="text-sm sm:text-[15.5px] font-bold text-gray-900 truncate max-w-[130px] sm:max-w-none">
-                {{ $seller['name'] }}
-            </h3>
-            @if(!empty($seller['verified']))
-                <x-verified-badge size="sm" class="w-4 h-4 shrink-0" />
-            @endif
-        </div>
-        <!-- Role -->
-        <span class="text-xs text-gray-400 font-medium mt-0.5 mb-3.5">{{ $seller['role'] }}</span>
-        <!-- Stats Row -->
-        <div class="flex items-center justify-center gap-3 text-xs sm:text-[12.5px] font-medium text-gray-500 mb-4 w-full">
-            <span>{{ $seller['itemCount'] }} Barang</span>
-            <span class="inline-flex items-center gap-1 text-gray-700 font-semibold">
-                <svg class="w-3.5 h-3.5 text-[#F59E0B] fill-[#F59E0B]" viewBox="0 0 24 24">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                </svg>
-                <span>{{ number_format($seller['rating'], 1) }}</span>
-            </span>
-        </div>
+
+        <!-- Action Button: Lihat Toko -->
+        <a
+            href="{{ $profileUrl }}"
+            class="w-full py-2.5 rounded-xl border border-purple-200 text-[#481EBC] hover:bg-[#481EBC] hover:text-white font-bold text-xs sm:text-[13px] transition-all text-center block cursor-pointer"
+        >
+            Lihat Toko
+        </a>
     </div>
-    <!-- CTA Button -->
-    <a
-        href="{{ $seller['name'] === 'Rachel Vennya' ? '/seller/@rachel_venya' : ($seller['handle'] ? '/seller/' . $seller['handle'] : '#toko-' . $seller['id']) }}"
-        class="w-full py-2.5 rounded-xl border border-purple-200/90 text-[#4F26A6] font-bold text-xs sm:text-[13.5px] hover:bg-[#4F26A6] hover:text-white transition-all text-center"
-    >
-        Lihat Toko
-    </a>
 </div>

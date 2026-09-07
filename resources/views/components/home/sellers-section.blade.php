@@ -13,7 +13,7 @@
             Seller Populer
         </h2>
         <a
-            href="#seller-populer"
+            href="/seller"
             class="inline-flex items-center gap-1.5 text-sm sm:text-[15.5px] font-bold text-[#4F26A6] hover:text-[#3E1D85] transition-colors group shrink-0"
         >
             <span>Lihat Semua Seller</span>
