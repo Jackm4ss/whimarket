@@ -17,6 +17,11 @@ Route::get('/belanja', function () {
         'categories' => MarketData::categories(),
     ]);
 });
+Route::get('/seller', function () {
+    return view('browse-seller', [
+        'activeTab' => 'seller',
+    ]);
+});
 Route::get('/seller/{username}', function (string $username) {
     // Strictly require username format starting with @
     if (! str_starts_with($username, '@')) {
