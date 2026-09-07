@@ -337,8 +337,10 @@
                     </div>
                 </div>
 
-                <!-- Mobile-Only Stats Row strictly for < 640px: with outer left and right separators -->
-                <div class="flex sm:hidden items-center justify-between w-full pt-3 pb-3 mb-1 px-1 border-x border-gray-200/80">
+                <!-- Mobile-Only Stats Row strictly for < 640px: 4 identical height separators -->
+                <div class="flex sm:hidden items-center justify-between w-full pt-3 pb-3 mb-1 px-1">
+                    <div class="h-8 w-[1px] bg-gray-200/80 shrink-0"></div>
+
                     <!-- Rating -->
                     <div class="flex flex-col items-center text-center flex-1">
                         <svg class="w-5 h-5 text-amber-400 fill-current mb-1" viewBox="0 0 20 20">
@@ -369,6 +371,8 @@
                         <span class="text-[19px] font-black text-[#111827] leading-none">12.4rb</span>
                         <span class="text-[12px] text-gray-400 font-normal mt-1.5 whitespace-nowrap">Pengikut</span>
                     </div>
+
+                    <div class="h-8 w-[1px] bg-gray-200/80 shrink-0"></div>
                 </div>
 
                 <!-- + Ikuti Toko Button -->
@@ -722,9 +726,9 @@
                 </div>
 
                 <!-- Review Items -->
-                <div class="space-y-6 divide-y divide-gray-100">
+                <div class="divide-y divide-gray-100">
                     <!-- Review Item 1: Anya Geraldine -->
-                    <div class="pt-6 first:pt-0">
+                    <div class="pb-7 sm:pb-8 pt-0">
                         <div class="flex flex-col md:flex-row md:items-stretch justify-between gap-6">
                             <div class="flex-1 min-w-0 md:pr-6 md:border-r md:border-gray-200/80">
                                 <div class="flex items-center gap-3 mb-2">
@@ -750,14 +754,16 @@
                                     <img src="/assets/review-chanel-3.png" alt="Review 3" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs" />
                                 </div>
                             </div>
-                            <div class="flex items-center gap-3.5 sm:gap-4 shrink-0 pt-3 md:pt-0 w-full md:w-[280px]">
+                            <div class="flex items-start gap-3.5 sm:gap-4 shrink-0 pt-4 md:pt-0 w-full md:w-[280px]">
                                 <div class="w-[84px] h-[84px] sm:w-[90px] sm:h-[90px] rounded-2xl bg-[#ECE8F1] shrink-0 overflow-hidden">
                                     <img src="/assets/products/prod-bag.png" alt="Tas Charles & Keith" class="w-full h-full object-cover" />
                                 </div>
-                                <div class="flex flex-col justify-center min-w-0">
-                                    <span class="text-[12.5px] sm:text-[13px] font-bold text-gray-900 leading-tight truncate">Tas Charles &amp; Keith Black</span>
-                                    <span class="text-[13.5px] sm:text-[14px] font-extrabold text-[#5022CE] mt-0.5 leading-tight">Rp 850.000</span>
-                                    <a href="#produk" class="text-[12px] sm:text-[13px] text-[#5022CE] hover:text-[#3E1D85] font-bold mt-2 sm:mt-2.5 inline-flex items-center gap-1.5 transition-colors group">
+                                <div class="h-[84px] sm:h-[90px] flex flex-col justify-between min-w-0 py-0.5">
+                                    <div>
+                                        <span class="text-[12.5px] sm:text-[13px] font-bold text-gray-900 leading-tight truncate block">Tas Charles &amp; Keith Black</span>
+                                        <span class="text-[13.5px] sm:text-[14px] font-extrabold text-[#5022CE] mt-1 leading-tight block">Rp 850.000</span>
+                                    </div>
+                                    <a href="#produk" class="text-[12px] sm:text-[13px] text-[#5022CE] hover:text-[#3E1D85] font-bold inline-flex items-center gap-1.5 transition-colors group leading-tight">
                                         <span>Lihat Produk</span>
                                         <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
                                     </a>
@@ -767,7 +773,7 @@
                     </div>
 
                     <!-- Review Item 2: Fuji An -->
-                    <div class="pt-6">
+                    <div class="py-7 sm:py-8">
                         <div class="flex flex-col md:flex-row md:items-stretch justify-between gap-6">
                             <div class="flex-1 min-w-0 md:pr-6 md:border-r md:border-gray-200/80">
                                 <div class="flex items-center gap-3 mb-2">
@@ -793,14 +799,16 @@
                                     <img src="/assets/review-hoodie-3.png" alt="Review 3" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs" />
                                 </div>
                             </div>
-                            <div class="flex items-center gap-3.5 sm:gap-4 shrink-0 pt-3 md:pt-0 w-full md:w-[280px]">
+                            <div class="flex items-start gap-3.5 sm:gap-4 shrink-0 pt-4 md:pt-0 w-full md:w-[280px]">
                                 <div class="w-[84px] h-[84px] sm:w-[90px] sm:h-[90px] rounded-2xl bg-[#ECE8F1] shrink-0 overflow-hidden">
                                     <img src="/assets/products/prod-hoodie.png" alt="Hoodie Plan Do" class="w-full h-full object-cover" />
                                 </div>
-                                <div class="flex flex-col justify-center min-w-0">
-                                    <span class="text-[12.5px] sm:text-[13px] font-bold text-gray-900 leading-tight truncate">Hoodie Plan Do</span>
-                                    <span class="text-[13.5px] sm:text-[14px] font-extrabold text-[#5022CE] mt-0.5 leading-tight">Rp 500.000</span>
-                                    <a href="#produk" class="text-[12px] sm:text-[13px] text-[#5022CE] hover:text-[#3E1D85] font-bold mt-2 sm:mt-2.5 inline-flex items-center gap-1.5 transition-colors group">
+                                <div class="h-[84px] sm:h-[90px] flex flex-col justify-between min-w-0 py-0.5">
+                                    <div>
+                                        <span class="text-[12.5px] sm:text-[13px] font-bold text-gray-900 leading-tight truncate block">Hoodie Plan Do</span>
+                                        <span class="text-[13.5px] sm:text-[14px] font-extrabold text-[#5022CE] mt-1 leading-tight block">Rp 500.000</span>
+                                    </div>
+                                    <a href="#produk" class="text-[12px] sm:text-[13px] text-[#5022CE] hover:text-[#3E1D85] font-bold inline-flex items-center gap-1.5 transition-colors group leading-tight">
                                         <span>Lihat Produk</span>
                                         <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
                                     </a>
@@ -810,7 +818,7 @@
                     </div>
 
                     <!-- Review Item 3: Raisy Febian -->
-                    <div class="pt-6">
+                    <div class="pt-7 sm:pt-8 pb-4 sm:pb-5">
                         <div class="flex flex-col md:flex-row md:items-stretch justify-between gap-6">
                             <div class="flex-1 min-w-0 md:pr-6 md:border-r md:border-gray-200/80">
                                 <div class="flex items-center gap-3 mb-2">
@@ -836,14 +844,16 @@
                                     <img src="/assets/review-pokemon-3.png" alt="Review 3" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs" />
                                 </div>
                             </div>
-                            <div class="flex items-center gap-3.5 sm:gap-4 shrink-0 pt-3 md:pt-0 w-full md:w-[280px]">
+                            <div class="flex items-start gap-3.5 sm:gap-4 shrink-0 pt-4 md:pt-0 pb-2 md:pb-0 w-full md:w-[280px]">
                                 <div class="w-[84px] h-[84px] sm:w-[90px] sm:h-[90px] rounded-2xl bg-[#ECE8F1] shrink-0 overflow-hidden">
                                     <img src="/assets/products/prod-pokemon.png" alt="Kartu Pokemon Rare" class="w-full h-full object-cover" />
                                 </div>
-                                <div class="flex flex-col justify-center min-w-0">
-                                    <span class="text-[12.5px] sm:text-[13px] font-bold text-gray-900 leading-tight truncate">Kartu Pokemon Rare</span>
-                                    <span class="text-[13.5px] sm:text-[14px] font-extrabold text-[#5022CE] mt-0.5 leading-tight">Rp 1.500.000</span>
-                                    <a href="#produk" class="text-[12px] sm:text-[13px] text-[#5022CE] hover:text-[#3E1D85] font-bold mt-2 sm:mt-2.5 inline-flex items-center gap-1.5 transition-colors group">
+                                <div class="h-[84px] sm:h-[90px] flex flex-col justify-between min-w-0 py-0.5">
+                                    <div>
+                                        <span class="text-[12.5px] sm:text-[13px] font-bold text-gray-900 leading-tight truncate block">Kartu Pokemon Rare</span>
+                                        <span class="text-[13.5px] sm:text-[14px] font-extrabold text-[#5022CE] mt-1 leading-tight block">Rp 1.500.000</span>
+                                    </div>
+                                    <a href="#produk" class="text-[12px] sm:text-[13px] text-[#5022CE] hover:text-[#3E1D85] font-bold inline-flex items-center gap-1.5 transition-colors group leading-tight">
                                         <span>Lihat Produk</span>
                                         <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
                                     </a>

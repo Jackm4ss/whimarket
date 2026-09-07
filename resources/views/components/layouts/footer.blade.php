@@ -56,21 +56,9 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/#barang-terbaru" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
+                        <a href="/belanja" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
                             <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
                             <span>Barang Terbaru</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/#seller-populer" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
-                            <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/></svg>
-                            <span>Seller Populer</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/#cara-kerja" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
-                            <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                            <span>Cara Kerja</span>
                         </a>
                     </li>
                 </ul>
@@ -81,25 +69,25 @@
                 <h4 class="text-sm sm:text-[15px] font-bold text-gray-900 mb-4 tracking-tight">Untuk Kreator</h4>
                 <ul class="space-y-2.5 text-xs sm:text-[13.5px] text-gray-500">
                     <li>
-                        <a href="#cara-jual" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
+                        <a href="/cara-jual" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
                             <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <span>Cara Jual</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#keuntungan" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
+                        <a href="/keuntungan" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
                             <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
                             <span>Keuntungan</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#panduan-seller" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
+                        <a href="/panduan-seller" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
                             <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                             <span>Panduan Seller</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#gabung-seller" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
+                        <a href="/gabung-seller" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
                             <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
                             <span>Gabung sebagai Seller</span>
                         </a>
@@ -112,25 +100,25 @@
                 <h4 class="text-sm sm:text-[15px] font-bold text-gray-900 mb-4 tracking-tight">Bantuan</h4>
                 <ul class="space-y-2.5 text-xs sm:text-[13.5px] text-gray-500">
                     <li>
-                        <a href="#faq" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
+                        <a href="/faq" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
                             <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <span>FAQ</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#kebijakan-privasi" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
+                        <a href="/kebijakan-privasi" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
                             <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                             <span>Kebijakan Privasi</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#syarat-ketentuan" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
+                        <a href="/syarat-ketentuan" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
                             <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                             <span>Syarat &amp; Ketentuan</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#hubungi-kami" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
+                        <a href="/hubungi-kami" class="inline-flex items-center gap-2 hover:text-[#4F26A6] transition-colors group">
                             <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                             <span>Hubungi Kami</span>
                         </a>
