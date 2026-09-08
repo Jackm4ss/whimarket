@@ -430,10 +430,10 @@
                     </div>
                 @else
                     <div class="hidden lg:flex items-center gap-2.5">
-                        <a href="{{ route('auth.google.redirect') }}" class="px-5 h-[44px] flex items-center justify-center rounded-xl text-[15px] font-semibold text-[#4F26A6] border-[1.5px] border-[#4F26A6] hover:bg-[#4F26A6]/5 transition-all">
+                        <a href="{{ route('login') }}" class="px-5 h-[44px] flex items-center justify-center rounded-xl text-[15px] font-semibold text-[#4F26A6] border-[1.5px] border-[#4F26A6] hover:bg-[#4F26A6]/5 transition-all">
                             Masuk
                         </a>
-                        <a href="{{ route('auth.google.redirect') }}" class="px-6 h-[44px] flex items-center justify-center rounded-xl text-[15px] font-semibold text-white bg-[#4F26A6] hover:bg-[#3E1D85] shadow-xs transition-all">
+                        <a href="{{ route('register') }}" class="px-6 h-[44px] flex items-center justify-center rounded-xl text-[15px] font-semibold text-white bg-[#4F26A6] hover:bg-[#3E1D85] shadow-xs transition-all">
                             Daftar
                         </a>
                     </div>
@@ -653,10 +653,10 @@
                     </button>
                 </form>
             @else
-                <a href="{{ route('auth.google.redirect') }}" class="w-full py-3 rounded-xl text-center font-bold text-white bg-[#4F26A6] hover:bg-[#3E1D85] shadow-md shadow-[#4F26A6]/20 transition-all text-sm">
+                <a href="{{ route('register') }}" class="w-full py-3 rounded-xl text-center font-bold text-white bg-[#4F26A6] hover:bg-[#3E1D85] shadow-md shadow-[#4F26A6]/20 transition-all text-sm">
                     Daftar Sekarang
                 </a>
-                <a href="{{ route('auth.google.redirect') }}" class="w-full py-3 rounded-xl text-center font-bold text-[#4F26A6] border-2 border-[#4F26A6] hover:bg-[#4F26A6]/5 transition-all text-sm">
+                <a href="{{ route('login') }}" class="w-full py-3 rounded-xl text-center font-bold text-[#4F26A6] border-2 border-[#4F26A6] hover:bg-[#4F26A6]/5 transition-all text-sm">
                     Masuk ke Akun
                 </a>
             @endif

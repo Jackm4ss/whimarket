@@ -89,18 +89,18 @@
                     Kelola barang yang ingin kamu beli dari para kreator favorit.
                 </p>
             </div>
-
-            <a
-                href="/belanja"
-                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border-2 border-[#4F26A6] text-[#4F26A6] hover:bg-[#4F26A6]/5 font-bold text-xs sm:text-sm transition-all shrink-0"
-            >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-                <span>Tambah Barang Lain</span>
-            </a>
+            @auth
+                <a
+                    href="/belanja"
+                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border-2 border-[#4F26A6] text-[#4F26A6] hover:bg-[#4F26A6]/5 font-bold text-xs sm:text-sm transition-all shrink-0"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span>Tambah Barang Lain</span>
+                </a>
+            @endauth
         </div>
-
         @if($items->isEmpty())
             <!-- Empty State -->
             <div class="bg-white rounded-3xl border border-gray-100/90 shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-8 sm:p-14 text-center max-w-xl mx-auto my-8">
@@ -113,19 +113,39 @@
                 <h3 class="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight mb-2">
                     Keranjangmu Masih Kosong
                 </h3>
-                <p class="text-sm text-gray-500 max-w-md mx-auto mb-8 leading-relaxed">
-                    Yuk cari barang pre-loved original dan merchandise eksklusif favoritmu lalu masukkan ke keranjang.
-                </p>
-                <a
-                    href="/belanja"
-                    class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-sm shadow-md shadow-[#4F26A6]/20 transition-all active:scale-[0.98]"
-                >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-                        <line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" />
-                    </svg>
-                    <span>Mulai Belanja</span>
-                </a>
+                @guest
+                    <p class="text-sm text-gray-500 max-w-md mx-auto mb-8 leading-relaxed">
+                        Masuk ke akunmu untuk melihat barang belanja yang sudah kamu simpan, atau mulai belanja barang pre-loved favoritmu.
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                        <a
+                            href="{{ route('login') }}"
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-sm shadow-md shadow-[#4F26A6]/20 transition-all active:scale-[0.98]"
+                        >
+                            <span>Masuk ke Akun</span>
+                        </a>
+                        <a
+                            href="/belanja"
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold text-sm transition-all"
+                        >
+                            <span>Mulai Belanja</span>
+                        </a>
+                    </div>
+                @else
+                    <p class="text-sm text-gray-500 max-w-md mx-auto mb-8 leading-relaxed">
+                        Yuk cari barang pre-loved original dan merchandise eksklusif favoritmu lalu masukkan ke keranjang.
+                    </p>
+                    <a
+                        href="/belanja"
+                        class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-sm shadow-md shadow-[#4F26A6]/20 transition-all active:scale-[0.98]"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                            <line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" />
+                        </svg>
+                        <span>Mulai Belanja</span>
+                    </a>
+                @endguest
             </div>
         @else
             <!-- 2-Column Cart Grid -->

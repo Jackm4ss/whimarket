@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Buyer\CartController;
 use App\Http\Controllers\Buyer\CatalogController;
@@ -14,6 +15,10 @@ use App\Http\Controllers\Seller\SellerProductController;
 use Illuminate\Support\Facades\Route;
 
 // Authentication Routes
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
 Route::post('/logout', [GoogleAuthController::class, 'logout'])->name('logout');

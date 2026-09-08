@@ -279,7 +279,7 @@
         <div class="p-5 sm:p-7 pt-3 border-t border-gray-100 flex flex-col gap-2.5 shrink-0 bg-white">
             <button
                 type="button"
-                @click="isMobileFilterOpen = false"
+                @click="applyFilters()"
                 class="w-full py-3 rounded-xl text-center font-bold text-white bg-[#4F26A6] hover:bg-[#3E1D85] shadow-md shadow-[#4F26A6]/20 transition-all text-sm cursor-pointer"
             >
                 Terapkan Filter

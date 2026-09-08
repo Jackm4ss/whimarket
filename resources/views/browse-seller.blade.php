@@ -1,9 +1,10 @@
 <x-layouts.app :title="'Dukung Kreator Favoritmu - WhiMarket'" activeTab="seller">
     <main class="w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-6 sm:py-8" x-data="{
         selectedCategory: 'all',
+        appliedCategory: 'all',
         sortBy: 'terbaru',
         sortDropdownOpen: false,
-        categoryOpen: true,
+        categoryOpen: false,
         filterDrawerOpen: false,
         seller: {
             id: 'sel_rachel',
@@ -21,7 +22,7 @@
             profileUrl: '/seller/@rachel_venya'
         },
         matchesFilter() {
-            if (this.selectedCategory !== 'all' && this.seller.category !== this.selectedCategory) {
+            if (this.appliedCategory !== 'all' && this.seller.category !== this.appliedCategory) {
                 return false;
             }
             return true;
@@ -175,11 +176,18 @@
 
                     <div class="h-[1px] bg-gray-100 w-full"></div>
 
-                    <!-- Reset Filter Button -->
-                    <div class="pt-1">
+                    <!-- Terapkan & Reset Filter Buttons -->
+                    <div class="pt-3 space-y-2">
                         <button
                             type="button"
-                            @click="selectedCategory = 'all'"
+                            @click="appliedCategory = selectedCategory"
+                            class="w-full py-2.5 rounded-xl font-bold text-xs sm:text-[13.5px] text-center flex items-center justify-center gap-2 bg-[#4F26A6] hover:bg-[#3E1D85] text-white transition-all cursor-pointer shadow-xs"
+                        >
+                            <span>Terapkan Filter</span>
+                        </button>
+                        <button
+                            type="button"
+                            @click="selectedCategory = 'all'; appliedCategory = 'all'"
                             class="btn-reset-filter w-full py-2.5 rounded-xl font-bold text-xs sm:text-[13.5px] text-center flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
                         >
                             <svg class="w-3.5 h-3.5 text-current transition-colors" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -424,14 +432,14 @@
                 <div class="p-5 sm:p-7 pt-3 border-t border-gray-100 flex flex-col gap-2.5 shrink-0 bg-white">
                     <button
                         type="button"
-                        @click="filterDrawerOpen = false"
+                        @click="appliedCategory = selectedCategory; filterDrawerOpen = false;"
                         class="w-full py-3 rounded-xl text-center font-bold text-white bg-[#4F26A6] hover:bg-[#3E1D85] shadow-md shadow-[#4F26A6]/20 transition-all text-sm cursor-pointer"
                     >
                         Terapkan Filter
                     </button>
                     <button
                         type="button"
-                        @click="selectedCategory = 'all'; filterDrawerOpen = false;"
+                        @click="selectedCategory = 'all'; appliedCategory = 'all'; filterDrawerOpen = false;"
                         class="btn-reset-filter w-full py-2.5 rounded-xl text-center font-bold text-xs sm:text-[13px] cursor-pointer shadow-2xs"
                     >
                         Reset Filter

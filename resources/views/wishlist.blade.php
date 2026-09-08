@@ -13,19 +13,13 @@
                     Wishlist Saya
                 </h1>
                 <p class="text-sm sm:text-[15px] text-gray-500 mt-1">
-                    Daftar barang pre-loved dan merchandise kreator yang kamu simpan.
+                    @guest
+                        Masuk ke akunmu untuk melihat dan menyimpan produk favoritmu.
+                    @else
+                        Daftar barang pre-loved dan merchandise kreator yang kamu simpan.
+                    @endguest
                 </p>
             </div>
-
-            <a
-                href="/belanja"
-                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border-2 border-[#4F26A6] text-[#4F26A6] hover:bg-[#4F26A6]/5 font-bold text-xs sm:text-sm transition-all shrink-0"
-            >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-                <span>Lanjut Belanja</span>
-            </a>
         </div>
 
         @if($wishlists->isEmpty())
@@ -36,21 +30,44 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
                 </div>
-                <h3 class="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight mb-2">
-                    Wishlist Masih Kosong
-                </h3>
-                <p class="text-sm text-gray-500 max-w-md mx-auto mb-8 leading-relaxed">
-                    Belum ada barang yang kamu simpan. Temukan barang pre-loved & merchandise unik dari kreator favoritmu sekarang.
-                </p>
-                <a
-                    href="/belanja"
-                    class="inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-sm shadow-md shadow-[#4F26A6]/20 transition-all active:scale-[0.98]"
-                >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    </svg>
-                    <span>Mulai Cari Produk</span>
-                </a>
+                @guest
+                    <h3 class="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight mb-2">
+                        Masuk untuk Melihat Wishlist
+                    </h3>
+                    <p class="text-sm text-gray-500 max-w-md mx-auto mb-8 leading-relaxed">
+                        Fitur simpan wishlist membutuhkan akun WhiMarket. Yuk masuk atau daftar sekarang agar barang favoritmu tersimpan rapi dan tidak hilang.
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                        <a
+                            href="{{ route('login') }}"
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-sm shadow-md shadow-[#4F26A6]/20 transition-all active:scale-[0.98]"
+                        >
+                            <span>Masuk ke Akun</span>
+                        </a>
+                        <a
+                            href="{{ route('register') }}"
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold text-sm transition-all"
+                        >
+                            <span>Daftar Akun</span>
+                        </a>
+                    </div>
+                @else
+                    <h3 class="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight mb-2">
+                        Wishlist Kamu Masih Kosong
+                    </h3>
+                    <p class="text-sm text-gray-500 max-w-md mx-auto mb-8 leading-relaxed">
+                        Kamu belum menyimpan barang impianmu. Cari barang pre-loved original dan merchandise unik dari kreator favoritmu sekarang!
+                    </p>
+                    <a
+                        href="/belanja"
+                        class="inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-sm shadow-md shadow-[#4F26A6]/20 transition-all active:scale-[0.98]"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <span>Mulai Cari Produk</span>
+                    </a>
+                @endguest
             </div>
         @else
             <!-- Wishlist Products Grid -->

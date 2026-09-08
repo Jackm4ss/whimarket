@@ -182,6 +182,32 @@ class CatalogController extends Controller
                     $variantsMap[$sz] = $v->id;
                 }
             }
+            $catSlug = $productModel->category?->slug ?? '';
+            $prodName = strtolower($productModel->name);
+
+            $isFashion = (in_array($catSlug, ['fashion', 'merchandise']) && ! str_contains($prodName, 'topi')) || str_contains($prodName, 'hoodie') || str_contains($prodName, 't-shirt') || str_contains($prodName, 'jaket');
+            $isPerfume = $catSlug === 'kecantikan' || str_contains($prodName, 'parfum');
+
+            $variantLabel = match (true) {
+                $isPerfume => 'Pilih Ukuran / Volume',
+                $isFashion => 'Pilih Ukuran',
+                $catSlug === 'elektronik' => 'Pilih Varian',
+                $catSlug === 'hobi' => 'Pilih Edisi / Varian',
+                default => 'Pilih Varian',
+            };
+
+            $colors = [];
+            $hasColors = false;
+            if ($isFashion) {
+                $hasColors = true;
+                $colors = [
+                    ['id' => 'purple', 'name' => 'Purple', 'image' => '/assets/products/prod-hoodie.png', 'active' => true],
+                    ['id' => 'black', 'name' => 'Black', 'image' => '/assets/detail/hoodie_color_black.png', 'active' => false],
+                    ['id' => 'white', 'name' => 'White', 'image' => '/assets/detail/hoodie_color_white.png', 'active' => false],
+                    ['id' => 'grey', 'name' => 'Grey', 'image' => '/assets/detail/hoodie_color_grey.png', 'active' => false],
+                ];
+            }
+
             $defaultDetail = MarketData::productDetail();
             $productData = array_merge($defaultDetail, [
                 'id' => $productModel->slug,
@@ -190,12 +216,15 @@ class CatalogController extends Controller
                 'category' => $productModel->category?->name ?? 'Merchandise',
                 'category_slug' => $productModel->category?->slug ?? 'merchandise',
                 'subcategory' => $productModel->category?->name ?? 'Barang',
-                'badge' => $productModel->condition?->label() ?? 'Original Pre-loved',
+                'badge' => $productModel->condition?->label() ?? 'Seperti Baru',
                 'price' => (float) $productModel->price,
                 'price_formatted' => 'Rp '.number_format((float) $productModel->price, 0, ',', '.'),
                 'description' => $productModel->description,
                 'stock' => $productModel->total_stock ?: 10,
                 'default_size' => $sizes[0] ?? 'All Size',
+                'has_colors' => $hasColors,
+                'colors' => $colors,
+                'variant_label' => $variantLabel,
                 'seller' => [
                     'name' => $productModel->seller?->store_name ?? 'WhiMarket Creator',
                     'username' => $productModel->seller?->username ?? 'creator',

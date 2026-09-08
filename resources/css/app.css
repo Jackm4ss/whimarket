@@ -74,12 +74,19 @@
   border: 1.5px solid rgba(220, 205, 252, 0.9);
   transition: all 0.2s ease-in-out;
 }
-.btn-reset-filter:hover {
-  background-color: #4F26A6 !important;
-  color: #FFFFFF !important;
-  border-color: #4F26A6 !important;
+@media (hover: hover) {
+  .btn-reset-filter:hover {
+    background-color: #4F26A6 !important;
+    color: #FFFFFF !important;
+    border-color: #4F26A6 !important;
+  }
+  .btn-reset-filter:hover * {
+    color: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+  }
 }
-.btn-reset-filter:hover * {
-  color: #FFFFFF !important;
-  stroke: #FFFFFF !important;
+.btn-reset-filter:active {
+  background-color: #EDE4FF !important;
+  color: #4F26A6 !important;
+  border-color: #4F26A6 !important;
 }

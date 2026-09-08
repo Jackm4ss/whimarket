@@ -19,10 +19,13 @@
             allProducts: @js($displayProducts),
             searchQuery: '{{ request('q') ?? '' }}',
             selectedCategory: '{{ $initialCategory ?? 'all' }}',
+            appliedCategory: '{{ $initialCategory ?? 'all' }}',
             maxSliderPrice: 10000000,
-            priceStep: 100000,
+            priceStep: 500000,
             priceRange: [0, 10000000],
+            appliedPriceRange: [0, 10000000],
             selectedConditions: ['all'],
+            appliedConditions: ['all'],
             sortBy: '{{ request('sort', 'terbaru') }}',
             sortDropdownOpen: false,
             viewMode: 'grid',
@@ -32,18 +35,15 @@
 
             init() {
                 this.applyFilters();
-                this.$watch('selectedCategory', () => this.applyFilters());
-                this.$watch('priceRange', () => this.applyFilters());
-                this.$watch('selectedConditions', () => this.applyFilters());
                 this.$watch('searchQuery', () => this.applyFilters());
                 this.$watch('sortBy', () => this.applyFilters());
             },
 
             openSections: {
-                kategori: true,
-                harga: true,
-                kondisi: true,
-                lokasi: true,
+                kategori: false,
+                harga: false,
+                kondisi: false,
+                lokasi: false,
             },
 
             isLocationDropdownOpen: false,
@@ -93,12 +93,17 @@
                 this.selectedConditions = curr.length === 0 ? ['all'] : curr;
             },
             applyFilters() {
+                this.appliedCategory = this.selectedCategory;
+                this.appliedPriceRange = [...this.priceRange];
+                this.appliedConditions = [...this.selectedConditions];
+                this.isMobileFilterOpen = false;
+
                 const sq = (this.searchQuery || '').trim().toLowerCase();
-                const minP = this.priceRange[0];
-                const maxP = this.priceRange[1];
-                const cat = this.selectedCategory;
-                const isAllCond = this.selectedConditions.includes('all');
-                const conds = this.selectedConditions;
+                const minP = this.appliedPriceRange[0];
+                const maxP = this.appliedPriceRange[1];
+                const cat = this.appliedCategory;
+                const isAllCond = this.appliedConditions.includes('all');
+                const conds = this.appliedConditions;
 
                 const mapCond = {
                     'seperti-baru': 'Seperti Baru',
@@ -142,20 +147,21 @@
                 const raw = Number(val) || 0;
                 const stepped = Math.round(raw / this.priceStep) * this.priceStep;
                 this.priceRange[0] = Math.max(0, Math.min(stepped, this.priceRange[1]));
-                this.applyFilters();
             },
 
             updateMaxPrice(val) {
                 const raw = Number(val) || 0;
                 const stepped = Math.round(raw / this.priceStep) * this.priceStep;
                 this.priceRange[1] = Math.min(this.maxSliderPrice, Math.max(stepped, this.priceRange[0]));
-                this.applyFilters();
             },
 
             resetFilters() {
                 this.selectedCategory = 'all';
+                this.appliedCategory = 'all';
                 this.priceRange = [0, this.maxSliderPrice];
+                this.appliedPriceRange = [0, this.maxSliderPrice];
                 this.selectedConditions = ['all'];
+                this.appliedConditions = ['all'];
                 this.selectedLocation = '';
                 this.searchQuery = '';
                 this.sortBy = 'terbaru';
@@ -165,7 +171,6 @@
                     window.location.href = url.pathname;
                 }
             },
-
             clearSearchFilter() {
                 this.searchQuery = '';
                 this.applyFilters();
@@ -413,8 +418,15 @@
 
                 <div class="h-[1px] bg-gray-100 w-full"></div>
 
-                <!-- Reset Filter Button -->
-                <div class="pt-2">
+                <!-- Terapkan & Reset Filter Buttons -->
+                <div class="pt-3 space-y-2">
+                    <button
+                        type="button"
+                        @click="applyFilters()"
+                        class="w-full py-2.5 rounded-xl font-bold text-xs sm:text-[13.5px] text-center flex items-center justify-center gap-2 bg-[#4F26A6] hover:bg-[#3E1D85] text-white transition-all cursor-pointer shadow-xs"
+                    >
+                        <span>Terapkan Filter</span>
+                    </button>
                     <button
                         type="button"
                         @click="resetFilters()"

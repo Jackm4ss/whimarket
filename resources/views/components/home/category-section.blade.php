@@ -36,10 +36,24 @@
         <div
             x-ref="categorySliderTrack"
             class="flex lg:grid lg:grid-cols-6 gap-3.5 sm:gap-4 lg:gap-5 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0 scroll-smooth snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-            @foreach($categories as $category)
+            @foreach(collect($categories)->take(5) as $category)
                 <x-category-card :category="$category" />
             @endforeach
+
+            <!-- 6th Card: Lihat Semua Kategori -->
+            <a href="/belanja" class="w-[125px] sm:w-[145px] lg:w-auto shrink-0 lg:shrink flex flex-col items-center group snap-start">
+                <div class="w-full aspect-square rounded-2xl sm:rounded-3xl bg-[#EDE4FF] border border-[#4F26A6]/20 shadow-xs group-hover:shadow-lg group-hover:-translate-y-1.5 transition-all duration-300 flex flex-col items-center justify-center p-3 text-center relative overflow-hidden">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#4F26A6] text-white flex items-center justify-center mb-1 sm:mb-1.5 shadow-xs group-hover:scale-110 transition-transform">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                    </div>
+                    <span class="text-[11px] sm:text-xs font-black text-[#4F26A6] uppercase tracking-wider">Jelajahi</span>
+                </div>
+                <span class="text-xs sm:text-[14.5px] font-bold text-gray-800 mt-2.5 sm:mt-3 text-center group-hover:text-[#4F26A6] transition-colors line-clamp-1">
+                    Lihat Semua Kategori
+                </span>
+            </a>
         </div>
 
         <!-- Mobile & Tablet Slider Navigation Buttons (Hidden on desktop lg) -->

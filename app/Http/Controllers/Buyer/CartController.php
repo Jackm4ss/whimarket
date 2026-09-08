@@ -14,20 +14,23 @@ use Illuminate\View\View;
 
 class CartController extends Controller
 {
-    public function index(): View|RedirectResponse
+    public function index(): View
     {
         if (! Auth::check()) {
-            return redirect()->route('auth.google.redirect');
+            return view('cart', [
+                'cart' => null,
+                'items' => collect(),
+                'groupedItems' => collect(),
+                'selectedSubtotal' => 0,
+                'title' => 'Keranjang Belanja | WhiMarket',
+                'activeTab' => 'keranjang',
+            ]);
         }
 
         $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
         $items = $cart->items()
             ->with(['variant.product.images', 'variant.product.seller.user'])
             ->get();
-
-        // Group items by seller
-        $groupedItems = $items->groupBy(fn ($item) => $item->variant->product->seller->store_name ?? 'WhiMarket Creator');
-
         $selectedSubtotal = $items->where('is_selected', true)->sum(fn ($i) => (float) $i->variant->price * $i->quantity);
 
         return view('cart', [

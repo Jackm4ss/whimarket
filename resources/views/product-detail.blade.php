@@ -5,6 +5,7 @@
             gallery: @js($product['gallery']),
             currentIndex: 0,
             selectedColor: 'purple',
+            colorImage: null,
             selectedSize: '{{ $product['default_size'] }}',
             quantity: 1,
             maxStock: {{ (int) ($product['stock'] ?? 100) }},
@@ -52,12 +53,15 @@
             zoomX: 50,
             zoomY: 50,
             get selectedImage() {
+                if (this.colorImage) return this.colorImage;
                 return this.gallery[this.currentIndex]?.main || '{{ $product['gallery'][0]['main'] }}';
             },
             selectByIndex(index) {
+                this.colorImage = null;
                 this.currentIndex = (index + this.gallery.length) % this.gallery.length;
             },
             selectImage(imgSrc) {
+                this.colorImage = null;
                 const foundIndex = this.gallery.findIndex(g => g.main === imgSrc);
                 if (foundIndex !== -1) {
                     this.currentIndex = foundIndex;
@@ -85,6 +89,7 @@
             selectColor(colorId, imageSrc) {
                 this.selectedColor = colorId;
                 if (imageSrc) {
+                    this.colorImage = imageSrc;
                     const idx = this.gallery.findIndex(g => g.main === imageSrc);
                     if (idx !== -1) {
                         this.currentIndex = idx;
@@ -290,52 +295,55 @@
                     {{ $product['description'] }}
                 </p>
 
-                <!-- Color Selection (Pilih Warna) -->
-                <div class="mb-5">
-                    <label class="block text-[13.5px] font-bold text-gray-900 mb-2">
-                        Pilih Warna
-                    </label>
-                    <div class="flex items-center gap-2.5">
-                        @foreach($product['colors'] as $c)
-                            <button 
-                                type="button"
-                                @click="selectColor('{{ $c['id'] }}', '{{ $c['image'] }}')"
-                                class="w-[56px] h-[56px] rounded-xl border-2 p-1 bg-[#F9F7FC] flex items-center justify-center transition-all overflow-hidden"
-                                :class="selectedColor === '{{ $c['id'] }}' ? 'border-[#4F26A6]' : 'border-transparent hover:border-gray-200'"
-                                title="{{ $c['name'] }}"
-                            >
-                                <img 
-                                    src="{{ $c['image'] }}" 
-                                    alt="{{ $c['name'] }}" 
-                                    width="48"
-                                    height="48"
-                                    decoding="async"
-                                    class="w-full h-full object-cover rounded-lg"
-                                />
-                            </button>
-                        @endforeach
+                <!-- Color Selection (Pilih Warna - Only for fashion/merch items with colors) -->
+                @if(!empty($product['has_colors']) && !empty($product['colors']))
+                    <div class="mb-5">
+                        <label class="block text-[13.5px] font-bold text-gray-900 mb-2">
+                            Pilih Warna
+                        </label>
+                        <div class="flex items-center gap-2.5">
+                            @foreach($product['colors'] as $c)
+                                <button 
+                                    type="button"
+                                    @click="selectColor('{{ $c['id'] }}', '{{ $c['image'] }}')"
+                                    class="w-[56px] h-[56px] rounded-xl border-2 p-1 bg-[#F9F7FC] flex items-center justify-center transition-all overflow-hidden cursor-pointer"
+                                    :class="selectedColor === '{{ $c['id'] }}' ? 'border-[#4F26A6]' : 'border-transparent hover:border-gray-200'"
+                                    title="{{ $c['name'] }}"
+                                >
+                                    <img 
+                                        src="{{ $c['image'] }}" 
+                                        alt="{{ $c['name'] }}" 
+                                        width="48"
+                                        height="48"
+                                        decoding="async"
+                                        class="w-full h-full object-cover rounded-lg"
+                                    />
+                                </button>
+                            @endforeach
+                        </div>
                     </div>
-                </div>
+                @endif
 
-                <!-- Size Selection (Pilih Ukuran) -->
-                <div class="mb-5">
-                    <label class="block text-[13.5px] font-bold text-gray-900 mb-2">
-                        Pilih Ukuran
-                    </label>
-                    <div class="flex items-center gap-2">
-                        @foreach($product['sizes'] as $size)
-                            <button 
-                                type="button"
-                                @click="selectedSize = '{{ $size }}'"
-                                class="w-14 h-10 rounded-xl border text-[13.5px] font-bold transition-all flex items-center justify-center"
-                                :class="selectedSize === '{{ $size }}' ? 'border-[#4F26A6] text-[#4F26A6] bg-[#F4EFFB]' : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'"
-                            >
-                                {{ $size }}
-                            </button>
-                        @endforeach
+                <!-- Size / Variant Selection -->
+                @if(!empty($product['sizes']))
+                    <div class="mb-5">
+                        <label class="block text-[13.5px] font-bold text-gray-900 mb-2">
+                            {{ $product['variant_label'] ?? 'Pilih Ukuran' }}
+                        </label>
+                        <div class="flex flex-wrap items-center gap-2">
+                            @foreach($product['sizes'] as $size)
+                                <button 
+                                    type="button"
+                                    @click="selectedSize = '{{ $size }}'"
+                                    class="px-4 h-10 rounded-xl border text-[13.5px] font-bold transition-all flex items-center justify-center cursor-pointer min-w-[56px]"
+                                    :class="selectedSize === '{{ $size }}' ? 'border-[#4F26A6] text-[#4F26A6] bg-[#F4EFFB]' : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'"
+                                >
+                                    {{ $size }}
+                                </button>
+                            @endforeach
+                        </div>
                     </div>
-                </div>
-
+                @endif
                 <!-- Quantity (Jumlah) -->
                 <div class="mb-6">
                     <label class="block text-[13.5px] font-bold text-gray-900 mb-2">

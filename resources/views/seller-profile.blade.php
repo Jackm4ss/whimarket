@@ -12,6 +12,13 @@
             isFollowing: false,
             isShareCopied: false,
             isBioExpanded: false,
+            shareModalOpen: false,
+            reviewModalOpen: false,
+            activeModalImg: '',
+            activeModalAuthor: '',
+            activeModalComment: '',
+            activeModalImages: [],
+            activeModalIndex: 0,
             selectedCategory: 'all',
             sortBy: 'terbaru',
             productSortDropdownOpen: false,
@@ -109,12 +116,95 @@
                 if (this.sortBy === 'harga-tertinggi') list.sort((a, b) => b.priceNumber - a.priceNumber);
                 return list;
             },
-
             copyShare() {
                 if (navigator.clipboard) {
                     navigator.clipboard.writeText(window.location.href);
                     this.isShareCopied = true;
-                    setTimeout(() => { this.isShareCopied = false; }, 2000);
+                    setTimeout(() => { this.isShareCopied = false; }, 2500);
+                }
+            },
+
+            reviewsList: [
+                {
+                    id: 1,
+                    author: 'Anya Geraldine',
+                    avatar: '/assets/avatar-anya.png',
+                    verified: true,
+                    rating: 5,
+                    date: '2 hari lalu',
+                    comment: 'Barangnya masih super bagus, sesuai deskripsi! Packing rapi banget dan pengiriman cepat. Makasih ka Rachel ♡',
+                    images: ['/assets/review-chanel-1.png', '/assets/review-chanel-2.png', '/assets/review-chanel-3.png'],
+                    product: {
+                        title: 'Tas Michael Kors Original Brown',
+                        priceText: 'Rp 1.200.000',
+                        image: '/assets/banner-chanel-bag.png',
+                        url: '/produk/tas-michael-kors-8'
+                    }
+                },
+                {
+                    id: 2,
+                    author: 'Fuji An',
+                    avatar: '/assets/avatars/avatar-fuji.png',
+                    verified: true,
+                    rating: 5,
+                    date: '5 hari lalu',
+                    comment: 'Bahan hoodie-nya tebel dan adem banget! Warna purple-nya cakep pol, sesuai foto. Pengiriman dari Celloszx cepet dan packing aman.',
+                    images: ['/assets/review-hoodie-1.png', '/assets/review-hoodie-2.png', '/assets/review-hoodie-3.png'],
+                    product: {
+                        title: 'Hoodie Streamer Edition',
+                        priceText: 'Rp 420.000',
+                        image: '/assets/products/prod-hoodie.png',
+                        url: '/produk/hoodie-streamer-edition-10'
+                    }
+                },
+                {
+                    id: 3,
+                    author: 'Raisy Febian',
+                    avatar: '/assets/avatars/avatar-raisy.png',
+                    verified: true,
+                    rating: 4,
+                    date: '1 minggu lalu',
+                    comment: 'Keren banget kartunya, masih mulus tanpa scratch. Koleksi langka akhirnya dapet juga di toko ka Rachel. Pengemasan sangat aman dengan toploader!',
+                    images: ['/assets/review-pokemon-1.png', '/assets/review-pokemon-2.png', '/assets/review-pokemon-3.png'],
+                    product: {
+                        title: 'Kartu Pokemon Rare',
+                        priceText: 'Rp 350.000',
+                        image: '/assets/products/prod-pokemon.png',
+                        url: '/produk/kartu-pokemon-rare-5'
+                    }
+                }
+            ],
+
+            get filteredReviews() {
+                let list = this.reviewsList.filter(r => {
+                    if (this.reviewFilter === 'all') return true;
+                    return String(r.rating) === String(this.reviewFilter);
+                });
+                if (this.reviewSort === 'tertinggi') list.sort((a, b) => b.rating - a.rating);
+                if (this.reviewSort === 'terendah') list.sort((a, b) => a.rating - b.rating);
+                return list;
+            },
+
+            openReviewMedia(review, imgIndex) {
+                this.activeModalImages = review.images;
+                this.activeModalIndex = imgIndex;
+                this.activeModalImg = review.images[imgIndex];
+                this.activeModalAuthor = review.author;
+                this.activeModalComment = review.comment;
+                this.reviewModalOpen = true;
+            },
+
+            nextReviewMedia() {
+                if (this.activeModalIndex < this.activeModalImages.length - 1) {
+                    this.activeModalIndex++;
+                    this.activeModalImg = this.activeModalImages[this.activeModalIndex];
+                }
+            },
+
+            prevReviewMedia() {
+                if (this.activeModalIndex > 0) {
+                    this.activeModalIndex--;
+                    this.activeModalImg = this.activeModalImages[this.activeModalIndex];
                 }
             }
         }"
@@ -137,13 +227,13 @@
             />
             <button
                 type="button"
-                @click="copyShare()"
+                @click="shareModalOpen = true"
                 class="absolute top-4 right-4 bg-white/95 hover:bg-white backdrop-blur-md px-3.5 py-1.5 rounded-full shadow-xs hover:shadow-sm border border-white/80 flex items-center gap-1.5 text-[12px] font-bold text-gray-800 hover:text-[#4F26A6] transition-all cursor-pointer group"
             >
                 <svg class="w-3.5 h-3.5 text-gray-700 group-hover:text-[#4F26A6] transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
                 </svg>
-                <span x-text="isShareCopied ? 'Tersalin!' : 'Bagikan Toko'"></span>
+                <span>Bagikan Toko</span>
             </button>
         </div>
 
@@ -244,16 +334,6 @@
                         <span x-text="isFollowing ? 'Mengikuti' : 'Ikuti Toko'"></span>
                     </button>
 
-                    <button
-                        type="button"
-                        class="w-11 h-11 sm:w-11.5 sm:h-11.5 rounded-xl border border-gray-200/90 bg-white hover:bg-gray-50 flex items-center justify-center text-gray-700 transition-colors shadow-2xs cursor-pointer shrink-0"
-                        title="Menu Lainnya"
-                    >
-                        <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
-                        </svg>
-                    </button>
-                </div>
             </div>
 
             <!-- Mobile Only (< 768px): Responsive layout matching user mobile preference -->
@@ -280,16 +360,6 @@
                             </p>
                         </div>
                     </div>
-                    <!-- 3-dots button aligned with name -->
-                    <button
-                        type="button"
-                        class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl border border-gray-200/90 bg-white hover:bg-gray-50 items-center justify-center text-gray-700 transition-colors shadow-2xs cursor-pointer shrink-0 mt-5 sm:mt-7 md:mt-8 flex"
-                        title="Menu Lainnya"
-                    >
-                        <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
-                        </svg>
-                    </button>
                 </div>
 
                 <!-- Below photo: Bio Quote -->
@@ -820,142 +890,225 @@
 
                 <!-- Review Items -->
                 <div class="divide-y divide-gray-100">
-                    <!-- Review Item 1: Anya Geraldine -->
-                    <div class="pb-7 sm:pb-8 pt-0">
-                        <div class="flex flex-col md:flex-row md:items-stretch justify-between gap-6">
-                            <div class="flex-1 min-w-0 md:pr-6 md:border-r md:border-gray-200/80">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <img src="/assets/avatar-anya.png" alt="Anya Geraldine" class="w-10 h-10 rounded-full object-cover ring-1 ring-gray-100 shrink-0" />
-                                    <div>
-                                        <div class="flex items-center gap-2">
-                                            <h4 class="text-[14.5px] font-bold text-gray-900">Anya Geraldine</h4>
-                                            <span class="text-xs text-gray-400 font-normal">3 hari lalu</span>
-                                        </div>
-                                        <div class="flex items-center gap-1 text-amber-400 mt-1">
-                                            @for($i = 0; $i < 5; $i++)
-                                                <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                                            @endfor
-                                        </div>
-                                    </div>
-                                </div>
-                                <p class="text-xs sm:text-[13.5px] text-gray-700 leading-relaxed mb-3">
-                                    Barangnya masih super bagus, sesuai deskripsi! Packing rapi banget dan pengiriman cepat. Makasih ka Rachel ♡
-                                </p>
-                                <div class="flex items-center gap-2.5">
-                                    <img src="/assets/review-chanel-1.png" alt="Review 1" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs" />
-                                    <img src="/assets/review-chanel-2.png" alt="Review 2" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs" />
-                                    <img src="/assets/review-chanel-3.png" alt="Review 3" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs" />
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-3.5 sm:gap-4 shrink-0 pt-4 md:pt-0 w-full md:w-[280px]">
-                                <div class="w-[84px] h-[84px] sm:w-[90px] sm:h-[90px] rounded-2xl bg-[#ECE8F1] shrink-0 overflow-hidden">
-                                    <img src="/assets/products/prod-bag.png" alt="Tas Charles & Keith" class="w-full h-full object-cover" />
-                                </div>
-                                <div class="h-[84px] sm:h-[90px] flex flex-col justify-between min-w-0 py-0.5">
-                                    <div>
-                                        <span class="text-[12.5px] sm:text-[13px] font-bold text-gray-900 leading-tight truncate block">Tas Charles &amp; Keith Black</span>
-                                        <span class="text-[13.5px] sm:text-[14px] font-extrabold text-[#5022CE] mt-1 leading-tight block">Rp 850.000</span>
-                                    </div>
-                                    <a href="#produk" class="text-[12px] sm:text-[13px] text-[#5022CE] hover:text-[#3E1D85] font-bold inline-flex items-center gap-1.5 transition-colors group leading-tight">
-                                        <span>Lihat Produk</span>
-                                        <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
-                                    </a>
-                                </div>
-                            </div>
+                    <template x-if="filteredReviews.length === 0">
+                        <div class="py-12 text-center text-gray-400">
+                            <p class="text-sm font-semibold">Tidak ada ulasan untuk filter bintang ini.</p>
+                            <button
+                                type="button"
+                                @click="reviewFilter = 'all'"
+                                class="mt-3 px-4 py-1.5 rounded-xl bg-[#4F26A6] text-white text-xs font-bold hover:bg-[#3E1D85] transition-colors cursor-pointer shadow-xs"
+                            >
+                                Tampilkan Semua Ulasan
+                            </button>
                         </div>
-                    </div>
+                    </template>
 
-                    <!-- Review Item 2: Fuji An -->
-                    <div class="py-7 sm:py-8">
-                        <div class="flex flex-col md:flex-row md:items-stretch justify-between gap-6">
-                            <div class="flex-1 min-w-0 md:pr-6 md:border-r md:border-gray-200/80">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <img src="/assets/avatars/avatar-fuji.png" alt="Fuji An" class="w-10 h-10 rounded-full object-cover ring-1 ring-gray-100 shrink-0" />
-                                    <div>
-                                        <div class="flex items-center gap-2">
-                                            <h4 class="text-[14.5px] font-bold text-gray-900">Fuji An</h4>
-                                            <span class="text-xs text-gray-400 font-normal">1 minggu lalu</span>
-                                        </div>
-                                        <div class="flex items-center gap-1 text-amber-400 mt-1">
-                                            @for($i = 0; $i < 5; $i++)
-                                                <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                                            @endfor
-                                        </div>
-                                    </div>
-                                </div>
-                                <p class="text-xs sm:text-[13.5px] text-gray-700 leading-relaxed mb-3">
-                                    Hoodie-nya masih like new! Bahannya tebal dan nyaman banget dipakai. Suka banget, makasih! ♡
-                                </p>
-                                <div class="flex items-center gap-2.5">
-                                    <img src="/assets/review-hoodie-1.png" alt="Review 1" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs" />
-                                    <img src="/assets/review-hoodie-2.png" alt="Review 2" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs" />
-                                    <img src="/assets/review-hoodie-3.png" alt="Review 3" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs" />
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-3.5 sm:gap-4 shrink-0 pt-4 md:pt-0 w-full md:w-[280px]">
-                                <div class="w-[84px] h-[84px] sm:w-[90px] sm:h-[90px] rounded-2xl bg-[#ECE8F1] shrink-0 overflow-hidden">
-                                    <img src="/assets/products/prod-hoodie.png" alt="Hoodie Plan Do" class="w-full h-full object-cover" />
-                                </div>
-                                <div class="h-[84px] sm:h-[90px] flex flex-col justify-between min-w-0 py-0.5">
-                                    <div>
-                                        <span class="text-[12.5px] sm:text-[13px] font-bold text-gray-900 leading-tight truncate block">Hoodie Plan Do</span>
-                                        <span class="text-[13.5px] sm:text-[14px] font-extrabold text-[#5022CE] mt-1 leading-tight block">Rp 500.000</span>
-                                    </div>
-                                    <a href="#produk" class="text-[12px] sm:text-[13px] text-[#5022CE] hover:text-[#3E1D85] font-bold inline-flex items-center gap-1.5 transition-colors group leading-tight">
-                                        <span>Lihat Produk</span>
-                                        <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Review Item 3: Raisy Febian -->
-                    <div class="pt-7 sm:pt-8 pb-4 sm:pb-5">
-                        <div class="flex flex-col md:flex-row md:items-stretch justify-between gap-6">
-                            <div class="flex-1 min-w-0 md:pr-6 md:border-r md:border-gray-200/80">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <img src="/assets/avatars/avatar-raisy.png" alt="Raisy Febian" class="w-10 h-10 rounded-full object-cover ring-1 ring-gray-100 shrink-0" />
-                                    <div>
-                                        <div class="flex items-center gap-2">
-                                            <h4 class="text-[14.5px] font-bold text-gray-900">Raisy Febian</h4>
-                                            <span class="text-xs text-gray-400 font-normal">2 minggu lalu</span>
-                                        </div>
-                                        <div class="flex items-center gap-1 text-amber-400 mt-1">
-                                            @for($i = 0; $i < 5; $i++)
-                                                <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                                            @endfor
+                    <template x-for="rev in filteredReviews" :key="rev.id">
+                        <div class="py-7 sm:py-8 first:pt-0 last:pb-4">
+                            <div class="flex flex-col md:flex-row md:items-stretch justify-between gap-6">
+                                <div class="flex-1 min-w-0 md:pr-6 md:border-r md:border-gray-200/80">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <img :src="rev.avatar" :alt="rev.author" class="w-10 h-10 rounded-full object-cover ring-1 ring-gray-100 shrink-0" />
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <h4 class="text-[14.5px] font-bold text-gray-900" x-text="rev.author"></h4>
+                                                <span class="text-xs text-gray-400 font-normal" x-text="rev.date"></span>
+                                            </div>
+                                            <div class="flex items-center gap-1 text-amber-400 mt-1">
+                                                <template x-for="star in Array.from({ length: rev.rating })">
+                                                    <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                                                </template>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <p class="text-xs sm:text-[13.5px] text-gray-700 leading-relaxed mb-3">
-                                    Barangnya super aman dipacking pake bubble wrap tebal. Sesuai deskripsi banget, seller ramah dan gercep.
-                                </p>
-                                <div class="flex items-center gap-2.5">
-                                    <img src="/assets/review-pokemon-1.png" alt="Review 1" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs" />
-                                    <img src="/assets/review-pokemon-2.png" alt="Review 2" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs" />
-                                    <img src="/assets/review-pokemon-3.png" alt="Review 3" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs" />
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-3.5 sm:gap-4 shrink-0 pt-4 md:pt-0 pb-2 md:pb-0 w-full md:w-[280px]">
-                                <div class="w-[84px] h-[84px] sm:w-[90px] sm:h-[90px] rounded-2xl bg-[#ECE8F1] shrink-0 overflow-hidden">
-                                    <img src="/assets/products/prod-pokemon.png" alt="Kartu Pokemon Rare" class="w-full h-full object-cover" />
-                                </div>
-                                <div class="h-[84px] sm:h-[90px] flex flex-col justify-between min-w-0 py-0.5">
-                                    <div>
-                                        <span class="text-[12.5px] sm:text-[13px] font-bold text-gray-900 leading-tight truncate block">Kartu Pokemon Rare</span>
-                                        <span class="text-[13.5px] sm:text-[14px] font-extrabold text-[#5022CE] mt-1 leading-tight block">Rp 1.500.000</span>
+                                    <p class="text-xs sm:text-[13.5px] text-gray-700 leading-relaxed mb-3" x-text="rev.comment">
+                                    </p>
+                                    <div class="flex items-center gap-2.5">
+                                        <template x-for="(img, idx) in rev.images" :key="idx">
+                                            <img
+                                                :src="img"
+                                                :alt="'Review ' + (idx + 1)"
+                                                @click="openReviewMedia(rev, idx)"
+                                                class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs hover:ring-2 hover:ring-[#4F26A6]/30"
+                                            />
+                                        </template>
                                     </div>
-                                    <a href="#produk" class="text-[12px] sm:text-[13px] text-[#5022CE] hover:text-[#3E1D85] font-bold inline-flex items-center gap-1.5 transition-colors group leading-tight">
-                                        <span>Lihat Produk</span>
-                                        <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
-                                    </a>
+                                </div>
+                                <div class="flex items-start gap-3.5 sm:gap-4 shrink-0 pt-4 md:pt-0 w-full md:w-[280px]">
+                                    <div class="w-[84px] h-[84px] sm:w-[90px] sm:h-[90px] rounded-2xl bg-[#ECE8F1] shrink-0 overflow-hidden">
+                                        <img :src="rev.product.image" :alt="rev.product.title" class="w-full h-full object-cover" />
+                                    </div>
+                                    <div class="h-[84px] sm:h-[90px] flex flex-col justify-between min-w-0 py-0.5">
+                                        <div>
+                                            <span class="text-[12.5px] sm:text-[13px] font-bold text-gray-900 leading-tight truncate block" x-text="rev.product.title"></span>
+                                            <span class="text-[13.5px] sm:text-[14px] font-extrabold text-[#5022CE] mt-1 leading-tight block" x-text="rev.product.priceText"></span>
+                                        </div>
+                                        <a :href="rev.product.url" class="text-[12px] sm:text-[13px] text-[#5022CE] hover:text-[#3E1D85] font-bold inline-flex items-center gap-1.5 transition-colors group leading-tight cursor-pointer">
+                                            <span>Lihat Produk</span>
+                                            <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </template>
                 </div>
             </div>
         </div>
     </main>
+        <!-- Share Store Modal Popup -->
+        <div
+            x-show="shareModalOpen"
+            x-cloak
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto"
+        >
+            <div
+                @click.outside="shareModalOpen = false"
+                class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-gray-100 relative space-y-5"
+            >
+                <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+                    <h3 class="text-lg font-black text-gray-900 tracking-tight">Bagikan Toko</h3>
+                    <button
+                        type="button"
+                        @click="shareModalOpen = false"
+                        class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition-colors cursor-pointer"
+                    >
+                        ✕
+                    </button>
+                </div>
+
+                <!-- Store Preview Card -->
+                <div class="flex items-center gap-3.5 p-3.5 rounded-2xl bg-[#FAF9FC] border border-gray-100">
+                    <img src="/assets/avatar-rachel-exact.png" alt="Rachel Vennya" class="w-12 h-12 rounded-full object-cover ring-2 ring-purple-100" />
+                    <div class="min-w-0 flex-1">
+                        <h4 class="text-sm font-extrabold text-gray-900 truncate">Rachel Vennya</h4>
+                        <p class="text-xs text-gray-500 font-medium">@rachel_venya • Selebgram</p>
+                    </div>
+                </div>
+
+                <!-- Share options -->
+                <div>
+                    <span class="text-xs font-bold text-gray-500 mb-2.5 block">Bagikan ke Media Sosial:</span>
+                    <div class="grid grid-cols-4 gap-2.5 text-center">
+                        <a
+                            :href="'https://wa.me/?text=' + encodeURIComponent('Lihat toko resmi Rachel Vennya di WhiMarket! ' + window.location.href)"
+                            target="_blank"
+                            rel="noopener"
+                            class="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-green-50 text-gray-700 hover:text-green-600 transition-colors"
+                        >
+                            <div class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center shadow-xs">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824z"/></svg>
+                            </div>
+                            <span class="text-[11px] font-semibold">WhatsApp</span>
+                        </a>
+                        <a
+                            :href="'https://t.me/share/url?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent('Lihat toko resmi Rachel Vennya di WhiMarket!')"
+                            target="_blank"
+                            rel="noopener"
+                            class="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-sky-50 text-gray-700 hover:text-sky-600 transition-colors"
+                        >
+                            <div class="w-10 h-10 rounded-full bg-sky-500 text-white flex items-center justify-center shadow-xs">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.832.942z"/></svg>
+                            </div>
+                            <span class="text-[11px] font-semibold">Telegram</span>
+                        </a>
+                        <a
+                            :href="'https://twitter.com/intent/tweet?text=' + encodeURIComponent('Belanja barang pre-loved resmi Rachel Vennya di WhiMarket! ' + window.location.href)"
+                            target="_blank"
+                            rel="noopener"
+                            class="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-gray-100 text-gray-700 hover:text-black transition-colors"
+                        >
+                            <div class="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center shadow-xs">
+                                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                            </div>
+                            <span class="text-[11px] font-semibold">X (Twitter)</span>
+                        </a>
+                        <a
+                            :href="'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href)"
+                            target="_blank"
+                            rel="noopener"
+                            class="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-blue-50 text-gray-700 hover:text-blue-600 transition-colors"
+                        >
+                            <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.374 14.5 5 15.667 5H18V0h-3.808C10.596 0 9 1.583 9 4.615V8z"/></svg>
+                            </div>
+                            <span class="text-[11px] font-semibold">Facebook</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Copy Link input box -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1.5">Atau Salin Tautan:</label>
+                    <div class="flex items-center gap-2 p-1.5 pl-3.5 rounded-2xl bg-[#F9FAFB] border border-gray-200">
+                        <span class="text-xs text-gray-600 font-medium truncate flex-1" x-text="window.location.href"></span>
+                        <button
+                            type="button"
+                            @click="copyShare()"
+                            class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
+                            :class="isShareCopied ? 'bg-emerald-600 text-white' : 'bg-[#4F26A6] hover:bg-[#3E1D85] text-white shadow-xs'"
+                        >
+                            <span x-text="isShareCopied ? 'Tersalin! ✓' : 'Salin Link'"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review Media Popup Lightbox Modal -->
+        <div
+            x-show="reviewModalOpen"
+            x-cloak
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+        >
+            <div
+                @click.outside="reviewModalOpen = false"
+                class="bg-white rounded-3xl overflow-hidden max-w-2xl w-full shadow-2xl border border-gray-100 flex flex-col relative"
+            >
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-[#FAF9FC]">
+                    <div>
+                        <h4 class="text-sm font-extrabold text-gray-900" x-text="'Foto Ulasan dari ' + activeModalAuthor"></h4>
+                        <p class="text-xs text-gray-500" x-text="'Gambar ' + (activeModalIndex + 1) + ' dari ' + activeModalImages.length"></p>
+                    </div>
+                    <button
+                        type="button"
+                        @click="reviewModalOpen = false"
+                        class="w-8 h-8 rounded-full bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 flex items-center justify-center transition-colors cursor-pointer"
+                    >
+                        ✕
+                    </button>
+                </div>
+
+                <!-- Modal Media View Area -->
+                <div class="relative bg-black flex items-center justify-center min-h-[320px] sm:min-h-[420px] max-h-[550px] overflow-hidden">
+                    <img :src="activeModalImg" alt="Ulasan Foto" class="max-w-full max-h-[500px] object-contain" />
+
+                    <!-- Prev Button -->
+                    <button
+                        type="button"
+                        x-show="activeModalIndex > 0"
+                        @click="prevReviewMedia()"
+                        class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-all cursor-pointer"
+                    >
+                        &larr;
+                    </button>
+
+                    <!-- Next Button -->
+                    <button
+                        type="button"
+                        x-show="activeModalIndex < activeModalImages.length - 1"
+                        @click="nextReviewMedia()"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-all cursor-pointer"
+                    >
+                        &rarr;
+                    </button>
+                </div>
+
+                <!-- Modal Caption Footer -->
+                <div class="p-5 sm:p-6 bg-white border-t border-gray-100">
+                    <p class="text-xs sm:text-sm text-gray-700 italic leading-relaxed" x-text="'&ldquo;' + activeModalComment + '&rdquo;'"></p>
+                </div>
+            </div>
+        </div>
 </x-layouts.app>
