@@ -75,22 +75,7 @@
                     @endif
                 @endforeach
             </nav>
-
-            <!-- Top Action Icons (Desktop only: hidden below lg) -->
-            <div class="hidden lg:flex items-center gap-2">
-                <!-- Wishlist Button Desktop -->
-                <button 
-                    type="button"
-                    @click="wishlisted = !wishlisted"
-                    class="w-10 h-10 rounded-xl border border-gray-200 bg-white flex items-center justify-center text-gray-600 hover:text-[#4F26A6] transition-all shadow-sm cursor-pointer"
-                    :class="{ 'text-red-500 border-red-200 bg-red-50/40': wishlisted }"
-                    title="Tambah ke Wishlist"
-                >
-                    <svg class="w-5 h-5" :fill="wishlisted ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                    </svg>
-                </button>
-            </div>
+            <!-- Top Action Icons (Removed to unify inside product image card) -->
         </div>
 
         <!-- Main Product Section: 2-column Layout (Left Gallery | Right Details & Options) -->
@@ -106,17 +91,17 @@
                     @mouseleave="isZoomed = false"
                     @mousemove="if (window.innerWidth >= 1024) handleMouseMove($event)"
                 >
-                    <!-- Wishlist Heart Button (Mobile & Tablet inside card: top-3 right-3) -->
+                    <!-- Wishlist Heart Button (Exact copy from product-card.blade.php, strictly top right) -->
                     <button
                         type="button"
                         @click.prevent.stop="wishlisted = !wishlisted"
-                        style="right: 14px; top: 14px;"
-                        class="lg:hidden absolute z-20 w-9 h-9 rounded-full bg-white/95 backdrop-blur-sm shadow-md border border-black/5 flex items-center justify-center transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+                        style="position: absolute !important; top: 12px !important; right: 12px !important; left: auto !important;"
+                        class="z-20 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/95 backdrop-blur-xs shadow-md flex items-center justify-center transition-transform hover:scale-105 cursor-pointer"
                         :class="wishlisted ? 'text-[#4F26A6]' : 'text-gray-700 hover:text-[#4F26A6]'"
                         title="Simpan ke Wishlist"
                     >
                         <svg
-                            class="w-4.5 h-4.5 transition-colors"
+                            class="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-colors"
                             viewBox="0 0 24 24"
                             :fill="wishlisted ? 'currentColor' : 'none'"
                             stroke="currentColor"
@@ -127,7 +112,6 @@
                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                         </svg>
                     </button>
-
                     <!-- Base Product Image (Cover) -->
                     <img 
                         :src="selectedImage" 
@@ -446,6 +430,155 @@
                 </div>
             </div>
         </div>
+
+        <!-- Section Ulasan Produk (Consistent 1:1 with Seller Profile Reviews) -->
+        <section class="mt-4 mb-14" x-data="{ reviewFilter: 'all', reviewSort: 'terbaru' }">
+            <div class="flex flex-col lg:flex-row items-start gap-8">
+                <!-- Left Column: Rating Keseluruhan Sidebar Card -->
+                <div class="w-full lg:w-[310px] xl:w-[330px] shrink-0 space-y-4">
+                    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+                        <h3 class="text-base sm:text-[17px] font-extrabold text-gray-900 tracking-tight mb-4">
+                            Rating Produk
+                        </h3>
+                        <div class="flex items-baseline gap-3 mb-1">
+                            <span class="text-5xl font-black text-gray-900 tracking-tight">{{ $product['rating_summary']['rating'] }}</span>
+                            <div class="flex items-center gap-1 text-amber-400">
+                                @for($i = 0; $i < 5; $i++)
+                                    <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                @endfor
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-400 font-medium mb-6">dari {{ $product['rating_summary']['total_reviews'] }} ulasan</p>
+
+                        <!-- Breakdown Bars -->
+                        <div class="space-y-2.5 mb-6">
+                            @foreach($product['rating_summary']['breakdown'] as $row)
+                                <div class="flex items-center gap-3 text-gray-700 font-medium">
+                                    <span class="w-3.5 text-sm font-extrabold text-gray-900">{{ $row['star'] }}</span>
+                                    <svg class="w-4 h-4 text-amber-400 fill-current shrink-0" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                    <div class="flex-1 h-2.5 bg-purple-50 rounded-full overflow-hidden">
+                                        <div class="h-full bg-[#5022CE] rounded-full" style="width: {{ $row['pct'] }}%"></div>
+                                    </div>
+                                    <span class="w-11 text-right text-gray-500 text-[12.5px] font-bold">{{ $row['count'] }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <!-- Verified Note Box -->
+                        <div class="bg-[#F6F4F9] rounded-2xl p-4 flex items-center gap-3.5">
+                            <div class="w-9 h-9 rounded-2xl bg-[#E8E2F4] flex items-center justify-center text-[#5022CE] shrink-0">
+                                <svg class="w-5 h-5 fill-none stroke-current" stroke-width="2.2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                            </div>
+                            <div class="text-[12.5px] text-gray-900 font-semibold leading-snug">
+                                <p>Ulasan asli dari pembeli</p>
+                                <p>terverifikasi di Whimarket.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Reviews List & Star Filters -->
+                <div class="flex-1 w-full min-w-0 bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+                    <!-- Header row: Ulasan Pembeli title and Urutkan dropdown -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                        <div>
+                            <h2 class="text-[20px] sm:text-[22px] font-extrabold text-[#111827] tracking-tight">
+                                Ulasan Pembeli
+                            </h2>
+                            <p class="text-xs sm:text-[13px] text-gray-500 font-normal mt-0.5">
+                                Pengalaman nyata pembeli produk ini dari Celloszx.
+                            </p>
+                        </div>
+
+                        <!-- Urutkan Dropdown -->
+                        <div class="flex items-center gap-2 self-start sm:self-auto">
+                            <span class="text-xs text-gray-400 font-medium">Urutkan:</span>
+                            <select
+                                x-model="reviewSort"
+                                aria-label="Urutan Ulasan"
+                                class="bg-white border border-gray-200/90 rounded-xl px-3.5 py-2 text-xs sm:text-[13px] font-bold text-gray-800 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 cursor-pointer shadow-2xs"
+                            >
+                                <option value="terbaru">Terbaru</option>
+                                <option value="tertinggi">Rating Tertinggi</option>
+                                <option value="terendah">Rating Terendah</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Star Filter Pills Row -->
+                    <div class="flex items-center gap-2 sm:gap-2.5 overflow-x-auto pb-4 mb-6 border-b border-gray-100 [scrollbar-width:none]">
+                        <button
+                            type="button"
+                            @click="reviewFilter = 'all'"
+                            class="px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-[12.5px] font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
+                            :class="reviewFilter === 'all' ? 'border-2 border-[#5022CE] text-[#5022CE] bg-purple-50/50' : 'border border-gray-200/80 text-gray-700 bg-white hover:bg-gray-50'"
+                        >
+                            <span>Semua ({{ $product['rating_summary']['total_reviews'] }})</span>
+                        </button>
+                        <template x-for="p in [
+                            { id: '5', label: '5', count: '528' },
+                            { id: '4', label: '4', count: '68' },
+                            { id: '3', label: '3', count: '16' },
+                            { id: '2', label: '2', count: '5' },
+                            { id: '1', label: '1', count: '3' }
+                        ]" :key="p.id">
+                            <button
+                                type="button"
+                                @click="reviewFilter = p.id"
+                                class="px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-[12.5px] font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
+                                :class="reviewFilter === p.id ? 'border-2 border-[#5022CE] text-[#5022CE] bg-purple-50/50' : 'border border-gray-200/80 text-gray-700 bg-white hover:bg-gray-50'"
+                            >
+                                <span x-text="p.label"></span>
+                                <svg class="w-3.5 h-3.5 text-amber-400 fill-current shrink-0" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                                <span class="text-gray-400 font-normal" x-text="'(' + p.count + ')'"></span>
+                            </button>
+                        </template>
+                    </div>
+
+                    <!-- Review Items List -->
+                    <div class="divide-y divide-gray-100">
+                        @foreach($product['reviews'] as $rev)
+                            <div class="py-6 first:pt-0 last:pb-0">
+                                <div class="flex items-center gap-3 mb-2.5">
+                                    <img src="{{ $rev['user_avatar'] }}" alt="{{ $rev['user_name'] }}" class="w-10 h-10 rounded-full object-cover ring-1 ring-gray-100 shrink-0" />
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <h4 class="text-[14.5px] font-bold text-gray-900">{{ $rev['user_name'] }}</h4>
+                                            <span class="text-xs text-gray-400 font-normal">{{ $rev['date'] }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-0.5 text-amber-400 mt-1">
+                                            @for($i = 0; $i < $rev['rating']; $i++)
+                                                <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                </svg>
+                                            @endfor
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-[13.5px] sm:text-[14px] text-gray-700 leading-relaxed mb-3">
+                                    {{ $rev['comment'] }}
+                                </p>
+                                @if(!empty($rev['photos']))
+                                    <div class="flex items-center gap-2.5 mb-3">
+                                        @foreach($rev['photos'] as $pImg)
+                                            <img src="{{ $pImg }}" alt="Review photo" class="w-20 h-20 sm:w-22 sm:h-22 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs" />
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </section>
         <div 
             x-show="lightboxOpen" 
             x-cloak

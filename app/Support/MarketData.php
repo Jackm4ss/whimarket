@@ -396,6 +396,54 @@ class MarketData
                 ['title' => 'Pengiriman Cepat', 'desc' => 'Diproses dalam 1×24 jam', 'icon' => 'truck'],
                 ['title' => 'Transaksi Aman', 'desc' => 'Dengan sistem escrow', 'icon' => 'lock'],
             ],
+            'rating_summary' => [
+                'rating' => 4.8,
+                'total_reviews' => 620,
+                'breakdown' => [
+                    ['star' => 5, 'count' => '528', 'pct' => 85],
+                    ['star' => 4, 'count' => '68', 'pct' => 11],
+                    ['star' => 3, 'count' => '16', 'pct' => 2.5],
+                    ['star' => 2, 'count' => '5', 'pct' => 1],
+                    ['star' => 1, 'count' => '3', 'pct' => 0.5],
+                ],
+            ],
+            'reviews' => [
+                [
+                    'id' => 1,
+                    'user_name' => 'Fuji An',
+                    'user_avatar' => '/assets/avatars/avatar-fuji.png',
+                    'rating' => 5,
+                    'date' => '2 hari lalu',
+                    'comment' => 'Bahan hoodie-nya tebel dan adem banget! Warna purple-nya cakep pol, sesuai foto. Pengiriman dari Celloszx cepet dan packing aman.',
+                    'photos' => [
+                        '/assets/review-hoodie-1.png',
+                        '/assets/review-hoodie-2.png',
+                    ],
+                    'likes' => 24,
+                ],
+                [
+                    'id' => 2,
+                    'user_name' => 'Jerome Polin',
+                    'user_avatar' => '/assets/avatar-jerome.png',
+                    'rating' => 5,
+                    'date' => '5 hari lalu',
+                    'comment' => 'Mantappu Jiwa! Ukuran L-nya pas banget di badan, sablon bordir Dream Plan Do-nya rapi parah. Recommended merchandise!',
+                    'photos' => [
+                        '/assets/review-hoodie-3.png',
+                    ],
+                    'likes' => 42,
+                ],
+                [
+                    'id' => 3,
+                    'user_name' => 'Anya Geraldine',
+                    'user_avatar' => '/assets/avatar-anya.png',
+                    'rating' => 5,
+                    'date' => '1 minggu lalu',
+                    'comment' => 'Suka banget sama bahannya yang lembut di kulit, gak bikin gerah. Worth it buat koleksi!',
+                    'photos' => [],
+                    'likes' => 15,
+                ],
+            ],
         ];
     }
 }
