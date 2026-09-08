@@ -32,6 +32,9 @@
                     <img
                         src="/assets/logo-whimarket.png"
                         alt="WhiMarket"
+                        width="140"
+                        height="42"
+                        decoding="async"
                         class="h-8 sm:h-10 lg:h-[42px] w-auto object-contain mix-blend-multiply"
                     />
                 </a>

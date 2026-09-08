@@ -113,6 +113,10 @@
                 <img 
                     src="/assets/hero-product.png" 
                     alt="WhiMarket Creator Pre-loved Products" 
+                    width="560"
+                    height="520"
+                    fetchpriority="high"
+                    decoding="async"
                     class="w-full h-full object-contain filter drop-shadow-md"
                 />
 
@@ -134,7 +138,7 @@
 
                 <!-- Creator 1: Rachel Vennya -->
                 <a href="/seller/@rachel_venya" class="bg-white/95 backdrop-blur-md rounded-2xl p-2 sm:p-2.5 px-3 sm:px-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] border border-gray-100 flex items-center gap-2.5 sm:gap-3 w-[195px] sm:w-[220px] transition-transform hover:-translate-y-0.5">
-                    <img src="/assets/avatar-rachel.png" alt="Rachel Vennya" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shrink-0 ring-2 ring-purple-100" />
+                    <img src="/assets/avatar-rachel.png" alt="Rachel Vennya" width="44" height="44" decoding="async" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shrink-0 ring-2 ring-purple-100" />
                     <div class="flex flex-col min-w-0">
                         <div class="flex items-center gap-1 sm:gap-1.5">
                             <span class="text-xs sm:text-[13.5px] font-bold text-gray-900 truncate">Rachel Vennya</span>
@@ -151,7 +155,7 @@
 
                 <!-- Creator 2: Jerome Polin -->
                 <div class="bg-white/95 backdrop-blur-md rounded-2xl p-2 sm:p-2.5 px-3 sm:px-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] border border-gray-100 flex items-center gap-2.5 sm:gap-3 w-[195px] sm:w-[220px] transition-transform hover:-translate-y-0.5">
-                    <img src="/assets/avatar-jerome.png" alt="Jerome Polin" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shrink-0 ring-2 ring-purple-100" />
+                    <img src="/assets/avatar-jerome.png" alt="Jerome Polin" width="44" height="44" decoding="async" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shrink-0 ring-2 ring-purple-100" />
                     <div class="flex flex-col min-w-0">
                         <div class="flex items-center gap-1 sm:gap-1.5">
                             <span class="text-xs sm:text-[13.5px] font-bold text-gray-900 truncate">Jerome Polin</span>
@@ -168,7 +172,7 @@
 
                 <!-- Creator 3: Anya Geraldine -->
                 <div class="bg-white/95 backdrop-blur-md rounded-2xl p-2 sm:p-2.5 px-3 sm:px-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] border border-gray-100 flex items-center gap-2.5 sm:gap-3 w-[195px] sm:w-[220px] transition-transform hover:-translate-y-0.5">
-                    <img src="/assets/avatar-anya.png" alt="Anya Geraldine" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shrink-0 ring-2 ring-purple-100" />
+                    <img src="/assets/avatar-anya.png" alt="Anya Geraldine" width="44" height="44" decoding="async" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shrink-0 ring-2 ring-purple-100" />
                     <div class="flex flex-col min-w-0">
                         <div class="flex items-center gap-1 sm:gap-1.5">
                             <span class="text-xs sm:text-[13.5px] font-bold text-gray-900 truncate">Anya Geraldine</span>

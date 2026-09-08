@@ -3,7 +3,8 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
+        "build": "bun run compress && vite build",
+        "compress": "bun ./scripts/compress-images.js",
         "dev": "vite"
     },
     "devDependencies": {
@@ -12,8 +13,10 @@
         "alpinejs": "^3.17.1",
         "concurrently": "^10.0.3",
         "laravel-vite-plugin": "^3.1",
+        "sharp": "^0.35.4",
         "tailwindcss": "^4.0.0",
-        "vite": "^8.0.0"
+        "vite": "^8.0.0",
+        "vite-plugin-image-optimizer": "^2.0.3"
     },
     "optionalDependencies": {
         "@laravel/multiplex": "^0.4.1"

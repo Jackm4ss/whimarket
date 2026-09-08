@@ -33,3 +33,13 @@ public/*.png
 .claude/
 .factory/
 .grok/
+# Temporary and scaffold build files
+temp_*
+*.tar.gz
+whimarket_pagespeed_deploy.tar.gz
+
+# AI agent local configs
+boost.json
+opencode.json
+.mcp.json
+skills-lock.json
