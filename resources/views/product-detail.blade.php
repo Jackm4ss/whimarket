@@ -7,9 +7,10 @@
             selectedColor: 'purple',
             selectedSize: '{{ $product['default_size'] }}',
             quantity: 1,
-            maxStock: {{ $product['stock'] }},
+            maxStock: {{ (int) ($product['stock'] ?? 100) }},
             wishlisted: false,
             lightboxOpen: false,
+            isFollowing: false,
             isZoomed: false,
             zoomX: 50,
             zoomY: 50,
@@ -97,12 +98,13 @@
             
             <!-- SECTION 1: Gallery (Thumbnails list + Big stage container) -->
             <div class="flex flex-col sm:flex-row gap-4 items-start w-full lg:w-[480px] xl:w-[500px] shrink-0">
-                <!-- Main Featured Stage Image (With Tokopedia-style Hover Zoom) -->
+                <!-- Main Featured Stage Image (With Tokopedia-style Hover Zoom on desktop, click-to-open lightbox on mobile/tablet) -->
                 <div 
-                    class="sm:order-2 relative w-full aspect-square bg-[#ECE5F6] rounded-2xl overflow-hidden shadow-sm cursor-crosshair select-none group"
-                    @mouseenter="isZoomed = true"
+                    class="sm:order-2 relative w-full aspect-square bg-[#ECE5F6] rounded-2xl overflow-hidden shadow-sm lg:cursor-crosshair cursor-pointer select-none group"
+                    @click="if (window.innerWidth < 1024) lightboxOpen = true"
+                    @mouseenter="if (window.innerWidth >= 1024) isZoomed = true"
                     @mouseleave="isZoomed = false"
-                    @mousemove="handleMouseMove($event)"
+                    @mousemove="if (window.innerWidth >= 1024) handleMouseMove($event)"
                 >
                     <!-- Wishlist Heart Button (Mobile & Tablet inside card: top-3 right-3) -->
                     <button
@@ -150,8 +152,8 @@
                     </button>
                 </div>
 
-                <!-- Thumbnails Strip (Below Stage on Mobile, Left on Desktop) -->
-                <div class="sm:order-1 flex sm:flex-col gap-2 shrink-0 overflow-x-auto sm:overflow-visible w-full sm:w-[68px] pb-1 sm:pb-0 no-scrollbar">
+                <!-- Thumbnails Strip (Scrollable container: horizontal on mobile, vertical max-height scrollable on desktop) -->
+                <div class="sm:order-1 flex sm:flex-col gap-2 shrink-0 overflow-x-auto sm:overflow-y-auto w-full sm:w-[72px] max-h-[500px] pb-1 sm:pb-0 no-scrollbar select-none">
                     @foreach($product['gallery'] as $index => $img)
                         <button 
                             type="button"
@@ -170,11 +172,13 @@
                         </button>
                     @endforeach
 
-                    <!-- Down Arrow Button Indicator -->
-                    <div class="hidden sm:flex justify-center pt-0.5">
+                    <!-- Scroll Down Arrow Indicator (Visible when more images) -->
+                    <div class="hidden sm:flex justify-center pt-0.5 shrink-0">
                         <button 
                             type="button" 
-                            class="w-7 h-7 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors"
+                            @click="nextImage()"
+                            class="w-7 h-7 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors cursor-pointer hover:bg-gray-50"
+                            title="Foto Selanjutnya"
                         >
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
@@ -200,30 +204,45 @@
                     {{ $product['title'] }}
                 </h1>
 
-                <!-- Seller Profile Bar -->
-                <div class="flex items-center gap-2.5 mb-3">
-                    <a href="{{ $product['seller']['href'] }}" class="relative shrink-0">
-                        <img 
-                            src="{{ $product['seller']['avatar'] }}" 
-                            alt="{{ $product['seller']['name'] }}" 
-                            width="36"
-                            height="36"
-                            class="w-9 h-9 rounded-full object-cover"
-                        />
-                    </a>
-                    <div class="flex flex-col">
-                        <div class="flex items-center gap-1.5">
-                            <a href="{{ $product['seller']['href'] }}" class="text-[14px] font-bold text-gray-900 hover:text-[#4F26A6] transition-colors">
-                                {{ $product['seller']['name'] }}
-                            </a>
-                            <x-verified-badge size="sm" class="w-3.5 h-3.5 text-[#4F26A6]" />
+                <!-- Seller Profile Bar with Ikuti Toko Button directly beside -->
+                <div class="flex items-center gap-3 sm:gap-4 mb-4 flex-wrap">
+                    <div class="flex items-center gap-2.5 shrink-0">
+                        <a href="{{ $product['seller']['href'] }}" class="relative shrink-0">
+                            <img 
+                                src="{{ $product['seller']['avatar'] }}" 
+                                alt="{{ $product['seller']['name'] }}" 
+                                width="40"
+                                height="40"
+                                class="w-10 h-10 rounded-full object-cover"
+                            />
+                        </a>
+                        <div class="flex flex-col">
+                            <div class="flex items-center gap-1.5">
+                                <a href="{{ $product['seller']['href'] }}" class="text-[14px] font-bold text-gray-900 hover:text-[#4F26A6] transition-colors">
+                                    {{ $product['seller']['name'] }}
+                                </a>
+                                <x-verified-badge size="sm" class="w-3.5 h-3.5 text-[#4F26A6] shrink-0" />
+                            </div>
+                            <span class="text-[11.5px] text-gray-500 font-medium leading-tight">
+                                {{ $product['seller']['role'] }}
+                            </span>
                         </div>
-                        <span class="text-[11.5px] text-gray-500 font-medium leading-tight">
-                            {{ $product['seller']['role'] }}
-                        </span>
                     </div>
-                </div>
 
+                    <!-- Button Ikuti Toko directly beside seller info -->
+                    <button
+                        type="button"
+                        @click="isFollowing = !isFollowing"
+                        class="shrink-0 px-3 sm:px-3.5 h-8 rounded-lg text-[12px] sm:text-[12.5px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95"
+                        :class="isFollowing ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' : 'bg-[#4F26A6] text-white hover:bg-[#3E1D85] shadow-[0_2px_8px_rgba(79,38,166,0.2)]'"
+                    >
+                        <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path x-show="isFollowing" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            <path x-show="!isFollowing" stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span class="whitespace-nowrap" x-text="isFollowing ? 'Mengikuti' : 'Ikuti Toko'"></span>
+                    </button>
+                </div>
                 <!-- Rating, Reviews & Terjual -->
                 <div class="flex items-center gap-2 text-[13px] text-gray-600 mb-4">
                     <div class="flex items-center gap-0.5 text-[#F59E0B]">
@@ -279,17 +298,9 @@
 
                 <!-- Size Selection (Pilih Ukuran) -->
                 <div class="mb-5">
-                    <div class="flex items-center justify-between mb-2">
-                        <label class="text-[13.5px] font-bold text-gray-900">
-                            Pilih Ukuran
-                        </label>
-                        <a href="#panduan-ukuran" class="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[#4F26A6] hover:underline">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                            </svg>
-                            Panduan Ukuran
-                        </a>
-                    </div>
+                    <label class="block text-[13.5px] font-bold text-gray-900 mb-2">
+                        Pilih Ukuran
+                    </label>
                     <div class="flex items-center gap-2">
                         @foreach($product['sizes'] as $size)
                             <button 
@@ -363,11 +374,78 @@
                     </button>
                 </div>
             </div>
-
         </div>
 
+        <!-- Trust Features Bar (Section Keunggulan WhiMarket - Fully Responsive Mobile, Tablet & Desktop) -->
+        <div class="bg-white rounded-2xl sm:rounded-3xl border border-gray-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] p-5 sm:p-7 lg:py-8 lg:px-4 mb-12">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-y-8 sm:gap-x-0 lg:gap-0">
+                <!-- Item 1: Original & Terverifikasi -->
+                <div class="flex items-center justify-start sm:justify-center relative sm:px-6 lg:px-4 pb-6 sm:pb-0 border-b sm:border-b-0 border-gray-100">
+                    <div class="flex items-center gap-3.5 sm:gap-4 w-full sm:w-auto max-w-[270px]">
+                        <div class="w-13 h-13 sm:w-14 sm:h-14 min-w-[52px] min-h-[52px] sm:min-w-[56px] sm:min-h-[56px] rounded-full flex items-center justify-center shrink-0" style="background-color: #EDE9FE;">
+                            <svg class="w-6.5 h-6.5 sm:w-7 sm:h-7 text-[#4F26A6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <h4 class="text-[15px] sm:text-[15.5px] font-bold text-gray-900 leading-tight tracking-tight">Original &amp; Terverifikasi</h4>
+                            <p class="text-[12.5px] sm:text-[13px] text-gray-500 font-normal mt-1 leading-snug">Produk 100% asli</p>
+                        </div>
+                    </div>
+                    <!-- Separator line for Tablet (Col 1 to Col 2) and Desktop -->
+                    <div class="hidden sm:block absolute right-0 top-1/2 -translate-y-1/2 w-[1px] h-10 sm:h-11 bg-gray-200"></div>
+                </div>
 
-        <!-- Lightbox Modal with Next & Previous Navigation -->
+                <!-- Item 2: Dari Kreator Favoritmu -->
+                <div class="flex items-center justify-start sm:justify-center relative sm:px-6 lg:px-4 pb-6 sm:pb-0 border-b sm:border-b-0 border-gray-100">
+                    <div class="flex items-center gap-3.5 sm:gap-4 w-full sm:w-auto max-w-[270px]">
+                        <div class="w-13 h-13 sm:w-14 sm:h-14 min-w-[52px] min-h-[52px] sm:min-w-[56px] sm:min-h-[56px] rounded-full flex items-center justify-center shrink-0" style="background-color: #EDE9FE;">
+                            <svg class="w-6.5 h-6.5 sm:w-7 sm:h-7 text-[#4F26A6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <h4 class="text-[15px] sm:text-[15.5px] font-bold text-gray-900 leading-tight tracking-tight">Dari Kreator Favoritmu</h4>
+                            <p class="text-[12.5px] sm:text-[13px] text-gray-500 font-normal mt-1 leading-snug">Langsung dari kreator pilihan</p>
+                        </div>
+                    </div>
+                    <!-- Separator line for Desktop only (hidden on tablet 2-col wrap) -->
+                    <div class="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 w-[1px] h-11 bg-gray-200"></div>
+                </div>
+
+                <!-- Item 3: Pengiriman Cepat -->
+                <div class="flex items-center justify-start sm:justify-center relative sm:px-6 lg:px-4 pb-6 sm:pb-0 border-b sm:border-b-0 border-gray-100">
+                    <div class="flex items-center gap-3.5 sm:gap-4 w-full sm:w-auto max-w-[270px]">
+                        <div class="w-13 h-13 sm:w-14 sm:h-14 min-w-[52px] min-h-[52px] sm:min-w-[56px] sm:min-h-[56px] rounded-full flex items-center justify-center shrink-0" style="background-color: #EDE9FE;">
+                            <svg class="w-6.5 h-6.5 sm:w-7 sm:h-7 text-[#4F26A6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <h4 class="text-[15px] sm:text-[15.5px] font-bold text-gray-900 leading-tight tracking-tight">Pengiriman Cepat</h4>
+                            <p class="text-[12.5px] sm:text-[13px] text-gray-500 font-normal mt-1 leading-snug">Diproses dalam 1×24 jam</p>
+                        </div>
+                    </div>
+                    <!-- Separator line for Tablet (Col 3 to Col 4) and Desktop -->
+                    <div class="hidden sm:block absolute right-0 top-1/2 -translate-y-1/2 w-[1px] h-10 sm:h-11 bg-gray-200"></div>
+                </div>
+
+                <!-- Item 4: Transaksi Aman -->
+                <div class="flex items-center justify-start sm:justify-center relative sm:px-6 lg:px-4">
+                    <div class="flex items-center gap-3.5 sm:gap-4 w-full sm:w-auto max-w-[270px]">
+                        <div class="w-13 h-13 sm:w-14 sm:h-14 min-w-[52px] min-h-[52px] sm:min-w-[56px] sm:min-h-[56px] rounded-full flex items-center justify-center shrink-0" style="background-color: #EDE9FE;">
+                            <svg class="w-6.5 h-6.5 sm:w-7 sm:h-7 text-[#4F26A6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <h4 class="text-[15px] font-bold text-gray-900 leading-tight tracking-tight">Transaksi Aman</h4>
+                            <p class="text-[12.5px] sm:text-[13px] text-gray-500 font-normal mt-1 leading-snug">Dengan sistem escrow</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div 
             x-show="lightboxOpen" 
             x-cloak
@@ -421,5 +499,6 @@
                 <img :src="selectedImage" alt="Zoomed view" class="w-full h-full object-cover block" />
             </div>
         </div>
+
     </div>
 </x-layouts.app>

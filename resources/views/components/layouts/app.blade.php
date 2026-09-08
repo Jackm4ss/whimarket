@@ -7,9 +7,10 @@
     <title>{{ $title ?? 'WhiMarket - Marketplace Pre-loved & Merchandise' }}</title>
     <link rel="icon" type="image/png" href="/assets/logo-whimarket.png">
     
-    <!-- Preload LCP Hero Product Image -->
-    <link rel="preload" as="image" href="/assets/hero-product.png" fetchpriority="high">
-
+    @if(request()->is('/'))
+        <!-- Preload LCP Hero Product Image (Homepage Only) -->
+        <link rel="preload" as="image" href="/assets/hero-product.png" fetchpriority="high">
+    @endif
     <!-- Exact Google Fonts: Plus Jakarta Sans & Caveat with display=swap -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
