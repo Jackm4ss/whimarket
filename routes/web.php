@@ -1,57 +1,87 @@
 <?php
 
-use App\Support\MarketData;
+use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\Buyer\CartController;
+use App\Http\Controllers\Buyer\CatalogController;
+use App\Http\Controllers\Buyer\CheckoutController;
+use App\Http\Controllers\Buyer\DisputeController;
+use App\Http\Controllers\Buyer\OnboardingController;
+use App\Http\Controllers\Buyer\OrderController;
+use App\Http\Controllers\Buyer\SearchController;
+use App\Http\Controllers\Buyer\WishlistController;
+use App\Http\Controllers\Seller\SellerPortalController;
+use App\Http\Controllers\Seller\SellerProductController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('landing', [
-        'categories' => MarketData::categories(),
-        'products' => MarketData::landingProducts(),
-        'sellers' => MarketData::sellers(),
-        'steps' => MarketData::steps(),
-    ]);
+// Authentication Routes
+Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
+Route::post('/logout', [GoogleAuthController::class, 'logout'])->name('logout');
+Route::get('/auth/dev-login/{role?}', [GoogleAuthController::class, 'devLogin'])->name('auth.dev-login');
+
+// Onboarding Routes
+Route::middleware('auth')->group(function () {
+    Route::post('/onboarding/address', [OnboardingController::class, 'saveAddress'])->name('onboarding.address');
+    Route::post('/onboarding/skip', [OnboardingController::class, 'skip'])->name('onboarding.skip');
 });
-Route::get('/belanja', function () {
-    $category = request()->query('kategori', 'all');
 
-    return view('shop', [
-        'products' => MarketData::shopProducts(),
-        'categories' => MarketData::categories(),
-        'initialCategory' => $category,
-    ]);
+// Catalog Routes
+Route::get('/', [CatalogController::class, 'home'])->name('home');
+Route::get('/belanja', [CatalogController::class, 'shop'])->name('shop');
+Route::get('/produk/{slug}', [CatalogController::class, 'productDetail'])->name('product.detail');
+Route::get('/seller', [CatalogController::class, 'sellerDirectory'])->name('seller.directory');
+Route::get('/seller/{username}', [CatalogController::class, 'sellerProfile'])->name('seller.profile')->where('username', '@[A-Za-z0-9_.-]+');
+Route::get('/api/search-suggest', [SearchController::class, 'suggest'])->name('search.suggest');
+
+// Wishlist Routes
+Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+Route::post('/wishlist/toggle/{productId}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+
+// Cart Routes
+Route::get('/keranjang', [CartController::class, 'index'])->name('cart.index');
+Route::post('/keranjang/add', [CartController::class, 'add'])->name('cart.add');
+Route::patch('/keranjang/item/{id}', [CartController::class, 'updateItem'])->name('cart.update');
+Route::delete('/keranjang/item/{id}', [CartController::class, 'removeItem'])->name('cart.remove');
+
+// Checkout & Payment Routes
+Route::middleware('auth')->group(function () {
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::get('/pembayaran/{orderNumber}', [CheckoutController::class, 'showPayment'])->name('payment.show');
+    Route::post('/pembayaran/{orderNumber}/upload', [CheckoutController::class, 'uploadProof'])->name('payment.upload');
+
+    // Buyer Order Management
+    Route::get('/pesanan', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/pesanan/{orderNumber}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/pesanan/{orderNumber}/terima', [OrderController::class, 'confirmDelivered'])->name('orders.confirm_delivered');
+    Route::post('/pesanan/{orderNumber}/selesai', [OrderController::class, 'completeOrder'])->name('orders.complete');
+
+    // Buyer Dispute
+    Route::get('/pesanan/{orderNumber}/komplain', [DisputeController::class, 'create'])->name('dispute.create');
+    Route::post('/pesanan/{orderNumber}/komplain', [DisputeController::class, 'store'])->name('dispute.store');
+
+    // Seller Portal
+    Route::get('/seller/register', [SellerPortalController::class, 'showRegister'])->name('seller.register');
+    Route::post('/seller/register', [SellerPortalController::class, 'register'])->name('seller.register.submit');
+
+    // Seller Protected Routes
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/seller/dashboard', [SellerPortalController::class, 'dashboard'])->name('seller.dashboard');
+        Route::get('/seller/orders', [SellerPortalController::class, 'orders'])->name('seller.orders.index');
+        Route::post('/seller/orders/{id}/fulfill', [SellerPortalController::class, 'fulfill'])->name('seller.orders.fulfill');
+        Route::post('/seller/orders/{id}/claim-delivered', [SellerPortalController::class, 'claimDelivered'])->name('seller.orders.claim_delivered');
+        Route::get('/seller/disputes/{id}', [SellerPortalController::class, 'disputeDetail'])->name('seller.disputes.show');
+        Route::post('/seller/disputes/{id}/respond', [SellerPortalController::class, 'disputeRespond'])->name('seller.disputes.respond');
+
+        // Seller Product CRUD
+        Route::get('/seller/products', [SellerProductController::class, 'index'])->name('seller.products.index');
+        Route::get('/seller/products/create', [SellerProductController::class, 'create'])->name('seller.products.create');
+        Route::post('/seller/products', [SellerProductController::class, 'store'])->name('seller.products.store');
+        Route::get('/seller/products/{id}/edit', [SellerProductController::class, 'edit'])->name('seller.products.edit');
+        Route::put('/seller/products/{id}', [SellerProductController::class, 'update'])->name('seller.products.update');
+        Route::delete('/seller/products/{id}', [SellerProductController::class, 'destroy'])->name('seller.products.destroy');
+    });
 });
-Route::get('/produk/{id}', function (string $id) {
-    $product = MarketData::productDetail();
-
-    return view('product-detail', [
-        'product' => $product,
-        'activeTab' => 'belanja',
-        'title' => $product['title'].' | WhiMarket',
-    ]);
-});
-Route::get('/seller', function () {
-    return view('browse-seller', [
-        'activeTab' => 'seller',
-    ]);
-});
-Route::get('/seller/{username}', function (string $username) {
-    // Strictly require username format starting with @
-    if (! str_starts_with($username, '@')) {
-        abort(404);
-    }
-
-    $handle = strtolower($username);
-    // Currently only @rachel_venya (and @rachelvennya) exists
-    $validHandles = ['@rachel_venya', '@rachelvennya'];
-
-    if (! in_array($handle, $validHandles, true)) {
-        abort(404);
-    }
-
-    return view('seller-profile', [
-        'username' => '@rachel_venya',
-    ]);
-})->where('username', '@[A-Za-z0-9_.-]+');
 
 // Informasi & Bantuan Pages
 Route::get('/cara-jual', function () {

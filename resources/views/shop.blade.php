@@ -1,3 +1,7 @@
+@php
+    $defaultCatalog = \App\Support\MarketData::shopProducts();
+    $displayProducts = !empty($productsList) ? $productsList : $defaultCatalog;
+@endphp
 <x-layouts.app
     title="WhiMarket - Marketplace Pre-loved & Merchandise"
     activeTab="belanja"
@@ -12,169 +16,12 @@
     <div
         class="max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-2 pb-16"
         x-data="{
-            allProducts: [
-                {
-                    id: 'prod_new_1',
-                    title: 'Nike Dunk Low Purple (Used)',
-                    sellerName: 'Rachel Vennya',
-                    sellerAvatar: '/assets/avatar-rachel.png',
-                    verified: true,
-                    priceText: 'Rp 1.200.000',
-                    priceNumber: 1200000,
-                    likes: 128,
-                    image: '/assets/products/prod-dunk.png',
-                    condition: 'Seperti Baru',
-                    category: 'fashion'
-                },
-                {
-                    id: 'prod_new_2',
-                    title: 'Tas Charles & Keith Black',
-                    sellerName: 'Anya Geraldine',
-                    sellerAvatar: '/assets/avatar-anya.png',
-                    verified: true,
-                    priceText: 'Rp 850.000',
-                    priceNumber: 850000,
-                    likes: 96,
-                    image: '/assets/products/prod-bag.png',
-                    condition: 'Sangat Baik',
-                    category: 'tas'
-                },
-                {
-                    id: 'prod_new_3',
-                    title: 'Jaket Denim Vintage',
-                    sellerName: 'Verrell Bramasta',
-                    sellerAvatar: '/assets/avatars/avatar-verrell.png',
-                    verified: true,
-                    priceText: 'Rp 750.000',
-                    priceNumber: 750000,
-                    likes: 72,
-                    image: '/assets/products/prod-denim.png',
-                    condition: 'Seperti Baru',
-                    category: 'fashion'
-                },
-                {
-                    id: 'prod_new_4',
-                    title: 'Hoodie Plan Do',
-                    sellerName: 'Celloszx',
-                    sellerAvatar: '/assets/avatars/avatar-cellos.png',
-                    verified: true,
-                    priceText: 'Rp 500.000',
-                    priceNumber: 500000,
-                    likes: 64,
-                    image: '/assets/products/prod-hoodie.png',
-                    condition: 'Baik',
-                    category: 'fashion'
-                },
-                {
-                    id: 'prod_new_5',
-                    title: 'Instax Mini 11 (Used)',
-                    sellerName: 'Fuji An',
-                    sellerAvatar: '/assets/avatars/avatar-fuji.png',
-                    verified: true,
-                    priceText: 'Rp 1.000.000',
-                    priceNumber: 1000000,
-                    likes: 112,
-                    image: '/assets/products/prod-instax.png',
-                    condition: 'Sangat Baik',
-                    category: 'elektronik'
-                },
-                {
-                    id: 'prod_new_6',
-                    title: 'Parfum Bleu de Chanel',
-                    sellerName: 'Windah Basudara',
-                    sellerAvatar: '/assets/avatars/avatar-windah.png',
-                    verified: true,
-                    priceText: 'Rp 1.600.000',
-                    priceNumber: 1600000,
-                    likes: 89,
-                    image: '/assets/products/prod-chanel.png',
-                    condition: 'Seperti Baru',
-                    category: 'kecantikan'
-                },
-                {
-                    id: 'prod_new_7',
-                    title: 'Totebag Limited Edition',
-                    sellerName: 'MiawAug',
-                    sellerAvatar: '/assets/avatars/avatar-miawaug.png',
-                    verified: true,
-                    priceText: 'Rp 200.000',
-                    priceNumber: 200000,
-                    likes: 54,
-                    image: '/assets/products/prod-totebag.png',
-                    condition: 'Baik',
-                    category: 'tas'
-                },
-                {
-                    id: 'prod_new_8',
-                    title: 'Kartu Pokemon Rare',
-                    sellerName: 'Raisy Febian',
-                    sellerAvatar: '/assets/avatars/avatar-raisy.png',
-                    verified: true,
-                    priceText: 'Rp 1.500.000',
-                    priceNumber: 1500000,
-                    likes: 76,
-                    image: '/assets/products/prod-pokemon.png',
-                    condition: 'Seperti Baru',
-                    category: 'hobi'
-                },
-                {
-                    id: 'prod_new_9',
-                    title: 'Hoodie Damn Plan Do',
-                    sellerName: 'Celloszx',
-                    sellerAvatar: '/assets/avatars/avatar-cellos.png',
-                    verified: true,
-                    priceText: 'Rp 500.000',
-                    priceNumber: 500000,
-                    likes: 41,
-                    image: '/assets/products/prod-hoodie-black.png',
-                    condition: 'Baik',
-                    category: 'fashion'
-                },
-                {
-                    id: 'prod_new_10',
-                    title: 'Varsity Jacket Whimarket',
-                    sellerName: 'Rachel Vennya',
-                    sellerAvatar: '/assets/avatar-rachel.png',
-                    verified: true,
-                    priceText: 'Rp 650.000',
-                    priceNumber: 650000,
-                    likes: 68,
-                    image: '/assets/products/prod-varsity.png',
-                    condition: 'Seperti Baru',
-                    category: 'fashion'
-                },
-                {
-                    id: 'prod_new_11',
-                    title: 'Headphone Sony WH-1000XM5',
-                    sellerName: 'Jerome Polin',
-                    sellerAvatar: '/assets/avatar-jerome.png',
-                    verified: true,
-                    priceText: 'Rp 3.200.000',
-                    priceNumber: 3200000,
-                    likes: 102,
-                    image: '/assets/products/prod-headphone.png',
-                    condition: 'Sangat Baik',
-                    category: 'elektronik'
-                },
-                {
-                    id: 'prod_new_12',
-                    title: 'Air Jordan 1 (Used)',
-                    sellerName: 'Anya Geraldine',
-                    sellerAvatar: '/assets/avatar-anya.png',
-                    verified: true,
-                    priceText: 'Rp 2.500.000',
-                    priceNumber: 2500000,
-                    likes: 95,
-                    image: '/assets/products/prod-jordan.png',
-                    condition: 'Sangat Baik',
-                    category: 'fashion'
-                }
-            ],
+            allProducts: @js($displayProducts),
+            searchQuery: '{{ request('q') ?? '' }}',
             selectedCategory: '{{ $initialCategory ?? 'all' }}',
             priceRange: [0, 50000000],
             selectedConditions: ['all'],
-            selectedLocation: '',
-            sortBy: 'terbaru',
+            sortBy: '{{ request('sort', 'terbaru') }}',
             sortDropdownOpen: false,
             viewMode: 'grid',
             isMobileFilterOpen: false,
@@ -236,6 +83,12 @@
 
             get filteredProducts() {
                 let list = this.allProducts.filter(item => {
+                    if (this.searchQuery) {
+                        const sq = this.searchQuery.toLowerCase();
+                        const matchTitle = (item.title || '').toLowerCase().includes(sq);
+                        const matchSeller = (item.sellerName || '').toLowerCase().includes(sq);
+                        if (!matchTitle && !matchSeller) return false;
+                    }
                     if (this.selectedCategory !== 'all' && item.category !== this.selectedCategory) return false;
                     if (item.priceNumber < this.priceRange[0] || item.priceNumber > this.priceRange[1]) return false;
                     if (!this.selectedConditions.includes('all')) {
@@ -266,9 +119,9 @@
                 this.priceRange = [0, 50000000];
                 this.selectedConditions = ['all'];
                 this.selectedLocation = '';
+                this.searchQuery = '';
                 this.sortBy = 'terbaru';
             },
-
             formatRupiah(num) {
                 return 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
             }
@@ -537,6 +390,12 @@
                         <p class="text-[13px] sm:text-[14px] text-gray-600 font-normal leading-relaxed">
                             Temukan berbagai barang pre-loved dari artis, selebgram, dan streamer favoritmu.
                         </p>
+                        <template x-if="searchQuery">
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-[#F3EEFF] text-[#4F26A6] text-xs font-bold">
+                                <span>Hasil pencarian: "<span x-text="searchQuery"></span>"</span>
+                                <a href="{{ route('shop') }}" class="text-gray-400 hover:text-gray-700 cursor-pointer ml-1" title="Hapus filter pencarian">✕</a>
+                            </div>
+                        </template>
                     </div>
                     <div class="flex flex-col items-end gap-2 shrink-0">
                         <span class="text-[11.5px] text-gray-400 font-medium" x-text="filteredProducts.length + ' barang ditemukan'">
@@ -558,70 +417,12 @@
 
                             <!-- Right Controls Cluster (Sort + View Mode) -->
                             <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
-                            <div class="relative shrink-0" @click.outside="sortDropdownOpen = false">
-                                <button
-                                    type="button"
-                                    @click="sortDropdownOpen = !sortDropdownOpen"
-                                    class="w-full inline-flex items-center justify-between gap-2.5 bg-white border border-gray-200 text-xs sm:text-[13px] font-semibold text-gray-800 rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 focus:border-[#4F26A6] shadow-xs hover:border-gray-300 transition-all cursor-pointer whitespace-nowrap"
-                                >
-                                    <span x-text="sortBy === 'terbaru' ? 'Urutan: Terbaru' : (sortBy === 'harga-rendah' ? 'Harga Terendah' : (sortBy === 'harga-tinggi' ? 'Harga Tertinggi' : 'Terpopuler'))"></span>
-                                    <svg
-                                        class="w-3.5 h-3.5 text-gray-400 transition-transform duration-200 shrink-0"
-                                        :class="sortDropdownOpen ? 'rotate-180 text-[#4F26A6]' : ''"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </button>
-
-                                <!-- Floating Sort Menu -->
-                                <div
-                                    x-show="sortDropdownOpen"
-                                    x-cloak
-                                    x-transition:enter="transition ease-out duration-150"
-                                    x-transition:enter-start="opacity-0 translate-y-1"
-                                    x-transition:enter-end="opacity-100 translate-y-0"
-                                    x-transition:leave="transition ease-in duration-100"
-                                    x-transition:leave-start="opacity-100 translate-y-0"
-                                    x-transition:leave-end="opacity-0 translate-y-1"
-                                    class="absolute right-0 left-0 top-full mt-1.5 min-w-full bg-white border border-gray-100 rounded-2xl shadow-[0_12px_36px_rgba(0,0,0,0.12)] p-1.5 z-40 space-y-0.5 font-medium text-xs sm:text-[13px] text-gray-700"
-                                    style="display: none;"
-                                >
-                                    <button
-                                        type="button"
-                                        @click="sortBy = 'terbaru'; sortDropdownOpen = false"
-                                        class="w-full text-left px-3.5 py-2 rounded-xl flex items-center hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
-                                        :class="sortBy === 'terbaru' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
-                                    >
-                                        <span>Urutan: Terbaru</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        @click="sortBy = 'harga-rendah'; sortDropdownOpen = false"
-                                        class="w-full text-left px-3.5 py-2 rounded-xl flex items-center hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
-                                        :class="sortBy === 'harga-rendah' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
-                                    >
-                                        <span>Harga Terendah</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        @click="sortBy = 'harga-tinggi'; sortDropdownOpen = false"
-                                        class="w-full text-left px-3.5 py-2 rounded-xl flex items-center hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
-                                        :class="sortBy === 'harga-tinggi' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
-                                    >
-                                        <span>Harga Tertinggi</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        @click="sortBy = 'terpopuler'; sortDropdownOpen = false"
-                                        class="w-full text-left px-3.5 py-2 rounded-xl flex items-center hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
-                                        :class="sortBy === 'terpopuler' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
-                                    >
-                                        <span>Terpopuler</span>
-                                    </button>
-                                </div>
+                            <x-sort-dropdown :options="[
+                                'terbaru' => 'Urutan: Terbaru',
+                                'harga-rendah' => 'Harga Terendah',
+                                'harga-tinggi' => 'Harga Tertinggi',
+                                'terpopuler' => 'Terpopuler',
+                            ]" />
                             </div>
 
                             <!-- Grid vs List View Mode (Hidden on mobile & tablet, visible on desktop lg) -->
@@ -657,7 +458,6 @@
                                     </svg>
                                 </button>
                             </div>
-                        </div>
                         </div>
                     </div>
                 </div>

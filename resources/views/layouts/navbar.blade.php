@@ -153,48 +153,182 @@
                 </nav>
             </div>
 
-            <!-- Center-Right: Search Bar -->
-            <div class="flex-1 max-w-[320px] md:max-w-[380px] lg:max-w-[440px] xl:max-w-[480px] relative hidden sm:block">
-                <div class="relative w-full">
+            <!-- Center-Right: Search Bar with Live Suggestions & Form Submission -->
+            <div
+                class="flex-1 max-w-[320px] md:max-w-[380px] lg:max-w-[440px] xl:max-w-[480px] relative hidden sm:block"
+                x-data="{
+                    query: '{{ request('q') ?? '' }}',
+                    isOpen: false,
+                    loading: false,
+                    products: [],
+                    sellers: [],
+                    async search(val) {
+                        const q = (val !== undefined ? val : this.query).trim();
+                        this.query = q;
+                        if (q.length < 2) {
+                            this.products = [];
+                            this.sellers = [];
+                            this.isOpen = false;
+                            return;
+                        }
+                        this.loading = true;
+                        try {
+                            const res = await fetch('/api/search-suggest?q=' + encodeURIComponent(q));
+                            const data = await res.json();
+                            this.products = Array.isArray(data.products) ? data.products : [];
+                            this.sellers = Array.isArray(data.sellers) ? data.sellers : [];
+                            this.isOpen = (this.products.length > 0 || this.sellers.length > 0);
+                        } catch (e) {
+                            console.error(e);
+                        } finally {
+                            this.loading = false;
+                        }
+                    }
+                }"
+                @click.outside="isOpen = false"
+                @keydown.escape="isOpen = false"
+            >
+                <form action="{{ route('shop') }}" method="GET" class="relative w-full">
                     <input
                         type="text"
+                        name="q"
+                        x-model="query"
+                        @input.debounce.300ms="search($event.target.value)"
+                        @focus="if (query.trim().length >= 2) search(query)"
                         placeholder="Cari produk, kategori, atau apapun..."
-                        class="w-full h-11 sm:h-[44px] pl-10 pr-4 rounded-xl bg-[#F9FAFB] border border-gray-200 text-xs sm:text-[14px] text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 focus:border-[#4F26A6] transition-all"
+                        autocomplete="off"
+                        class="w-full h-11 sm:h-[44px] pl-10 pr-10 rounded-xl bg-[#F9FAFB] border border-gray-200 text-xs sm:text-[14px] text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 focus:border-[#4F26A6] transition-all"
                     />
-                    <svg class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    </svg>
+                    <button type="submit" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#4F26A6] transition-colors cursor-pointer" title="Cari">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                    </button>
+                    <button
+                        type="button"
+                        x-show="query.length > 0"
+                        x-cloak
+                        @click="query = ''; isOpen = false; $el.previousElementSibling.previousElementSibling.focus()"
+                        class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 cursor-pointer p-0.5"
+                        title="Hapus"
+                    >
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </form>
+
+                <!-- Floating Live Search Dropdown Panel -->
+                <div
+                    x-show="isOpen"
+                    x-cloak
+                    x-transition:enter="transition ease-out duration-150"
+                    x-transition:enter-start="opacity-0 translate-y-1"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-100"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 translate-y-1"
+                    class="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.18)] border border-gray-100 p-3 z-[100] text-left space-y-3"
+                >
+                    <!-- Products Matches -->
+                    <template x-if="products.length > 0">
+                        <div>
+                            <span class="text-[10.5px] font-extrabold text-gray-400 tracking-wider uppercase px-2 block mb-1.5">
+                                Produk Terkait
+                            </span>
+                            <div class="space-y-1">
+                                <template x-for="prod in products" :key="prod.id">
+                                    <a
+                                        :href="prod.url"
+                                        class="flex items-center gap-3 p-2 rounded-xl hover:bg-[#F3EEFF] transition-colors group/item"
+                                    >
+                                        <img
+                                            :src="prod.image"
+                                            :alt="prod.title"
+                                            class="w-10 h-10 rounded-lg object-cover bg-gray-100 shrink-0 border border-gray-100"
+                                        />
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-xs sm:text-[13px] font-bold text-gray-900 group-hover/item:text-[#4F26A6] truncate" x-text="prod.title"></p>
+                                            <div class="flex items-center gap-1.5 text-[11px] text-gray-500">
+                                                <span class="text-[#4F26A6] font-extrabold" x-text="prod.price_formatted"></span>
+                                                <span>•</span>
+                                                <span class="truncate" x-text="prod.seller_name"></span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Sellers Matches -->
+                    <template x-if="sellers.length > 0">
+                        <div class="pt-2 border-t border-gray-100">
+                            <span class="text-[10.5px] font-extrabold text-gray-400 tracking-wider uppercase px-2 block mb-1.5">
+                                Toko &amp; Kreator
+                            </span>
+                            <div class="space-y-1">
+                                <template x-for="sel in sellers" :key="sel.id">
+                                    <a
+                                        :href="sel.url"
+                                        class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-[#F3EEFF] transition-colors group/item"
+                                    >
+                                        <img
+                                            :src="sel.avatar"
+                                            :alt="sel.name"
+                                            class="w-8 h-8 rounded-full object-cover shrink-0 ring-1 ring-purple-100"
+                                        />
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-xs font-bold text-gray-900 group-hover/item:text-[#4F26A6] truncate" x-text="sel.name"></p>
+                                            <p class="text-[10.5px] text-gray-400" x-text="'@' + sel.username"></p>
+                                        </div>
+                                    </a>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- View All Results Footer -->
+                    <div class="pt-2 border-t border-gray-100">
+                        <a
+                            :href="'/belanja?q=' + encodeURIComponent(query)"
+                            class="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-bold text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors"
+                        >
+                            <span>Lihat semua hasil untuk "<span x-text="query"></span>"</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        </a>
+                    </div>
                 </div>
             </div>
 
             <!-- Right: Wishlist, Cart, Profile Menu / Auth -->
             <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                 <!-- Wishlist Icon -->
-                <a href="#wishlist" class="relative p-2 text-gray-700 hover:text-[#4F26A6] transition-colors rounded-xl hover:bg-gray-50" title="Favorit">
+                <a href="{{ route('wishlist.index') }}" class="relative p-2 text-gray-700 hover:text-[#4F26A6] transition-colors rounded-xl hover:bg-gray-50" title="Wishlist">
                     <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
                     <span class="absolute top-0.5 right-0.5 w-4 h-4 sm:w-[18px] sm:h-[18px] rounded-full bg-[#4F26A6] text-white text-[9.5px] sm:text-[10px] font-extrabold flex items-center justify-center shadow-xs">
-                        {{ $wishlistCount }}
+                        {{ auth()->check() ? auth()->user()->wishlists()->count() : ($wishlistCount ?? 0) }}
                     </span>
                 </a>
 
                 <!-- Cart Icon -->
-                <a href="#keranjang" class="relative p-2 text-gray-700 hover:text-[#4F26A6] transition-colors rounded-xl hover:bg-gray-50" title="Keranjang">
+                <a href="{{ route('cart.index') }}" class="relative p-2 text-gray-700 hover:text-[#4F26A6] transition-colors rounded-xl hover:bg-gray-50" title="Keranjang Belanja">
                     <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                         <circle cx="9" cy="21" r="1" />
                         <circle cx="20" cy="21" r="1" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" />
                     </svg>
                     <span class="absolute top-0.5 right-0.5 w-4 h-4 sm:w-[18px] sm:h-[18px] rounded-full bg-[#4F26A6] text-white text-[9.5px] sm:text-[10px] font-extrabold flex items-center justify-center shadow-xs">
-                        {{ $cartCount }}
+                        {{ auth()->check() && auth()->user()->cart ? auth()->user()->cart->items()->count() : ($cartCount ?? 0) }}
                     </span>
                 </a>
-
                 <div class="hidden lg:block h-6 w-[1px] bg-gray-200 mx-1"></div>
 
                 <!-- Profile Menu Dropdown / Guest buttons -->
-                @if($user)
+                @php
+                    $currentUser = auth()->user() ?? (is_array($user) ? (object)$user : $user);
+                @endphp
+                @if($currentUser)
                     <div class="relative" @click.outside="isProfileOpen = false">
                         <button
                             type="button"
@@ -202,12 +336,12 @@
                             class="hidden lg:flex items-center gap-2.5 pl-1 cursor-pointer group focus:outline-none"
                         >
                             <img
-                                src="{{ $user['avatar'] }}"
-                                alt="{{ $user['name'] }}"
+                                src="{{ is_object($currentUser) ? ($currentUser->avatar ?? '/assets/avatars/avatar-raisy.png') : ($currentUser['avatar'] ?? '/assets/avatars/avatar-raisy.png') }}"
+                                alt="{{ is_object($currentUser) ? $currentUser->name : $currentUser['name'] }}"
                                 class="w-9 h-9 rounded-full object-cover ring-2 ring-purple-100 group-hover:ring-[#4F26A6]/30 transition-all shrink-0"
                             />
-                            <span class="text-sm font-semibold text-gray-800 group-hover:text-[#4F26A6] transition-colors">
-                                {{ $user['name'] }}
+                            <span class="text-sm font-semibold text-gray-800 group-hover:text-[#4F26A6] transition-colors max-w-[120px] truncate">
+                                {{ is_object($currentUser) ? $currentUser->name : $currentUser['name'] }}
                             </span>
                             <svg
                                 class="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4F26A6] transition-transform duration-200"
@@ -229,47 +363,63 @@
                             x-transition:leave="transition ease-in duration-100"
                             x-transition:leave-start="opacity-100 translate-y-0"
                             x-transition:leave-end="opacity-0 translate-y-1"
-                            class="absolute right-0 top-full mt-2.5 w-64 bg-white rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.12)] border border-gray-100 p-3 z-50 text-left space-y-1"
+                            class="absolute right-0 top-full mt-2.5 w-64 bg-white rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.12)] border border-gray-100 p-2.5 z-50 text-left space-y-1"
                             style="display: none;"
                         >
-                            <div class="px-3.5 py-2.5 border-b border-gray-100 mb-1.5">
+                            <div class="px-3.5 py-2.5 border-b border-gray-100 mb-1">
                                 <p class="text-[11px] text-gray-400 font-medium">Masuk sebagai</p>
-                                <p class="text-sm font-extrabold text-gray-900 truncate mt-0.5">{{ $user['name'] }}</p>
+                                <p class="text-sm font-extrabold text-gray-900 truncate mt-0.5">{{ is_object($currentUser) ? $currentUser->name : $currentUser['name'] }}</p>
+                                <p class="text-xs text-[#4F26A6] font-bold mt-0.5">Role: {{ auth()->check() ? ucfirst(auth()->user()->role?->value ?? 'Buyer') : 'Buyer' }}</p>
                             </div>
 
-                            <a href="#profil" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13.5px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors">
-                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                                <span>Profil Saya</span>
-                            </a>
-                            <a href="#pesanan" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13.5px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors">
+                            @if(auth()->check() && auth()->user()->isSeller())
+                                <a href="{{ route('seller.dashboard') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-bold text-[#4F26A6] bg-[#F3EEFF] hover:bg-[#EADDFE] transition-colors">
+                                    <svg class="w-4 h-4 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                                    </svg>
+                                    <span>Dashboard Seller</span>
+                                </a>
+                            @endif
+
+                            @if(auth()->check() && auth()->user()->isAdmin())
+                                <a href="/admin" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 transition-colors">
+                                    <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                    <span>Admin Panel</span>
+                                </a>
+                            @endif
+
+                            <a href="{{ route('orders.index') }}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors">
                                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                 </svg>
                                 <span>Pesanan Saya</span>
                             </a>
-                            <a href="#wishlist" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13.5px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors">
+                            <a href="{{ route('wishlist.index') }}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors">
                                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                 </svg>
                                 <span>Wishlist</span>
                             </a>
-                            <div class="h-[1px] bg-gray-100 my-1.5"></div>
-                            <a href="#keluar" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13.5px] font-semibold text-red-600 hover:bg-red-50 transition-colors">
-                                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                </svg>
-                                <span>Keluar</span>
-                            </a>
+                            <div class="h-[1px] bg-gray-100 my-1"></div>
+                            <form method="POST" action="{{ route('logout') }}" class="w-full">
+                                @csrf
+                                <button type="submit" class="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left">
+                                    <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                    </svg>
+                                    <span>Keluar</span>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 @else
                     <div class="hidden lg:flex items-center gap-2.5">
-                        <a href="#masuk" class="px-5 h-[44px] flex items-center justify-center rounded-xl text-[15px] font-semibold text-[#4F26A6] border-[1.5px] border-[#4F26A6] hover:bg-[#4F26A6]/5 transition-all">
+                        <a href="{{ route('auth.google.redirect') }}" class="px-5 h-[44px] flex items-center justify-center rounded-xl text-[15px] font-semibold text-[#4F26A6] border-[1.5px] border-[#4F26A6] hover:bg-[#4F26A6]/5 transition-all">
                             Masuk
                         </a>
-                        <a href="#daftar" class="px-6 h-[44px] flex items-center justify-center rounded-xl text-[15px] font-semibold text-white bg-[#4F26A6] hover:bg-[#3E1D85] shadow-xs transition-all">
+                        <a href="{{ route('auth.google.redirect') }}" class="px-6 h-[44px] flex items-center justify-center rounded-xl text-[15px] font-semibold text-white bg-[#4F26A6] hover:bg-[#3E1D85] shadow-xs transition-all">
                             Daftar
                         </a>
                     </div>
@@ -334,16 +484,20 @@
             </div>
 
             <!-- Mobile Search Bar -->
-            <div class="mt-4 relative sm:hidden">
+            <form action="{{ route('shop') }}" method="GET" class="mt-4 relative sm:hidden">
                 <input
                     type="text"
-                    placeholder="Cari produk, kategori..."
-                    class="w-full h-10 pl-9 pr-3 rounded-xl bg-[#F9FAFB] border border-gray-200 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#4F26A6]"
+                    name="q"
+                    value="{{ request('q') ?? '' }}"
+                    placeholder="Cari produk, kategori, atau toko..."
+                    class="w-full h-10 pl-9 pr-8 rounded-xl bg-[#F9FAFB] border border-gray-200 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#4F26A6] transition-all"
                 />
-                <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
-            </div>
+                <button type="submit" class="text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 hover:text-[#4F26A6] transition-colors cursor-pointer" title="Cari">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                </button>
+            </form>
 
             <!-- Navigation Links -->
             <nav class="flex flex-col mt-3 divide-y divide-gray-100 text-[15px] sm:text-[16px] font-bold text-gray-800">
@@ -429,12 +583,37 @@
         </div>
 
         <div class="pt-4 border-t border-gray-200 flex flex-col gap-2.5">
-            <a href="#daftar" class="w-full py-3 rounded-xl text-center font-bold text-white bg-[#4F26A6] hover:bg-[#3E1D85] shadow-md shadow-[#4F26A6]/20 transition-all text-sm">
-                Daftar Sekarang
-            </a>
-            <a href="#masuk" class="w-full py-3 rounded-xl text-center font-bold text-[#4F26A6] border-2 border-[#4F26A6] hover:bg-[#4F26A6]/5 transition-all text-sm">
-                Masuk ke Akun
-            </a>
+            @if(auth()->check())
+                <div class="px-2 py-1.5 bg-[#F3EEFF] rounded-xl text-xs font-bold text-[#4F26A6]">
+                    Login: {{ auth()->user()->name }} ({{ ucfirst(auth()->user()->role?->value ?? 'Buyer') }})
+                </div>
+                @if(auth()->user()->isSeller())
+                    <a href="{{ route('seller.dashboard') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-white bg-[#4F26A6] hover:bg-[#3E1D85] transition-all text-xs">
+                        Dashboard Seller
+                    </a>
+                @endif
+                @if(auth()->user()->isAdmin())
+                    <a href="/admin" class="w-full py-2.5 rounded-xl text-center font-bold text-white bg-amber-600 hover:bg-amber-700 transition-all text-xs">
+                        Admin Panel
+                    </a>
+                @endif
+                <a href="{{ route('orders.index') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-gray-700 border border-gray-200 hover:bg-gray-50 transition-all text-xs">
+                    Pesanan Saya
+                </a>
+                <form method="POST" action="{{ route('logout') }}" class="w-full">
+                    @csrf
+                    <button type="submit" class="w-full py-2.5 rounded-xl text-center font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-all text-xs cursor-pointer">
+                        Keluar
+                    </button>
+                </form>
+            @else
+                <a href="{{ route('auth.google.redirect') }}" class="w-full py-3 rounded-xl text-center font-bold text-white bg-[#4F26A6] hover:bg-[#3E1D85] shadow-md shadow-[#4F26A6]/20 transition-all text-sm">
+                    Daftar Sekarang
+                </a>
+                <a href="{{ route('auth.google.redirect') }}" class="w-full py-3 rounded-xl text-center font-bold text-[#4F26A6] border-2 border-[#4F26A6] hover:bg-[#4F26A6]/5 transition-all text-sm">
+                    Masuk ke Akun
+                </a>
+            @endif
         </div>
     </aside>
 </div>

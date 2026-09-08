@@ -8,6 +8,43 @@
             selectedSize: '{{ $product['default_size'] }}',
             quantity: 1,
             maxStock: {{ (int) ($product['stock'] ?? 100) }},
+            variantsMap: @js($product['variants_map'] ?? []),
+            firstVariantId: {{ (int) ($product['first_variant_id'] ?? 1) }},
+            get currentVariantId() {
+                return this.variantsMap[this.selectedSize] || this.firstVariantId;
+            },
+            async addToCart(buyNow = false) {
+                @if(!auth()->check())
+                    window.location.href = '{{ route('auth.google.redirect') }}';
+                    return;
+                @endif
+                try {
+                    const res = await fetch('{{ route('cart.add') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            product_variant_id: this.currentVariantId,
+                            quantity: this.quantity,
+                            buy_now: buyNow
+                        })
+                    });
+                    const data = await res.json();
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else if (data.success) {
+                        alert('Produk berhasil ditambahkan ke keranjang!');
+                        window.location.reload();
+                    } else {
+                        alert(data.message || 'Gagal menambahkan ke keranjang.');
+                    }
+                } catch (e) {
+                    alert('Terjadi kesalahan koneksi.');
+                }
+            },
             wishlisted: false,
             lightboxOpen: false,
             isFollowing: false,
@@ -343,7 +380,8 @@
                 <div class="flex flex-col sm:flex-row items-center gap-3">
                     <button 
                         type="button"
-                        class="w-full sm:flex-1 h-12 rounded-xl border-2 border-[#4F26A6] bg-white text-[#4F26A6] font-bold text-[14.5px] hover:bg-[#F3EEFF]/60 transition-all flex items-center justify-center gap-2 shadow-sm"
+                        @click="addToCart(false)"
+                        class="w-full sm:flex-1 h-12 rounded-xl border-2 border-[#4F26A6] bg-white text-[#4F26A6] font-bold text-[14.5px] hover:bg-[#F3EEFF]/60 transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer active:scale-98"
                     >
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
@@ -352,12 +390,13 @@
                     </button>
                     <button 
                         type="button"
-                        class="w-full sm:flex-1 h-12 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-[14.5px] transition-all flex items-center justify-center shadow-md shadow-[#4F26A6]/20"
+                        @click="addToCart(true)"
+                        class="w-full sm:flex-1 h-12 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-[14.5px] transition-all flex items-center justify-center shadow-md shadow-[#4F26A6]/20 cursor-pointer active:scale-98"
                     >
                         Beli Sekarang
                     </button>
-                </div>
             </div>
+        </div>
         </div>
 
         <!-- Trust Features Bar (Section Keunggulan WhiMarket - Fully Responsive Mobile, Tablet & Desktop) -->

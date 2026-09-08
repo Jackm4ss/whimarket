@@ -3,7 +3,7 @@
 <section id="seller-populer" class="w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-2 pb-3 sm:pb-24 relative" x-data="{
     scroll(direction) {
         const container = this.$refs.sliderTrack;
-        const amount = direction === 'left' ? -260 : 260;
+        const amount = direction === 'left' ? -310 : 310;
         container.scrollBy({ left: amount, behavior: 'smooth' });
     }
 }">
@@ -60,7 +60,7 @@
         <!-- Slider Track -->
         <div
             x-ref="sliderTrack"
-            class="flex lg:grid lg:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5 overflow-x-auto lg:overflow-x-visible pb-4 lg:pb-0 scroll-smooth snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            class="flex gap-3.5 sm:gap-4 lg:gap-5 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
             @foreach($sellers as $seller)
                 <x-seller-card :seller="$seller" />

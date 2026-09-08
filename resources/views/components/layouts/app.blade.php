@@ -36,6 +36,7 @@
     </main>
 
     @include('layouts.footer')
+    <x-onboarding-modal />
 
 </body>
 </html>

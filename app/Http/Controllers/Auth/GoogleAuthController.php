@@ -1,0 +1,97 @@
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Enums\UserRole;
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Laravel\Socialite\Facades\Socialite;
+
+class GoogleAuthController extends Controller
+{
+    public function redirect(): RedirectResponse
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function callback(): RedirectResponse
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
+        } catch (\Exception $e) {
+            return redirect('/')->with('error', 'Gagal login via Google. Silakan coba kembali.');
+        }
+
+        $user = User::where('google_id', $googleUser->getId())
+            ->orWhere('email', $googleUser->getEmail())
+            ->first();
+
+        $isNewUser = false;
+
+        if (! $user) {
+            $user = User::create([
+                'google_id' => $googleUser->getId(),
+                'name' => $googleUser->getName() ?? 'Pengguna WhiMarket',
+                'email' => $googleUser->getEmail(),
+                'avatar' => $googleUser->getAvatar(),
+                'role' => UserRole::BUYER,
+            ]);
+
+            $user->assignRole('buyer');
+            $isNewUser = true;
+        } else {
+            // Update google_id and avatar if missing
+            $user->update([
+                'google_id' => $user->google_id ?? $googleUser->getId(),
+                'avatar' => $user->avatar ?? $googleUser->getAvatar(),
+            ]);
+        }
+
+        Auth::login($user, true);
+        request()->session()->regenerate();
+
+        // Check if buyer has addresses
+        if ($isNewUser || ! $user->addresses()->exists()) {
+            session()->flash('show_onboarding_modal', true);
+        }
+
+        return redirect()->intended('/');
+    }
+
+    public function logout(Request $request): RedirectResponse
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
+    }
+
+    /**
+     * Local development & testing fast login
+     */
+    public function devLogin(string $role = 'buyer'): RedirectResponse
+    {
+        if (app()->isProduction()) {
+            abort(404);
+        }
+
+        $user = match ($role) {
+            'admin' => User::where('email', 'admin@whimarket.com')->first(),
+            'seller' => User::where('email', 'celloszx@whimarket.com')->first()
+                ?? User::where('role', UserRole::SELLER)->first(),
+            default => User::where('email', 'buyer@whimarket.com')->first()
+                ?? User::where('role', UserRole::BUYER)->first(),
+        };
+
+        if ($user) {
+            Auth::login($user, true);
+            request()->session()->regenerate();
+        }
+
+        return redirect()->back();
+    }
+}
