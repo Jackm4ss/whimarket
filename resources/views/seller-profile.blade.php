@@ -14,13 +14,14 @@
             isBioExpanded: false,
             selectedCategory: 'all',
             sortBy: 'terbaru',
+            productSortDropdownOpen: false,
             searchQuery: '',
             reviewFilter: 'all',
             reviewSort: 'terbaru',
+            reviewSortDropdownOpen: false,
             allProducts: [
                 {
                     id: 'rv_1',
-                    title: 'Nike Dunk Low Purple (Used)',
                     sellerName: 'Rachel Vennya',
                     sellerAvatar: '/assets/avatar-rachel.png',
                     verified: true,
@@ -501,9 +502,9 @@
 
             <!-- Right Column: Catalog (Category Pills, Sorting, Product Grid) -->
             <div class="flex-1 w-full min-w-0">
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                <div class="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4 mb-6">
                     <!-- Category Pills -->
-                    <div class="flex items-center gap-2 sm:gap-2.5 overflow-x-auto w-full sm:w-auto pb-1.5 sm:pb-0 [scrollbar-width:none]">
+                    <div class="flex items-center gap-2 sm:gap-2.5 overflow-x-auto pb-1.5 sm:pb-0 [scrollbar-width:none]">
                         <template x-for="cat in [
                             { id: 'all', label: 'Semua' },
                             { id: 'fashion', label: 'Fashion' },
@@ -521,24 +522,71 @@
                         </template>
                     </div>
 
-                    <!-- Product Count & Sort -->
-                    <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4">
-                        <span class="text-xs sm:text-[13px] text-gray-500 font-medium">
+                    <!-- Product Count & Sort (Right aligned) -->
+                    <div class="flex items-center justify-between sm:justify-end shrink-0 gap-4">
+                        <span class="text-xs sm:text-[13px] text-gray-500 font-medium whitespace-nowrap">
                             Menampilkan <strong class="text-gray-900" x-text="filteredProducts.length"></strong> produk
                         </span>
 
-                        <select
-                            x-model="sortBy"
-                            aria-label="Urutan Produk"
-                            class="bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs sm:text-[13px] font-semibold text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 cursor-pointer"
-                        >
-                            <option value="terbaru">Terbaru</option>
-                            <option value="harga-terendah">Harga Terendah</option>
-                            <option value="harga-tertinggi">Harga Tertinggi</option>
-                        </select>
+                        <div class="relative shrink-0" @click.outside="productSortDropdownOpen = false">
+                            <button
+                                type="button"
+                                @click="productSortDropdownOpen = !productSortDropdownOpen"
+                                class="w-full inline-flex items-center justify-between gap-2.5 bg-white border border-gray-200 text-xs sm:text-[13px] font-semibold text-gray-800 rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 focus:border-[#4F26A6] shadow-xs hover:border-gray-300 transition-all cursor-pointer whitespace-nowrap"
+                            >
+                                <span x-text="sortBy === 'terbaru' ? 'Urutan: Terbaru' : (sortBy === 'harga-terendah' ? 'Harga Terendah' : 'Harga Tertinggi')"></span>
+                                <svg
+                                    class="w-3.5 h-3.5 text-gray-400 transition-transform duration-200 shrink-0"
+                                    :class="productSortDropdownOpen ? 'rotate-180 text-[#4F26A6]' : ''"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+
+                            <!-- Custom Floating Sort Options Panel -->
+                            <div
+                                x-show="productSortDropdownOpen"
+                                x-cloak
+                                x-transition:enter="transition ease-out duration-150"
+                                x-transition:enter-start="opacity-0 translate-y-1"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                x-transition:leave="transition ease-in duration-100"
+                                x-transition:leave-start="opacity-100 translate-y-0"
+                                x-transition:leave-end="opacity-0 translate-y-1"
+                                class="absolute right-0 left-0 top-full mt-1.5 min-w-full bg-white border border-gray-100 rounded-2xl shadow-[0_12px_36px_rgba(0,0,0,0.12)] p-1.5 z-40 space-y-0.5 font-medium text-xs sm:text-[13px] text-gray-700"
+                                style="display: none;"
+                            >
+                                <button
+                                    type="button"
+                                    @click="sortBy = 'terbaru'; productSortDropdownOpen = false"
+                                    class="w-full text-left px-3.5 py-2 rounded-xl flex items-center hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
+                                    :class="sortBy === 'terbaru' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
+                                >
+                                    <span>Urutan: Terbaru</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="sortBy = 'harga-terendah'; productSortDropdownOpen = false"
+                                    class="w-full text-left px-3.5 py-2 rounded-xl flex items-center hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
+                                    :class="sortBy === 'harga-terendah' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
+                                >
+                                    <span>Harga Terendah</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="sortBy = 'harga-tertinggi'; productSortDropdownOpen = false"
+                                    class="w-full text-left px-3.5 py-2 rounded-xl flex items-center hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
+                                    :class="sortBy === 'harga-tertinggi' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
+                                >
+                                    <span>Harga Tertinggi</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
                 <!-- Product Cards Grid: 2 cols mobile, 3 cols tablet, 4 cols desktop xl -->
                 <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
                     <template x-for="product in filteredProducts" :key="product.id">
@@ -668,8 +716,8 @@
             <!-- Right: Reviews List -->
             <div class="flex-1 w-full min-w-0 bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
                 <!-- Header row: Semua Ulasan title and Urutkan dropdown -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                    <div>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 items-end">
+                    <div class="w-full sm:w-auto">
                         <h2 class="text-[20px] sm:text-[22px] font-extrabold text-[#111827] tracking-tight">
                             Semua Ulasan
                         </h2>
@@ -678,18 +726,63 @@
                         </p>
                     </div>
 
-                    <!-- Urutkan Dropdown -->
-                    <div class="flex items-center gap-2 self-start sm:self-auto">
-                        <span class="text-xs text-gray-400 font-medium">Urutkan:</span>
-                        <select
-                            x-model="reviewSort"
-                            aria-label="Urutan Ulasan"
-                            class="bg-white border border-gray-200/90 rounded-xl px-3.5 py-2 text-xs sm:text-[13px] font-bold text-gray-800 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 cursor-pointer shadow-2xs"
+                    <!-- Urutkan Dropdown (Right-aligned on mobile and desktop) -->
+                    <div class="relative shrink-0 w-fit" @click.outside="reviewSortDropdownOpen = false">
+                        <button
+                            type="button"
+                            @click="reviewSortDropdownOpen = !reviewSortDropdownOpen"
+                            class="inline-flex items-center justify-between gap-2.5 bg-white border border-gray-200 text-xs sm:text-[13px] font-semibold text-gray-800 rounded-xl px-3.5 sm:px-4 py-2 sm:py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 focus:border-[#4F26A6] shadow-xs hover:border-gray-300 transition-all cursor-pointer whitespace-nowrap"
                         >
-                            <option value="terbaru">Terbaru</option>
-                            <option value="tertinggi">Rating Tertinggi</option>
-                            <option value="terendah">Rating Terendah</option>
-                        </select>
+                            <span x-text="reviewSort === 'terbaru' ? 'Urutan: Terbaru' : (reviewSort === 'tertinggi' ? 'Rating Tertinggi' : 'Rating Terendah')"></span>
+                            <svg
+                                class="w-3.5 h-3.5 text-gray-400 transition-transform duration-200 shrink-0"
+                                :class="reviewSortDropdownOpen ? 'rotate-180 text-[#4F26A6]' : ''"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+
+                        <!-- Custom Floating Sort Options Panel -->
+                        <div
+                            x-show="reviewSortDropdownOpen"
+                            x-cloak
+                            x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 translate-y-1"
+                            class="absolute right-0 left-0 top-full mt-1.5 min-w-full bg-white border border-gray-100 rounded-2xl shadow-[0_12px_36px_rgba(0,0,0,0.12)] p-1.5 z-40 space-y-0.5 font-medium text-xs sm:text-[13px] text-gray-700"
+                            style="display: none;"
+                        >
+                            <button
+                                type="button"
+                                @click="reviewSort = 'terbaru'; reviewSortDropdownOpen = false"
+                                class="w-full text-left px-3.5 py-2 rounded-xl flex items-center hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
+                                :class="reviewSort === 'terbaru' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
+                            >
+                                <span>Urutan: Terbaru</span>
+                            </button>
+                            <button
+                                type="button"
+                                @click="reviewSort = 'tertinggi'; reviewSortDropdownOpen = false"
+                                class="w-full text-left px-3.5 py-2 rounded-xl flex items-center hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
+                                :class="reviewSort === 'tertinggi' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
+                            >
+                                <span>Rating Tertinggi</span>
+                            </button>
+                            <button
+                                type="button"
+                                @click="reviewSort = 'terendah'; reviewSortDropdownOpen = false"
+                                class="w-full text-left px-3.5 py-2 rounded-xl flex items-center hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
+                                :class="reviewSort === 'terendah' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
+                            >
+                                <span>Rating Terendah</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
