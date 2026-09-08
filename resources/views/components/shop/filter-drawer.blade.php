@@ -101,33 +101,34 @@
                     <div class="relative w-full flex items-center h-6">
                         <div class="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
                             <div
-                                class="h-full bg-[#4F26A6] rounded-full"
-                                :style="`margin-left: ${(priceRange[0] / 50000000) * 100}%; width: ${((priceRange[1] - priceRange[0]) / 50000000) * 100}%;`"
+                                :style="`margin-left: ${(priceRange[0] / maxSliderPrice) * 100}%; width: ${Math.max(0, (priceRange[1] - priceRange[0]) / maxSliderPrice) * 100}%;`"
                             ></div>
                         </div>
                         <input
                             type="range"
                             min="0"
-                            max="50000000"
-                            step="500000"
-                            x-model.number="priceRange[0]"
+                            :max="maxSliderPrice"
+                            :step="priceStep"
+                            :value="priceRange[0]"
+                            @input.debounce.50ms="updateMinPrice($event.target.value)"
                             class="absolute inset-0 w-full appearance-none bg-transparent pointer-events-auto cursor-pointer accent-[#4F26A6] opacity-0 z-20"
                         />
                         <input
                             type="range"
                             min="0"
-                            max="50000000"
-                            step="500000"
-                            x-model.number="priceRange[1]"
+                            :max="maxSliderPrice"
+                            :step="priceStep"
+                            :value="priceRange[1]"
+                            @input.debounce.50ms="updateMaxPrice($event.target.value)"
                             class="absolute inset-0 w-full appearance-none bg-transparent pointer-events-auto cursor-pointer accent-[#4F26A6] opacity-0 z-30"
                         />
                         <div
                             class="absolute w-4 h-4 bg-[#4F26A6] rounded-full ring-2 ring-white shadow-md pointer-events-none -translate-x-1/2 z-10"
-                            :style="`left: ${(priceRange[0] / 50000000) * 100}%;`"
+                            :style="`left: ${(priceRange[0] / maxSliderPrice) * 100}%;`"
                         ></div>
                         <div
                             class="absolute w-4 h-4 bg-[#4F26A6] rounded-full ring-2 ring-white shadow-md pointer-events-none -translate-x-1/2 z-10"
-                            :style="`left: ${(priceRange[1] / 50000000) * 100}%;`"
+                            :style="`left: ${(priceRange[1] / maxSliderPrice) * 100}%;`"
                         ></div>
                     </div>
                     <div class="flex items-center justify-between text-xs text-gray-500 font-semibold pt-0.5">

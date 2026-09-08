@@ -19,13 +19,25 @@
             allProducts: @js($displayProducts),
             searchQuery: '{{ request('q') ?? '' }}',
             selectedCategory: '{{ $initialCategory ?? 'all' }}',
-            priceRange: [0, 50000000],
+            maxSliderPrice: 10000000,
+            priceStep: 100000,
+            priceRange: [0, 10000000],
             selectedConditions: ['all'],
             sortBy: '{{ request('sort', 'terbaru') }}',
             sortDropdownOpen: false,
             viewMode: 'grid',
             isMobileFilterOpen: false,
             currentPage: 1,
+            filteredProductsList: [],
+
+            init() {
+                this.applyFilters();
+                this.$watch('selectedCategory', () => this.applyFilters());
+                this.$watch('priceRange', () => this.applyFilters());
+                this.$watch('selectedConditions', () => this.applyFilters());
+                this.$watch('searchQuery', () => this.applyFilters());
+                this.$watch('sortBy', () => this.applyFilters());
+            },
 
             openSections: {
                 kategori: true,
@@ -80,25 +92,32 @@
                 }
                 this.selectedConditions = curr.length === 0 ? ['all'] : curr;
             },
+            applyFilters() {
+                const sq = (this.searchQuery || '').trim().toLowerCase();
+                const minP = this.priceRange[0];
+                const maxP = this.priceRange[1];
+                const cat = this.selectedCategory;
+                const isAllCond = this.selectedConditions.includes('all');
+                const conds = this.selectedConditions;
 
-            get filteredProducts() {
+                const mapCond = {
+                    'seperti-baru': 'Seperti Baru',
+                    'sangat-baik': 'Sangat Baik',
+                    'baik': 'Baik',
+                    'cukup': 'Cukup'
+                };
+
                 let list = this.allProducts.filter(item => {
-                    if (this.searchQuery) {
-                        const sq = this.searchQuery.toLowerCase();
+                    if (sq) {
                         const matchTitle = (item.title || '').toLowerCase().includes(sq);
                         const matchSeller = (item.sellerName || '').toLowerCase().includes(sq);
                         if (!matchTitle && !matchSeller) return false;
                     }
-                    if (this.selectedCategory !== 'all' && item.category !== this.selectedCategory) return false;
-                    if (item.priceNumber < this.priceRange[0] || item.priceNumber > this.priceRange[1]) return false;
-                    if (!this.selectedConditions.includes('all')) {
-                        const mapCond = {
-                            'seperti-baru': 'Seperti Baru',
-                            'sangat-baik': 'Sangat Baik',
-                            'baik': 'Baik',
-                            'cukup': 'Cukup'
-                        };
-                        const matches = this.selectedConditions.some(c => mapCond[c] === item.condition || c === item.condition);
+                    if (cat !== 'all' && item.category !== cat) return false;
+                    if (item.priceNumber < minP) return false;
+                    if (maxP < this.maxSliderPrice && item.priceNumber > maxP) return false;
+                    if (!isAllCond) {
+                        const matches = conds.some(c => mapCond[c] === item.condition || c === item.condition);
                         if (!matches) return false;
                     }
                     return true;
@@ -109,32 +128,58 @@
                 } else if (this.sortBy === 'harga-tinggi') {
                     list.sort((a, b) => b.priceNumber - a.priceNumber);
                 } else if (this.sortBy === 'terpopuler') {
-                    list.sort((a, b) => b.likes - a.likes);
+                    list.sort((a, b) => (b.likes || 0) - (a.likes || 0));
                 }
-                return list;
+
+                this.filteredProductsList = list;
+            },
+
+            get filteredProducts() {
+                return this.filteredProductsList;
+            },
+
+            updateMinPrice(val) {
+                const raw = Number(val) || 0;
+                const stepped = Math.round(raw / this.priceStep) * this.priceStep;
+                this.priceRange[0] = Math.max(0, Math.min(stepped, this.priceRange[1]));
+                this.applyFilters();
+            },
+
+            updateMaxPrice(val) {
+                const raw = Number(val) || 0;
+                const stepped = Math.round(raw / this.priceStep) * this.priceStep;
+                this.priceRange[1] = Math.min(this.maxSliderPrice, Math.max(stepped, this.priceRange[0]));
+                this.applyFilters();
             },
 
             resetFilters() {
                 this.selectedCategory = 'all';
-                this.priceRange = [0, 50000000];
+                this.priceRange = [0, this.maxSliderPrice];
                 this.selectedConditions = ['all'];
                 this.selectedLocation = '';
                 this.searchQuery = '';
                 this.sortBy = 'terbaru';
+                this.applyFilters();
                 const url = new URL(window.location.href);
                 if (url.search) {
                     window.location.href = url.pathname;
                 }
             },
+
             clearSearchFilter() {
                 this.searchQuery = '';
+                this.applyFilters();
                 const url = new URL(window.location.href);
                 if (url.searchParams.has('q')) {
                     url.searchParams.delete('q');
                     window.location.href = url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '');
                 }
             },
+
             formatRupiah(num) {
+                if (num >= this.maxSliderPrice) {
+                    return 'Rp 10.000.000+';
+                }
                 return 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
             }
         }"
@@ -193,32 +238,34 @@
                             <div class="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
                                 <div
                                     class="h-full bg-[#4F26A6] rounded-full"
-                                    :style="`margin-left: ${(priceRange[0] / 50000000) * 100}%; width: ${((priceRange[1] - priceRange[0]) / 50000000) * 100}%;`"
+                                    :style="`margin-left: ${(priceRange[0] / maxSliderPrice) * 100}%; width: ${Math.max(0, (priceRange[1] - priceRange[0]) / maxSliderPrice) * 100}%;`"
                                 ></div>
                             </div>
                             <input
                                 type="range"
                                 min="0"
-                                max="50000000"
-                                step="500000"
-                                x-model.number="priceRange[0]"
+                                :max="maxSliderPrice"
+                                :step="priceStep"
+                                :value="priceRange[0]"
+                                @input.debounce.50ms="updateMinPrice($event.target.value)"
                                 class="absolute inset-0 w-full appearance-none bg-transparent pointer-events-auto cursor-pointer accent-[#4F26A6] opacity-0 z-20"
                             />
                             <input
                                 type="range"
                                 min="0"
-                                max="50000000"
-                                step="500000"
-                                x-model.number="priceRange[1]"
+                                :max="maxSliderPrice"
+                                :step="priceStep"
+                                :value="priceRange[1]"
+                                @input.debounce.50ms="updateMaxPrice($event.target.value)"
                                 class="absolute inset-0 w-full appearance-none bg-transparent pointer-events-auto cursor-pointer accent-[#4F26A6] opacity-0 z-30"
                             />
                             <div
                                 class="absolute w-4 h-4 bg-[#4F26A6] rounded-full ring-2 ring-white shadow-md pointer-events-none -translate-x-1/2 z-10"
-                                :style="`left: ${(priceRange[0] / 50000000) * 100}%;`"
+                                :style="`left: ${(priceRange[0] / maxSliderPrice) * 100}%;`"
                             ></div>
                             <div
                                 class="absolute w-4 h-4 bg-[#4F26A6] rounded-full ring-2 ring-white shadow-md pointer-events-none -translate-x-1/2 z-10"
-                                :style="`left: ${(priceRange[1] / 50000000) * 100}%;`"
+                                :style="`left: ${(priceRange[1] / maxSliderPrice) * 100}%;`"
                             ></div>
                         </div>
                         <div class="flex items-center justify-between text-xs text-gray-500 font-semibold pt-0.5">
@@ -536,6 +583,27 @@
 
                 <!-- 4 Columns Grid: 12 Product Cards -->
                 <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-3.5 lg:gap-4">
+                    <!-- Empty State when 0 products found -->
+                    <template x-if="filteredProducts.length === 0">
+                        <div class="col-span-full py-16 text-center space-y-3">
+                            <div class="w-14 h-14 rounded-2xl bg-[#F3EEFF] text-[#4F26A6] flex items-center justify-center mx-auto">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-base sm:text-lg font-bold text-gray-900">Tidak ada produk ditemukan</h3>
+                            <p class="text-xs sm:text-sm text-gray-500 max-w-sm mx-auto">
+                                Coba sesuaikan rentang harga, kategori, atau filter kondisi Anda.
+                            </p>
+                            <button
+                                type="button"
+                                @click="resetFilters()"
+                                class="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
+                            >
+                                <span>Reset Filter</span>
+                            </button>
+                        </div>
+                    </template>
                     <template x-for="product in filteredProducts" :key="product.id">
                         <div
                             x-data="{ isLiked: false, likesCount: product.likes || 0 }"

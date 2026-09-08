@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Seller;
 use App\Support\MarketData;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class CatalogController extends Controller
@@ -58,9 +59,21 @@ class CatalogController extends Controller
         $sort = $request->query('sort', 'terbaru');
         $search = $request->query('q');
 
-        $categories = Category::where('is_active', true)->get();
+        $categories = Cache::remember('shop_active_categories', 300, function () {
+            $cats = Category::where('is_active', true)->select('id', 'name', 'slug')->get();
 
-        $query = Product::with(['images', 'variants', 'category', 'seller.user', 'wishlists'])
+            return $cats->isEmpty() ? MarketData::categories() : $cats;
+        });
+
+        $query = Product::query()
+            ->select(['id', 'seller_id', 'category_id', 'name', 'slug', 'description', 'price', 'condition', 'status', 'created_at'])
+            ->with([
+                'category:id,name,slug',
+                'primaryImage:id,product_id,image_path',
+                'seller:id,user_id,store_name,status,verified_at',
+                'seller.user:id,name,avatar',
+            ])
+            ->withCount('wishlists')
             ->where('status', ProductStatus::ACTIVE);
 
         if ($categorySlug && $categorySlug !== 'all') {
@@ -86,8 +99,15 @@ class CatalogController extends Controller
                     ->orWhereHas('seller', fn ($sq) => $sq->where('store_name', 'like', "%{$search}%"));
             });
         }
-        $products = $query->paginate(12)->withQueryString();
 
+        match ($sort) {
+            'harga-rendah' => $query->orderBy('price', 'asc'),
+            'harga-tinggi' => $query->orderBy('price', 'desc'),
+            'terpopuler' => $query->orderByDesc('wishlists_count'),
+            default => $query->latest('id'),
+        };
+
+        $products = $query->paginate(12)->withQueryString();
         $productsList = $products->map(function ($p) {
             return [
                 'id' => $p->slug,
