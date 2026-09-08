@@ -222,12 +222,12 @@
 
                         <span class="hidden sm:inline text-xs text-gray-400 font-medium whitespace-nowrap">128 seller ditemukan</span>
 
-                        <!-- Compact Fit-Content Dropdown Aligned to Right -->
+                        <!-- Compact Fit-Content Dropdown Aligned with Trigger Button -->
                         <div class="relative shrink-0" @click.outside="sortDropdownOpen = false">
                             <button
                                 type="button"
                                 @click="sortDropdownOpen = !sortDropdownOpen"
-                                class="inline-flex items-center gap-2.5 bg-white border border-gray-200 text-xs sm:text-[13px] font-semibold text-gray-800 rounded-xl px-3.5 sm:px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 focus:border-[#4F26A6] shadow-xs hover:border-gray-300 transition-all cursor-pointer whitespace-nowrap"
+                                class="w-full inline-flex items-center justify-between gap-2.5 bg-white border border-gray-200 text-xs sm:text-[13px] font-semibold text-gray-800 rounded-xl px-3.5 sm:px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 focus:border-[#4F26A6] shadow-xs hover:border-gray-300 transition-all cursor-pointer whitespace-nowrap"
                             >
                                 <span x-text="sortBy === 'terbaru' ? 'Urutan: Terbaru' : (sortBy === 'terpopuler' ? 'Terpopuler' : (sortBy === 'rating' ? 'Rating Tertinggi' : 'Produk Terbanyak'))"></span>
                                 <svg
@@ -251,44 +251,39 @@
                                 x-transition:leave="transition ease-in duration-100"
                                 x-transition:leave-start="opacity-100 translate-y-0"
                                 x-transition:leave-end="opacity-0 translate-y-1"
-                                class="absolute right-0 top-full mt-1.5 w-48 sm:w-52 bg-white border border-gray-100 rounded-2xl shadow-[0_12px_36px_rgba(0,0,0,0.12)] p-1.5 z-40 space-y-0.5 font-medium text-xs sm:text-[13px] text-gray-700"
-                                style="display: none;"
+                                class="absolute right-0 left-0 top-full mt-1.5 min-w-full bg-white border border-gray-100 rounded-2xl shadow-[0_12px_36px_rgba(0,0,0,0.12)] p-1.5 z-40 space-y-0.5 font-medium text-xs sm:text-[13px] text-gray-700"
                             >
                                 <button
                                     type="button"
                                     @click="sortBy = 'terbaru'; sortDropdownOpen = false"
-                                    class="w-full text-left px-3 py-2 rounded-xl flex items-center justify-between hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
+                                    class="w-full text-left px-3.5 py-2 rounded-xl flex items-center hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
                                     :class="sortBy === 'terbaru' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
                                 >
                                     <span>Urutan: Terbaru</span>
-                                    <svg x-show="sortBy === 'terbaru'" class="w-3.5 h-3.5 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
                                 </button>
                                 <button
                                     type="button"
                                     @click="sortBy = 'terpopuler'; sortDropdownOpen = false"
-                                    class="w-full text-left px-3 py-2 rounded-xl flex items-center justify-between hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
+                                    class="w-full text-left px-3.5 py-2 rounded-xl flex items-center hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
                                     :class="sortBy === 'terpopuler' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
                                 >
                                     <span>Terpopuler</span>
-                                    <svg x-show="sortBy === 'terpopuler'" class="w-3.5 h-3.5 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
                                 </button>
                                 <button
                                     type="button"
                                     @click="sortBy = 'rating'; sortDropdownOpen = false"
-                                    class="w-full text-left px-3 py-2 rounded-xl flex items-center justify-between hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
+                                    class="w-full text-left px-3.5 py-2 rounded-xl flex items-center hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
                                     :class="sortBy === 'rating' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
                                 >
                                     <span>Rating Tertinggi</span>
-                                    <svg x-show="sortBy === 'rating'" class="w-3.5 h-3.5 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
                                 </button>
                                 <button
                                     type="button"
                                     @click="sortBy = 'produk'; sortDropdownOpen = false"
-                                    class="w-full text-left px-3 py-2 rounded-xl flex items-center justify-between hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
+                                    class="w-full text-left px-3.5 py-2 rounded-xl flex items-center hover:bg-[#F3EEFF] hover:text-[#4F26A6] transition-colors cursor-pointer"
                                     :class="sortBy === 'produk' ? 'bg-[#F3EEFF] text-[#4F26A6] font-bold' : ''"
                                 >
                                     <span>Produk Terbanyak</span>
-                                    <svg x-show="sortBy === 'produk'" class="w-3.5 h-3.5 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
                                 </button>
                             </div>
                         </div>
