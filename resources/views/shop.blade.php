@@ -402,6 +402,57 @@
                         <p class="text-[13px] sm:text-[14px] text-gray-600 font-normal leading-relaxed">
                             Temukan berbagai barang pre-loved dari artis, selebgram, dan streamer favoritmu.
                         </p>
+                        <!-- Mobile Search Bar (Only on Mobile for Shop Page) -->
+                        <div class="block sm:hidden pt-2 w-full">
+                            <form
+                                action="{{ route('shop') }}"
+                                method="GET"
+                                class="relative w-full"
+                                x-data="{
+                                    mShopQuery: '{{ request('q') ?? '' }}',
+                                    clearMobileShopSearch() {
+                                        this.mShopQuery = '';
+                                        const url = new URL(window.location.href);
+                                        if (url.searchParams.has('q')) {
+                                            url.searchParams.delete('q');
+                                            window.location.href = url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '');
+                                        } else {
+                                            if (this.$refs.mobileShopInput) this.$refs.mobileShopInput.focus();
+                                        }
+                                    }
+                                }"
+                            >
+                                @if(request('kategori') && request('kategori') !== 'all')
+                                    <input type="hidden" name="kategori" value="{{ request('kategori') }}">
+                                @endif
+                                <input
+                                    type="text"
+                                    name="q"
+                                    x-ref="mobileShopInput"
+                                    x-model="mShopQuery"
+                                    placeholder="Cari produk di WhiMarket..."
+                                    autocomplete="off"
+                                    class="w-full h-11 pl-10 pr-10 rounded-xl bg-white border border-gray-200 text-xs sm:text-sm text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 focus:border-[#4F26A6] shadow-xs transition-all"
+                                />
+                                <button type="submit" class="text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 hover:text-[#4F26A6] transition-colors cursor-pointer" title="Cari">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                    </svg>
+                                </button>
+                                <button
+                                    type="button"
+                                    x-show="mShopQuery.length > 0"
+                                    x-cloak
+                                    @click="clearMobileShopSearch()"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white hover:bg-gray-100 active:bg-gray-200 text-gray-800 hover:text-black border border-gray-300 flex items-center justify-center transition-all cursor-pointer shadow-xs"
+                                    title="Hapus pencarian"
+                                >
+                                    <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
                         <template x-if="searchQuery">
                             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#F3EEFF] text-[#4F26A6] text-xs font-bold shadow-2xs">
                                 <span>Hasil pencarian: "<span x-text="searchQuery"></span>"</span>

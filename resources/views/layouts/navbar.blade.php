@@ -497,51 +497,53 @@
                 </button>
             </div>
 
-            <!-- Mobile Search Bar -->
-            <form
-                action="{{ route('shop') }}"
-                method="GET"
-                class="mt-4 relative sm:hidden"
-                x-data="{
-                    mQuery: '{{ request('q') ?? '' }}',
-                    clearMobileSearch() {
-                        this.mQuery = '';
-                        const url = new URL(window.location.href);
-                        if (url.searchParams.has('q')) {
-                            url.searchParams.delete('q');
-                            window.location.href = url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '');
-                        } else {
-                            if (this.$refs.mobileSearchInput) this.$refs.mobileSearchInput.focus();
+            @if(($activeTab ?? '') !== 'belanja')
+                <!-- Mobile Search Bar (Only shown on non-belanja pages) -->
+                <form
+                    action="{{ route('shop') }}"
+                    method="GET"
+                    class="mt-4 relative sm:hidden"
+                    x-data="{
+                        mQuery: '{{ request('q') ?? '' }}',
+                        clearMobileSearch() {
+                            this.mQuery = '';
+                            const url = new URL(window.location.href);
+                            if (url.searchParams.has('q')) {
+                                url.searchParams.delete('q');
+                                window.location.href = url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '');
+                            } else {
+                                if (this.$refs.mobileSearchInput) this.$refs.mobileSearchInput.focus();
+                            }
                         }
-                    }
-                }"
-            >
-                <input
-                    type="text"
-                    name="q"
-                    x-ref="mobileSearchInput"
-                    x-model="mQuery"
-                    placeholder="Cari produk, kategori, atau toko..."
-                    class="w-full h-10 pl-9 pr-9 rounded-xl bg-[#F9FAFB] border border-gray-200 text-xs text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 focus:border-[#4F26A6] transition-all"
-                />
-                <button type="submit" class="text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 hover:text-[#4F26A6] transition-colors cursor-pointer" title="Cari">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    </svg>
-                </button>
-                <button
-                    type="button"
-                    x-show="mQuery.length > 0"
-                    x-cloak
-                    @click="clearMobileSearch()"
-                    class="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white hover:bg-gray-100 active:bg-gray-200 text-gray-800 hover:text-black border border-gray-300 flex items-center justify-center transition-all cursor-pointer shadow-xs"
-                    title="Hapus pencarian"
+                    }"
                 >
-                    <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </form>
+                    <input
+                        type="text"
+                        name="q"
+                        x-ref="mobileSearchInput"
+                        x-model="mQuery"
+                        placeholder="Cari produk, kategori, atau toko..."
+                        class="w-full h-10 pl-9 pr-9 rounded-xl bg-[#F9FAFB] border border-gray-200 text-xs text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 focus:border-[#4F26A6] transition-all"
+                    />
+                    <button type="submit" class="text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 hover:text-[#4F26A6] transition-colors cursor-pointer" title="Cari">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                    </button>
+                    <button
+                        type="button"
+                        x-show="mQuery.length > 0"
+                        x-cloak
+                        @click="clearMobileSearch()"
+                        class="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white hover:bg-gray-100 active:bg-gray-200 text-gray-800 hover:text-black border border-gray-300 flex items-center justify-center transition-all cursor-pointer shadow-xs"
+                        title="Hapus pencarian"
+                    >
+                        <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </form>
+            @endif
 
             <!-- Navigation Links -->
             <nav class="flex flex-col mt-3 divide-y divide-gray-100 text-[15px] sm:text-[16px] font-bold text-gray-800">
