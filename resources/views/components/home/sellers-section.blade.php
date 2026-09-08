@@ -61,6 +61,7 @@
         <div
             x-ref="sliderTrack"
             class="flex gap-3.5 sm:gap-4 lg:gap-5 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
             @foreach(collect($sellers)->take(5) as $seller)
                 <x-seller-card :seller="$seller" />
             @endforeach
@@ -90,7 +91,7 @@
                     </span>
                 </div>
             </a>
-
+        </div>
         <!-- Mobile Navigation Controls -->
         <div class="flex lg:hidden items-center justify-center gap-3 mt-3 sm:mt-6">
             <button

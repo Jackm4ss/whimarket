@@ -8,7 +8,7 @@
     $bgColor = $isModel ? ($category->bg_color ?? '#4F18C8') : ($category['bgColor'] ?? '#4F18C8');
 @endphp
 
-<a href="{{ $href }}" class="w-[125px] sm:w-[145px] lg:w-auto shrink-0 lg:shrink flex flex-col items-center group snap-start">
+<a href="{{ $href }}" class="w-[140px] sm:w-[160px] lg:w-[180px] shrink-0 flex flex-col items-center group snap-start">
     <div
         class="w-full aspect-square rounded-2xl sm:rounded-3xl overflow-hidden shadow-xs group-hover:shadow-lg group-hover:-translate-y-1.5 transition-all duration-300 flex items-center justify-center relative"
         style="background-color: {{ $bgColor }};"
