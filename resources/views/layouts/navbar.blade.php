@@ -221,10 +221,10 @@
                         x-show="query.length > 0"
                         x-cloak
                         @click="clearSearch()"
-                        class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-red-500 hover:bg-red-600 active:bg-red-700 text-white flex items-center justify-center transition-all cursor-pointer shadow-xs"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white hover:bg-gray-100 active:bg-gray-200 text-gray-800 hover:text-black border border-gray-300 flex items-center justify-center transition-all cursor-pointer shadow-xs"
                         title="Hapus pencarian"
                     >
-                        <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.8">
+                        <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </button>
@@ -534,10 +534,10 @@
                     x-show="mQuery.length > 0"
                     x-cloak
                     @click="clearMobileSearch()"
-                    class="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-red-500 hover:bg-red-600 active:bg-red-700 text-white flex items-center justify-center transition-all cursor-pointer shadow-xs"
+                    class="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white hover:bg-gray-100 active:bg-gray-200 text-gray-800 hover:text-black border border-gray-300 flex items-center justify-center transition-all cursor-pointer shadow-xs"
                     title="Hapus pencarian"
                 >
-                    <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.8">
+                    <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>

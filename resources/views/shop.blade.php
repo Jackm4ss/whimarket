@@ -408,10 +408,10 @@
                                 <a
                                     href="{{ route('shop', request()->except('q')) }}"
                                     @click.prevent="clearSearchFilter()"
-                                    class="w-4 h-4 rounded-full bg-red-500 hover:bg-red-600 active:bg-red-700 text-white inline-flex items-center justify-center transition-all cursor-pointer ml-1 shrink-0 shadow-xs"
+                                    class="w-4 h-4 rounded-full bg-white hover:bg-gray-100 active:bg-gray-200 text-gray-800 hover:text-black border border-gray-300 inline-flex items-center justify-center transition-all cursor-pointer ml-1 shrink-0 shadow-2xs"
                                     title="Hapus filter pencarian"
                                 >
-                                    <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.8">
+                                    <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                     </svg>
                                 </a>
