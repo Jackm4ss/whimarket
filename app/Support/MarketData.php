@@ -43,7 +43,7 @@ class MarketData
                 'priceNumber' => 320000,
                 'likes' => 89,
                 'image' => '/assets/products/prod-hoodie.png',
-                'href' => '#detail-hoodie',
+                'href' => '/produk/prod-hoodie-dream-plan-do',
             ],
             [
                 'id' => 'prod_3',
@@ -115,7 +115,7 @@ class MarketData
                 'priceNumber' => 320000,
                 'likes' => 89,
                 'image' => '/assets/products/prod-hoodie.png',
-                'href' => '#detail-hoodie',
+                'href' => '/produk/prod-hoodie-dream-plan-do',
                 'condition' => 'Good',
                 'category' => 'fashion',
                 'location' => 'Jakarta Barat',
@@ -336,6 +336,66 @@ class MarketData
             ['stepNumber' => 2, 'title' => 'Transaksi Aman', 'description' => 'Lakukan pembayaran dengan sistem escrow Whimarket.', 'image' => '/assets/steps/step-2-clean.png'],
             ['stepNumber' => 3, 'title' => 'Barang Dikirim', 'description' => 'Penjual mengirim barang setelah pembayaran terverifikasi.', 'image' => '/assets/steps/step-3-truck.png'],
             ['stepNumber' => 4, 'title' => 'Barang Diterima', 'description' => 'Barang sampai di tanganmu dengan aman!', 'image' => '/assets/steps/step-4-clean.png'],
+        ];
+    }
+
+    public static function productDetail(): array
+    {
+        return [
+            'id' => 'prod-hoodie-dream-plan-do',
+            'title' => 'Hoodie Dream Plan Do – Purple',
+            'category' => 'Fashion',
+            'category_slug' => 'fashion',
+            'subcategory' => 'Hoodie',
+            'badge' => 'Official Merchandise',
+            'price' => 500000,
+            'price_formatted' => 'Rp 500.000',
+            'rating' => 4.8,
+            'review_count' => 620,
+            'sold_count' => '900+',
+            'description' => 'Hoodie eksklusif dari Celloszx dengan desain "Dream Plan Do". Nyaman dipakai, cocok untuk aktivitas sehari-hari maupun koleksi.',
+            'stock' => 120,
+            'seller' => [
+                'name' => 'Celloszx',
+                'username' => 'celloszx',
+                'role' => 'Content Creator',
+                'avatar' => '/assets/detail/celloszx_avatar.png',
+                'verified' => true,
+                'href' => '/seller/@celloszx',
+            ],
+            'breadcrumbs' => [
+                ['name' => 'Beranda', 'href' => '/'],
+                ['name' => 'Fashion', 'href' => '/belanja?kategori=fashion'],
+                ['name' => 'Hoodie', 'href' => '/belanja?kategori=fashion'],
+                ['name' => 'Hoodie Dream Plan Do – Purple', 'href' => null],
+            ],
+            'gallery' => [
+                ['id' => 'front', 'thumb' => '/assets/products/prod-hoodie.png', 'main' => '/assets/products/prod-hoodie.png', 'alt' => 'Hoodie Dream Plan Do - Depan'],
+                ['id' => 'model', 'thumb' => '/assets/detail/hoodie_model.png', 'main' => '/assets/detail/hoodie_model.png', 'alt' => 'Model Memakai Hoodie Dream Plan Do'],
+                ['id' => 'back', 'thumb' => '/assets/detail/hoodie_back.png', 'main' => '/assets/detail/hoodie_back.png', 'alt' => 'Hoodie Dream Plan Do - Belakang'],
+                ['id' => 'text', 'thumb' => '/assets/detail/hoodie_text_detail.png', 'main' => '/assets/detail/hoodie_text_detail.png', 'alt' => 'Detail Desain Dream Plan Do'],
+                ['id' => 'tag', 'thumb' => '/assets/detail/hoodie_tag_detail.png', 'main' => '/assets/detail/hoodie_tag_detail.png', 'alt' => 'Detail Kerah & Tag Hoodie'],
+            ],
+            'colors' => [
+                ['id' => 'purple', 'name' => 'Purple', 'image' => '/assets/products/prod-hoodie.png', 'active' => true],
+                ['id' => 'black', 'name' => 'Black', 'image' => '/assets/detail/hoodie_color_black.png', 'active' => false],
+                ['id' => 'white', 'name' => 'White', 'image' => '/assets/detail/hoodie_color_white.png', 'active' => false],
+                ['id' => 'grey', 'name' => 'Grey', 'image' => '/assets/detail/hoodie_color_grey.png', 'active' => false],
+            ],
+            'sizes' => ['S', 'M', 'L', 'XL', 'XXL'],
+            'default_size' => 'L',
+            'features' => [
+                ['title' => 'Produk Original', 'desc' => 'Dari seller terpercaya', 'icon' => 'shield-check'],
+                ['title' => 'Pengiriman Cepat', 'desc' => 'Diproses maks. 1×24 jam', 'icon' => 'truck'],
+                ['title' => 'Bisa Retur', 'desc' => 'Sesuai kebijakan Whimarket', 'icon' => 'refresh'],
+                ['title' => 'Pembayaran Aman', 'desc' => 'Dengan escrow Whimarket', 'icon' => 'shield-lock'],
+            ],
+            'trust_badges' => [
+                ['title' => 'Original & Terverifikasi', 'desc' => 'Produk 100% asli', 'icon' => 'verified'],
+                ['title' => 'Dari Kreator Favoritmu', 'desc' => 'Langsung dari kreator pilihan', 'icon' => 'user'],
+                ['title' => 'Pengiriman Cepat', 'desc' => 'Diproses dalam 1×24 jam', 'icon' => 'truck'],
+                ['title' => 'Transaksi Aman', 'desc' => 'Dengan sistem escrow', 'icon' => 'lock'],
+            ],
         ];
     }
 }

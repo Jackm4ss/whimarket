@@ -20,6 +20,15 @@ Route::get('/belanja', function () {
         'initialCategory' => $category,
     ]);
 });
+Route::get('/produk/{id}', function (string $id) {
+    $product = MarketData::productDetail();
+
+    return view('product-detail', [
+        'product' => $product,
+        'activeTab' => 'belanja',
+        'title' => $product['title'].' | WhiMarket',
+    ]);
+});
 Route::get('/seller', function () {
     return view('browse-seller', [
         'activeTab' => 'seller',
