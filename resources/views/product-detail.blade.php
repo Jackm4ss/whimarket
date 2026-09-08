@@ -2,13 +2,42 @@
     <div 
         class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6"
         x-data="{
-            selectedImage: '{{ $product['gallery'][0]['main'] }}',
+            gallery: @js($product['gallery']),
+            currentIndex: 0,
             selectedColor: 'purple',
             selectedSize: '{{ $product['default_size'] }}',
             quantity: 1,
             maxStock: {{ $product['stock'] }},
             wishlisted: false,
             lightboxOpen: false,
+            isZoomed: false,
+            zoomX: 50,
+            zoomY: 50,
+            get selectedImage() {
+                return this.gallery[this.currentIndex]?.main || '{{ $product['gallery'][0]['main'] }}';
+            },
+            selectByIndex(index) {
+                this.currentIndex = (index + this.gallery.length) % this.gallery.length;
+            },
+            selectImage(imgSrc) {
+                const foundIndex = this.gallery.findIndex(g => g.main === imgSrc);
+                if (foundIndex !== -1) {
+                    this.currentIndex = foundIndex;
+                }
+            },
+            nextImage() {
+                this.currentIndex = (this.currentIndex + 1) % this.gallery.length;
+            },
+            prevImage() {
+                this.currentIndex = (this.currentIndex - 1 + this.gallery.length) % this.gallery.length;
+            },
+            handleMouseMove(e) {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                this.zoomX = Math.max(0, Math.min(100, x));
+                this.zoomY = Math.max(0, Math.min(100, y));
+            },
             increment() {
                 if (this.quantity < this.maxStock) this.quantity++;
             },
@@ -17,7 +46,12 @@
             },
             selectColor(colorId, imageSrc) {
                 this.selectedColor = colorId;
-                if (imageSrc) this.selectedImage = imageSrc;
+                if (imageSrc) {
+                    const idx = this.gallery.findIndex(g => g.main === imageSrc);
+                    if (idx !== -1) {
+                        this.currentIndex = idx;
+                    }
+                }
             }
         }"
     >
@@ -63,8 +97,13 @@
             
             <!-- SECTION 1: Gallery (Thumbnails list + Big stage container) -->
             <div class="flex flex-col sm:flex-row gap-4 items-start w-full lg:w-[480px] xl:w-[500px] shrink-0">
-                <!-- Main Featured Stage Image (Full Card Bleed) -->
-                <div class="sm:order-2 relative w-full aspect-square bg-[#ECE5F6] rounded-2xl overflow-hidden shadow-sm">
+                <!-- Main Featured Stage Image (With Tokopedia-style Hover Zoom) -->
+                <div 
+                    class="sm:order-2 relative w-full aspect-square bg-[#ECE5F6] rounded-2xl overflow-hidden shadow-sm cursor-crosshair select-none group"
+                    @mouseenter="isZoomed = true"
+                    @mouseleave="isZoomed = false"
+                    @mousemove="handleMouseMove($event)"
+                >
                     <!-- Wishlist Heart Button (Mobile & Tablet inside card: top-3 right-3) -->
                     <button
                         type="button"
@@ -87,22 +126,25 @@
                         </svg>
                     </button>
 
+                    <!-- Base Product Image (Cover) -->
                     <img 
                         :src="selectedImage" 
                         alt="{{ $product['title'] }}" 
                         width="500"
                         height="500"
                         decoding="async"
-                        class="w-full h-full object-cover block transition-all duration-300"
+                        class="w-full h-full object-cover block transition-transform duration-100 ease-out pointer-events-none"
+                        :style="isZoomed ? `transform: scale(2.2); transform-origin: ${zoomX}% ${zoomY}%;` : 'transform: scale(1);'"
                     />
-                    <!-- Expand / Zoom Button Bottom Right (Overlaid on Image) -->
+
+                    <!-- Expand / Zoom Lightbox Button Bottom Right (Solid white) -->
                     <button 
                         type="button"
-                        @click="lightboxOpen = true"
-                        class="absolute bottom-4 right-4 w-9 h-9 rounded-full bg-white/90 hover:bg-white backdrop-blur-md shadow-md border border-black/5 flex items-center justify-center text-gray-700 hover:text-[#4F26A6] transition-all transform hover:scale-105"
-                        title="Perbesar Gambar"
+                        @click.stop="lightboxOpen = true"
+                        class="absolute bottom-4 right-4 z-20 w-9 h-9 rounded-full bg-white shadow-lg border border-black/5 flex items-center justify-center text-gray-800 hover:text-[#4F26A6] transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
+                        title="Perbesar Gambar Penuh"
                     >
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
                         </svg>
                     </button>
@@ -110,12 +152,12 @@
 
                 <!-- Thumbnails Strip (Below Stage on Mobile, Left on Desktop) -->
                 <div class="sm:order-1 flex sm:flex-col gap-2 shrink-0 overflow-x-auto sm:overflow-visible w-full sm:w-[68px] pb-1 sm:pb-0 no-scrollbar">
-                    @foreach($product['gallery'] as $img)
+                    @foreach($product['gallery'] as $index => $img)
                         <button 
                             type="button"
-                            @click="selectedImage = '{{ $img['main'] }}'"
-                            class="relative w-[64px] h-[64px] sm:w-[68px] sm:h-[68px] rounded-xl overflow-hidden bg-[#F3EEFF]/40 border-2 transition-all p-1 flex items-center justify-center shrink-0"
-                            :class="selectedImage === '{{ $img['main'] }}' ? 'border-[#4F26A6]' : 'border-transparent hover:border-gray-200 opacity-90 hover:opacity-100'"
+                            @click="selectByIndex({{ $index }})"
+                            class="relative w-[64px] h-[64px] sm:w-[68px] sm:h-[68px] rounded-xl overflow-hidden bg-[#F3EEFF]/40 border-2 transition-all p-1 flex items-center justify-center shrink-0 cursor-pointer"
+                            :class="currentIndex === {{ $index }} ? 'border-[#4F26A6]' : 'border-transparent hover:border-gray-200 opacity-90 hover:opacity-100'"
                         >
                             <img 
                                 src="{{ $img['thumb'] }}" 
@@ -324,80 +366,59 @@
 
         </div>
 
-        <!-- Bottom Trust Features Bar (Horizontal) -->
-        <div class="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 shadow-[0_2px_16px_rgba(0,0,0,0.02)] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- 1. Original & Terverifikasi -->
-            <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-full bg-[#F3EEFF] text-[#4F26A6] flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                    </svg>
-                </div>
-                <div class="flex flex-col">
-                    <span class="text-[13.5px] font-bold text-gray-900">Original & Terverifikasi</span>
-                    <span class="text-[12px] text-gray-500 font-medium">Produk 100% asli</span>
-                </div>
-            </div>
 
-            <!-- 2. Dari Kreator Favoritmu -->
-            <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-full bg-[#F3EEFF] text-[#4F26A6] flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                    </svg>
-                </div>
-                <div class="flex flex-col">
-                    <span class="text-[13.5px] font-bold text-gray-900">Dari Kreator Favoritmu</span>
-                    <span class="text-[12px] text-gray-500 font-medium">Langsung dari kreator pilihan</span>
-                </div>
-            </div>
-
-            <!-- 3. Pengiriman Cepat -->
-            <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-full bg-[#F3EEFF] text-[#4F26A6] flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
-                    </svg>
-                </div>
-                <div class="flex flex-col">
-                    <span class="text-[13.5px] font-bold text-gray-900">Pengiriman Cepat</span>
-                    <span class="text-[12px] text-gray-500 font-medium">Diproses dalam 1×24 jam</span>
-                </div>
-            </div>
-
-            <!-- 4. Transaksi Aman -->
-            <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-full bg-[#F3EEFF] text-[#4F26A6] flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                    </svg>
-                </div>
-                <div class="flex flex-col">
-                    <span class="text-[13.5px] font-bold text-gray-900">Transaksi Aman</span>
-                    <span class="text-[12px] text-gray-500 font-medium">Dengan sistem escrow</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Lightbox Modal -->
+        <!-- Lightbox Modal with Next & Previous Navigation -->
         <div 
             x-show="lightboxOpen" 
             x-cloak
             @keydown.escape.window="lightboxOpen = false"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            @keydown.left.window="if(lightboxOpen) prevImage()"
+            @keydown.right.window="if(lightboxOpen) nextImage()"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 sm:p-6 select-none"
         >
-            <div class="relative max-w-4xl w-full bg-white rounded-3xl p-6 overflow-hidden flex flex-col items-center">
+            <div class="relative max-w-2xl w-full aspect-square bg-white rounded-3xl overflow-hidden shadow-2xl flex items-center justify-center p-0">
+                <!-- Close Button floating on top right (Solid white) -->
                 <button 
                     @click="lightboxOpen = false"
-                    class="absolute top-4 right-4 w-10 h-10 rounded-full bg-gray-100 text-gray-600 hover:text-gray-900 flex items-center justify-center transition-colors"
+                    class="absolute top-4 right-4 z-30 w-10 h-10 rounded-full bg-white shadow-lg border border-black/5 text-gray-800 hover:text-gray-950 flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                    title="Tutup (Esc)"
                 >
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
-                <div class="w-full max-h-[75vh] flex items-center justify-center p-4">
-                    <img :src="selectedImage" alt="Zoomed view" class="max-h-[70vh] object-contain" />
+
+                <!-- Previous Image Button (Vertically centered on left) -->
+                <button 
+                    @click.stop="prevImage()"
+                    style="left: 16px; top: 50%; transform: translateY(-50%);"
+                    class="absolute z-30 w-11 h-11 rounded-full bg-white/95 hover:bg-white backdrop-blur-md shadow-xl text-gray-800 hover:text-[#4F26A6] flex items-center justify-center transition-all cursor-pointer hover:scale-110 active:scale-95"
+                    title="Gambar Sebelumnya (←)"
+                >
+                    <svg class="w-6 h-6 -ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+
+                <!-- Next Image Button (Vertically centered on right) -->
+                <button 
+                    @click.stop="nextImage()"
+                    style="right: 16px; top: 50%; transform: translateY(-50%);"
+                    class="absolute z-30 w-11 h-11 rounded-full bg-white/95 hover:bg-white backdrop-blur-md shadow-xl text-gray-800 hover:text-[#4F26A6] flex items-center justify-center transition-all cursor-pointer hover:scale-110 active:scale-95"
+                    title="Gambar Berikutnya (→)"
+                >
+                    <svg class="w-6 h-6 -mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+
+                <!-- Current Image Indicator Badge (Bottom Center) -->
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 px-3.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[12px] font-semibold tracking-wider">
+                    <span x-text="currentIndex + 1"></span> / <span x-text="gallery.length"></span>
                 </div>
+
+                <!-- Full Bleed Image View -->
+                <img :src="selectedImage" alt="Zoomed view" class="w-full h-full object-cover block" />
             </div>
         </div>
     </div>
