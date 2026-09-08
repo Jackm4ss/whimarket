@@ -121,6 +121,18 @@
                 this.selectedLocation = '';
                 this.searchQuery = '';
                 this.sortBy = 'terbaru';
+                const url = new URL(window.location.href);
+                if (url.search) {
+                    window.location.href = url.pathname;
+                }
+            },
+            clearSearchFilter() {
+                this.searchQuery = '';
+                const url = new URL(window.location.href);
+                if (url.searchParams.has('q')) {
+                    url.searchParams.delete('q');
+                    window.location.href = url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '');
+                }
             },
             formatRupiah(num) {
                 return 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
@@ -391,9 +403,18 @@
                             Temukan berbagai barang pre-loved dari artis, selebgram, dan streamer favoritmu.
                         </p>
                         <template x-if="searchQuery">
-                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-[#F3EEFF] text-[#4F26A6] text-xs font-bold">
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#F3EEFF] text-[#4F26A6] text-xs font-bold shadow-2xs">
                                 <span>Hasil pencarian: "<span x-text="searchQuery"></span>"</span>
-                                <a href="{{ route('shop') }}" class="text-gray-400 hover:text-gray-700 cursor-pointer ml-1" title="Hapus filter pencarian">✕</a>
+                                <a
+                                    href="{{ route('shop', request()->except('q')) }}"
+                                    @click.prevent="clearSearchFilter()"
+                                    class="w-4 h-4 rounded-full bg-red-500 hover:bg-red-600 active:bg-red-700 text-white inline-flex items-center justify-center transition-all cursor-pointer ml-1 shrink-0 shadow-xs"
+                                    title="Hapus filter pencarian"
+                                >
+                                    <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </a>
                             </div>
                         </template>
                     </div>

@@ -162,6 +162,17 @@
                     loading: false,
                     products: [],
                     sellers: [],
+                    clearSearch() {
+                        this.query = '';
+                        this.isOpen = false;
+                        const url = new URL(window.location.href);
+                        if (url.searchParams.has('q')) {
+                            url.searchParams.delete('q');
+                            window.location.href = url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '');
+                        } else {
+                            if (this.$refs.desktopSearchInput) this.$refs.desktopSearchInput.focus();
+                        }
+                    },
                     async search(val) {
                         const q = (val !== undefined ? val : this.query).trim();
                         this.query = q;
@@ -192,6 +203,7 @@
                     <input
                         type="text"
                         name="q"
+                        x-ref="desktopSearchInput"
                         x-model="query"
                         @input.debounce.300ms="search($event.target.value)"
                         @focus="if (query.trim().length >= 2) search(query)"
@@ -208,11 +220,13 @@
                         type="button"
                         x-show="query.length > 0"
                         x-cloak
-                        @click="query = ''; isOpen = false; $el.previousElementSibling.previousElementSibling.focus()"
-                        class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 cursor-pointer p-0.5"
-                        title="Hapus"
+                        @click="clearSearch()"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-red-500 hover:bg-red-600 active:bg-red-700 text-white flex items-center justify-center transition-all cursor-pointer shadow-xs"
+                        title="Hapus pencarian"
                     >
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
                     </button>
                 </form>
 
@@ -484,17 +498,47 @@
             </div>
 
             <!-- Mobile Search Bar -->
-            <form action="{{ route('shop') }}" method="GET" class="mt-4 relative sm:hidden">
+            <form
+                action="{{ route('shop') }}"
+                method="GET"
+                class="mt-4 relative sm:hidden"
+                x-data="{
+                    mQuery: '{{ request('q') ?? '' }}',
+                    clearMobileSearch() {
+                        this.mQuery = '';
+                        const url = new URL(window.location.href);
+                        if (url.searchParams.has('q')) {
+                            url.searchParams.delete('q');
+                            window.location.href = url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '');
+                        } else {
+                            if (this.$refs.mobileSearchInput) this.$refs.mobileSearchInput.focus();
+                        }
+                    }
+                }"
+            >
                 <input
                     type="text"
                     name="q"
-                    value="{{ request('q') ?? '' }}"
+                    x-ref="mobileSearchInput"
+                    x-model="mQuery"
                     placeholder="Cari produk, kategori, atau toko..."
-                    class="w-full h-10 pl-9 pr-8 rounded-xl bg-[#F9FAFB] border border-gray-200 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#4F26A6] transition-all"
+                    class="w-full h-10 pl-9 pr-9 rounded-xl bg-[#F9FAFB] border border-gray-200 text-xs text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#4F26A6]/20 focus:border-[#4F26A6] transition-all"
                 />
                 <button type="submit" class="text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 hover:text-[#4F26A6] transition-colors cursor-pointer" title="Cari">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                </button>
+                <button
+                    type="button"
+                    x-show="mQuery.length > 0"
+                    x-cloak
+                    @click="clearMobileSearch()"
+                    class="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-red-500 hover:bg-red-600 active:bg-red-700 text-white flex items-center justify-center transition-all cursor-pointer shadow-xs"
+                    title="Hapus pencarian"
+                >
+                    <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
             </form>
