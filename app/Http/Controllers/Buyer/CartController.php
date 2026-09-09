@@ -31,6 +31,7 @@ class CartController extends Controller
         $items = $cart->items()
             ->with(['variant.product.images', 'variant.product.seller.user'])
             ->get();
+        $groupedItems = $items->groupBy(fn ($item) => $item->variant?->product?->seller?->store_name ?? 'WhiMarket Creator');
         $selectedSubtotal = $items->where('is_selected', true)->sum(fn ($i) => (float) $i->variant->price * $i->quantity);
 
         return view('cart', [
@@ -49,11 +50,11 @@ class CartController extends Controller
             if ($request->wantsJson()) {
                 return response()->json([
                     'error' => 'Unauthenticated',
-                    'redirect' => route('auth.google.redirect'),
+                    'redirect' => route('login'),
                 ], 401);
             }
 
-            return redirect()->route('auth.google.redirect');
+            return redirect()->route('login');
         }
 
         $validated = $request->validate([
@@ -62,11 +63,22 @@ class CartController extends Controller
             'buy_now' => 'nullable|boolean',
         ]);
 
-        $variant = ProductVariant::findOrFail($validated['product_variant_id']);
+        $variant = ProductVariant::with('product.seller')->findOrFail($validated['product_variant_id']);
+        $sellerUserId = $variant->product?->seller?->user_id;
+
+        if ($sellerUserId && Auth::id() === $sellerUserId) {
+            $msg = 'Anda tidak dapat membeli produk dari toko Anda sendiri.';
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $msg], 422);
+            }
+
+            return redirect()->back()->with('error', $msg);
+        }
+
         $qty = (int) ($validated['quantity'] ?? 1);
 
-        if ($variant->stock < $qty) {
-            $msg = 'Maaf, stok varian tidak mencukupi (sisa: '.$variant->stock.').';
+        if ($variant->stock <= 0 || $variant->stock < $qty) {
+            $msg = $variant->stock <= 0 ? 'Maaf, stok produk ini sudah habis.' : 'Maaf, stok varian tidak mencukupi (sisa: '.$variant->stock.').';
             if ($request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => $msg], 422);
             }

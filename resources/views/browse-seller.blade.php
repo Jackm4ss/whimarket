@@ -1,33 +1,24 @@
+@php
+    $sellersData = !empty($sellersList) ? $sellersList : [
+        [
+            'id' => 'sel_rachel',
+            'name' => 'Rachel Vennya',
+            'handle' => '@rachel_venya',
+            'role' => 'Selebgram',
+            'category' => 'selebgram',
+            'verified' => true,
+            'avatar' => '/assets/avatar-rachel-exact.png',
+            'cardBg' => '/assets/seller-card-cover-rachel.png',
+            'rating' => 4.9,
+            'reviewCount' => '1.2rb',
+            'itemCount' => 112,
+            'followerCount' => '12.4rb',
+            'profileUrl' => '/seller/@rachel_venya',
+        ]
+    ];
+@endphp
 <x-layouts.app :title="'Dukung Kreator Favoritmu - WhiMarket'" activeTab="seller">
-    <main class="w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-6 sm:py-8" x-data="{
-        selectedCategory: 'all',
-        appliedCategory: 'all',
-        sortBy: 'terbaru',
-        sortDropdownOpen: false,
-        categoryOpen: false,
-        filterDrawerOpen: false,
-        seller: {
-            id: 'sel_rachel',
-            name: 'Rachel Vennya',
-            handle: '@rachel_venya',
-            role: 'Selebgram',
-            category: 'selebgram',
-            verified: true,
-            avatar: '/assets/avatar-rachel-exact.png',
-            cardBg: '/assets/seller-card-cover-rachel.png',
-            rating: 4.9,
-            reviewCount: '1.2rb',
-            itemCount: 112,
-            followerCount: '12.4rb',
-            profileUrl: '/seller/@rachel_venya'
-        },
-        matchesFilter() {
-            if (this.appliedCategory !== 'all' && this.seller.category !== this.appliedCategory) {
-                return false;
-            }
-            return true;
-        }
-    }">
+    <main class="w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-6 sm:py-8" x-data="browseSeller">
         <!-- Breadcrumb Navigation -->
         <nav class="flex items-center gap-2 text-xs sm:text-[13px] text-gray-500 font-medium mb-5">
             <a href="/" class="hover:text-[#4F26A6] transition-colors">Beranda</a>
@@ -228,8 +219,7 @@
                             <span>Filter</span>
                         </button>
 
-                        <span class="hidden sm:inline text-xs text-gray-400 font-medium whitespace-nowrap">128 seller ditemukan</span>
-
+                        <span class="hidden sm:inline text-xs text-gray-400 font-medium whitespace-nowrap"><span x-text="filteredSellers.length"></span> seller ditemukan</span>
                         <!-- Compact Fit-Content Dropdown Aligned with Trigger Button -->
                         <x-sort-dropdown :options="[
                             'terbaru' => 'Urutan: Terbaru',
@@ -242,7 +232,7 @@
 
                 <!-- Seller Card (Mockup Parity: 1 Seller Dummy @rachel_venya) -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
-                    <template x-if="matchesFilter()">
+                    <template x-for="seller in filteredSellers" :key="seller.id">
                         <div class="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_32px_rgba(72,30,188,0.08)] transition-all flex flex-col justify-between group overflow-hidden">
                             <!-- Top Banner Section -->
                             <div class="relative w-full h-[142px] sm:h-[148px] bg-[#E8DEFD] overflow-hidden">
@@ -281,14 +271,25 @@
                                     <p class="text-xs text-gray-400 font-medium mb-3.5" x-text="seller.role"></p>
 
                                     <!-- Rating Stars & Review Count -->
-                                    <div class="flex items-center gap-1.5 text-xs text-gray-500 mb-4">
-                                        <div class="flex items-center gap-0.5 text-[#F59E0B]">
-                                            @for($i = 0; $i < 5; $i++)
-                                                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                            @endfor
-                                        </div>
-                                        <span class="font-bold text-gray-800" x-text="seller.rating.toFixed(1)"></span>
-                                        <span class="text-gray-400 font-normal" x-text="'(' + seller.reviewCount + ' ulasan)'"></span>
+                                    <div class="flex items-center gap-1.5 text-xs text-gray-500 mb-4 min-h-[20px]">
+                                        <template x-if="seller.rating > 0">
+                                            <div class="flex items-center gap-1.5">
+                                                <div class="flex items-center gap-0.5 text-[#F59E0B]">
+                                                    @for($i = 0; $i < 5; $i++)
+                                                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                                    @endfor
+                                                </div>
+                                                <span class="font-bold text-gray-800" x-text="seller.rating.toFixed(1)"></span>
+                                                <span class="text-gray-400 font-normal" x-text="'(' + seller.reviewCount + ' ulasan)'"></span>
+                                            </div>
+                                        </template>
+                                        <template x-if="!seller.rating || seller.rating == 0">
+                                            <div class="flex items-center gap-1.5 text-gray-400 font-medium">
+                                                <svg class="w-3.5 h-3.5 text-gray-300 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                                <span class="font-semibold text-gray-600">Belum ada ulasan</span>
+                                                <span>(0 ulasan)</span>
+                                            </div>
+                                        </template>
                                     </div>
 
                                     <!-- Horizontal Divider Separator Line -->
@@ -301,7 +302,7 @@
                                             <span class="text-[12.5px] text-gray-400 font-medium block mt-1">Barang</span>
                                         </div>
                                         <div class="pl-2">
-                                            <span class="text-[18px] sm:text-xl font-extrabold text-[#111827] block leading-tight" x-text="seller.followerCount"></span>
+                                            <span class="text-[18px] sm:text-xl font-extrabold text-[#111827] block leading-tight" x-text="seller.followerCount == '0' || seller.followerCount == 0 ? '0' : seller.followerCount"></span>
                                             <span class="text-[12.5px] text-gray-400 font-medium block mt-1">Pengikut</span>
                                         </div>
                                     </div>
@@ -318,7 +319,7 @@
                     </template>
 
                     <!-- Empty state if filter doesn't match -->
-                    <template x-if="!matchesFilter()">
+                    <template x-if="filteredSellers.length === 0">
                         <div class="col-span-full py-12 text-center text-gray-400">
                             <p class="text-sm font-semibold">Tidak ada seller yang cocok dengan filter yang dipilih.</p>
                             <button
@@ -448,4 +449,34 @@
             </div>
         </div>
     </main>
+
+    @push('scripts')
+    <script>
+    function registerBrowseSeller() {
+        Alpine.data('browseSeller', () => ({
+            selectedCategory: 'all',
+            appliedCategory: 'all',
+            sortBy: 'terbaru',
+            sortDropdownOpen: false,
+            categoryOpen: false,
+            filterDrawerOpen: false,
+            sellers: @js($sellersData),
+            get filteredSellers() {
+                let list = this.sellers.filter(s => {
+                    if (this.appliedCategory !== 'all' && s.category !== this.appliedCategory) return false;
+                    return true;
+                });
+                if (this.sortBy === 'rating') list.sort((a, b) => b.rating - a.rating);
+                if (this.sortBy === 'produk') list.sort((a, b) => b.itemCount - a.itemCount);
+                return list;
+            }
+        }));
+    }
+    if (window.Alpine) {
+        registerBrowseSeller();
+    } else {
+        document.addEventListener('alpine:init', registerBrowseSeller);
+    }
+    </script>
+    @endpush
 </x-layouts.app>

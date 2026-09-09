@@ -19,6 +19,7 @@ class Seller extends Model
         'store_name',
         'username',
         'bio',
+        'banner_image',
         'bank_name',
         'bank_account_number',
         'bank_account_name',
@@ -71,5 +72,25 @@ class Seller extends Model
     public function isVerified(): bool
     {
         return $this->status === SellerStatus::VERIFIED;
+    }
+
+    public function getBannerUrlAttribute(): string
+    {
+        if (! empty($this->banner_image)) {
+            return $this->banner_image;
+        }
+
+        return '/assets/seller-banner-rachel.png';
+    }
+
+    public function getAvatarUrlAttribute(): string
+    {
+        if (! empty($this->user?->avatar)) {
+            return $this->user->avatar;
+        }
+
+        $initial = strtoupper(substr($this->store_name ?: 'W', 0, 1));
+
+        return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><rect width="128" height="128" rx="64" fill="%23F3EEFF"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="52" fill="%234F26A6">'.$initial.'</text></svg>';
     }
 }

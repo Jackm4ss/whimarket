@@ -315,8 +315,16 @@
 
             <!-- Right: Wishlist, Cart, Profile Menu / Auth -->
             <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-                <!-- Wishlist Icon -->
-                <a href="{{ route('wishlist.index') }}" class="relative p-2 text-gray-700 hover:text-[#4F26A6] transition-colors rounded-xl hover:bg-gray-50" title="Wishlist">
+                @php
+                    $currentUser = auth()->user() ?? (is_array($user) ? (object)$user : $user);
+                @endphp
+
+                <!-- Wishlist Icon (Desktop always; Mobile/Tablet only when GUEST) -->
+                <a
+                    href="{{ route('wishlist.index') }}"
+                    class="{{ $currentUser ? 'hidden lg:flex' : 'flex' }} relative p-2 text-gray-700 hover:text-[#4F26A6] transition-colors rounded-xl hover:bg-gray-50"
+                    title="Wishlist"
+                >
                     <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
@@ -325,8 +333,12 @@
                     </span>
                 </a>
 
-                <!-- Cart Icon -->
-                <a href="{{ route('cart.index') }}" class="relative p-2 text-gray-700 hover:text-[#4F26A6] transition-colors rounded-xl hover:bg-gray-50" title="Keranjang Belanja">
+                <!-- Cart Icon (Desktop always; Mobile/Tablet only when GUEST) -->
+                <a
+                    href="{{ route('cart.index') }}"
+                    class="{{ $currentUser ? 'hidden lg:flex' : 'flex' }} relative p-2 text-gray-700 hover:text-[#4F26A6] transition-colors rounded-xl hover:bg-gray-50"
+                    title="Keranjang Belanja"
+                >
                     <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                         <circle cx="9" cy="21" r="1" />
                         <circle cx="20" cy="21" r="1" />
@@ -336,26 +348,35 @@
                         {{ auth()->check() && auth()->user()->cart ? auth()->user()->cart->items()->count() : ($cartCount ?? 0) }}
                     </span>
                 </a>
+
                 <div class="hidden lg:block h-6 w-[1px] bg-gray-200 mx-1"></div>
 
                 <!-- Profile Menu Dropdown / Guest buttons -->
-                @php
-                    $currentUser = auth()->user() ?? (is_array($user) ? (object)$user : $user);
-                @endphp
                 @if($currentUser)
+                    @php
+                        $currentUserName = is_object($currentUser) ? $currentUser->name : ($currentUser['name'] ?? 'User');
+                        $currentUserAvatar = is_object($currentUser) ? ($currentUser->avatar ?? null) : ($currentUser['avatar'] ?? null);
+                        $userInitial = strtoupper(substr($currentUserName, 0, 1));
+                    @endphp
                     <div class="relative" @click.outside="isProfileOpen = false">
                         <button
                             type="button"
                             @click="isProfileOpen = !isProfileOpen"
-                            class="hidden lg:flex items-center gap-2.5 pl-1 cursor-pointer group focus:outline-none"
+                            class="flex items-center gap-1.5 sm:gap-2 pl-1 cursor-pointer group focus:outline-none py-1 px-1.5 sm:px-2 rounded-2xl hover:bg-gray-50 active:bg-gray-100 transition-all border border-transparent hover:border-gray-200/60"
                         >
-                            <img
-                                src="{{ is_object($currentUser) ? ($currentUser->avatar ?? '/assets/avatars/avatar-raisy.png') : ($currentUser['avatar'] ?? '/assets/avatars/avatar-raisy.png') }}"
-                                alt="{{ is_object($currentUser) ? $currentUser->name : $currentUser['name'] }}"
-                                class="w-9 h-9 rounded-full object-cover ring-2 ring-purple-100 group-hover:ring-[#4F26A6]/30 transition-all shrink-0"
-                            />
-                            <span class="text-sm font-semibold text-gray-800 group-hover:text-[#4F26A6] transition-colors max-w-[120px] truncate">
-                                {{ is_object($currentUser) ? $currentUser->name : $currentUser['name'] }}
+                            @if(!empty($currentUserAvatar))
+                                <img
+                                    src="{{ $currentUserAvatar }}"
+                                    alt="{{ $currentUserName }}"
+                                    class="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-purple-100 group-hover:ring-[#4F26A6]/30 transition-all shrink-0"
+                                />
+                            @else
+                                <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#F3EEFF] text-[#4F26A6] font-extrabold text-xs sm:text-sm flex items-center justify-center ring-2 ring-purple-100 group-hover:ring-[#4F26A6]/40 transition-all shrink-0">
+                                    {{ $userInitial }}
+                                </div>
+                            @endif
+                            <span class="text-xs sm:text-sm font-semibold text-gray-800 group-hover:text-[#4F26A6] transition-colors max-w-[85px] sm:max-w-[130px] truncate">
+                                {{ $currentUserName }}
                             </span>
                             <svg
                                 class="w-3.5 h-3.5 text-gray-400 group-hover:text-[#4F26A6] transition-transform duration-200"
@@ -368,60 +389,220 @@
                             </svg>
                         </button>
 
-                        <!-- Dropdown Content -->
+                        <!-- Dropdown Content (Sorted & Styled like major e-commerce platforms) -->
                         <div
                             x-show="isProfileOpen"
+                            x-cloak
                             x-transition:enter="transition ease-out duration-150"
                             x-transition:enter-start="opacity-0 translate-y-1"
                             x-transition:enter-end="opacity-100 translate-y-0"
                             x-transition:leave="transition ease-in duration-100"
                             x-transition:leave-start="opacity-100 translate-y-0"
                             x-transition:leave-end="opacity-0 translate-y-1"
-                            class="absolute right-0 top-full mt-2.5 w-64 bg-white rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.12)] border border-gray-100 p-2.5 z-50 text-left space-y-1"
-                            style="display: none;"
+                            class="absolute right-0 top-full mt-2 w-64 sm:w-72 bg-white rounded-2xl sm:rounded-3xl shadow-[0_16px_40px_rgba(0,0,0,0.12)] border border-gray-100 p-2 sm:p-2.5 z-50 text-left space-y-0.5"
                         >
-                            <div class="px-3.5 py-2.5 border-b border-gray-100 mb-1">
-                                <p class="text-[11px] text-gray-400 font-medium">Masuk sebagai</p>
-                                <p class="text-sm font-extrabold text-gray-900 truncate mt-0.5">{{ is_object($currentUser) ? $currentUser->name : $currentUser['name'] }}</p>
-                                <p class="text-xs text-[#4F26A6] font-bold mt-0.5">Role: {{ auth()->check() ? ucfirst(auth()->user()->role?->value ?? 'Buyer') : 'Buyer' }}</p>
-                            </div>
+                            <!-- User Card Header -->
+                            <a href="{{ route('profile.settings') }}" class="px-3 py-2.5 bg-[#FAF9FC] hover:bg-[#F3EEFF]/50 rounded-xl sm:rounded-2xl border border-gray-100/90 mb-1.5 flex items-center gap-3 transition-colors group/header block">
+                                @if(!empty($currentUserAvatar))
+                                    <img
+                                        src="{{ $currentUserAvatar }}"
+                                        alt="{{ $currentUserName }}"
+                                        class="w-9 h-9 rounded-full object-cover ring-2 ring-purple-100 shrink-0"
+                                    />
+                                @else
+                                    <div class="w-9 h-9 rounded-full bg-[#F3EEFF] text-[#4F26A6] font-black text-sm flex items-center justify-center ring-2 ring-purple-100 shrink-0">
+                                        {{ $userInitial }}
+                                    </div>
+                                @endif
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-xs sm:text-[13px] font-extrabold text-gray-950 group-hover/header:text-[#4F26A6] transition-colors truncate">{{ $currentUserName }}</p>
+                                    <div class="flex items-center gap-1.5 mt-0.5">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#F3EEFF] text-[#4F26A6]">
+                                            {{ auth()->check() ? ucfirst(auth()->user()->role?->value ?? 'Buyer') : 'Buyer' }}
+                                        </span>
+                                        <span class="text-[10px] text-gray-400 font-medium group-hover/header:text-[#4F26A6]">Lihat Profil &rarr;</span>
+                                    </div>
+                                </div>
+                            </a>
+
+                            @php
+                                $cartCountVal = auth()->check() && auth()->user()->cart ? auth()->user()->cart->items()->count() : ($cartCount ?? 0);
+                                $wishCountVal = auth()->check() ? auth()->user()->wishlists()->count() : ($wishlistCount ?? 0);
+                            @endphp
 
                             @if(auth()->check() && auth()->user()->isSeller())
-                                <a href="{{ route('seller.dashboard') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-bold text-[#4F26A6] bg-[#F3EEFF] hover:bg-[#EADDFE] transition-colors">
-                                    <svg class="w-4 h-4 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <!-- Seller Order: Toko Saya (1st), Akun & Pengaturan (2nd), Aktivitas Belanja (3rd) -->
+                                <!-- Section 1: Toko Saya -->
+                                <div class="pt-0.5 pb-0.5">
+                                    <span class="px-3 pt-1 pb-0.5 text-[10px] font-extrabold uppercase tracking-wider text-gray-400 block">Toko Saya</span>
+                                </div>
+                                <a href="{{ route('seller.dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
+                                    <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>
                                     </svg>
-                                    <span>Dashboard Seller</span>
+                                    <span>Dashboard Toko</span>
                                 </a>
+                                <a href="{{ route('seller.settings') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
+                                    <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span>Pengaturan Toko &amp; Banner</span>
+                                </a>
+
+                                <!-- Section 2: Akun & Pengaturan -->
+                                <div class="border-t border-gray-100 my-1 pt-1">
+                                    <span class="px-3 pt-1 pb-0.5 text-[10px] font-extrabold uppercase tracking-wider text-gray-400 block">Akun &amp; Pengaturan</span>
+                                </div>
+                                <a href="{{ route('profile.settings') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
+                                    <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                    <span>Pengaturan Profil &amp; Alamat</span>
+                                </a>
+                                <a href="{{ route('password.edit') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
+                                    <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 11V7a5 5 0 0110 0v4"/>
+                                    </svg>
+                                    <span>Ganti Password</span>
+                                </a>
+
+                                <!-- Section 3: Aktivitas Belanja -->
+                                <div class="border-t border-gray-100 my-1 pt-1">
+                                    <span class="px-3 pt-1 pb-0.5 text-[10px] font-extrabold uppercase tracking-wider text-gray-400 block">Aktivitas Belanja</span>
+                                </div>
+                                <a href="{{ route('orders.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
+                                    <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                    </svg>
+                                    <span>Pesanan Saya</span>
+                                </a>
+                                <a href="{{ route('wishlist.index') }}" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
+                                    <div class="flex items-center gap-3">
+                                        <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                        </svg>
+                                        <span>Wishlist</span>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full {{ $wishCountVal > 0 ? 'bg-[#4F26A6] text-white' : 'bg-gray-100 text-gray-400' }} text-[10.5px] font-extrabold">
+                                        {{ $wishCountVal }}
+                                    </span>
+                                </a>
+                                <a href="{{ route('cart.index') }}" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
+                                    <div class="flex items-center gap-3">
+                                        <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
+                                        </svg>
+                                        <span>Keranjang Belanja</span>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full {{ $cartCountVal > 0 ? 'bg-[#4F26A6] text-white' : 'bg-gray-100 text-gray-400' }} text-[10.5px] font-extrabold">
+                                        {{ $cartCountVal }}
+                                    </span>
+                                </a>
+                            @else
+                                <!-- Buyer Order: Aktivitas Belanja (1st), Akun & Pengaturan (2nd) -->
+                                <!-- Section 1: Aktivitas Belanja -->
+                                <div class="pt-0.5 pb-0.5">
+                                    <span class="px-3 pt-1 pb-0.5 text-[10px] font-extrabold uppercase tracking-wider text-gray-400 block">Aktivitas Belanja</span>
+                                </div>
+                                <a href="{{ route('orders.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
+                                    <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                    </svg>
+                                    <span>Pesanan Saya</span>
+                                </a>
+                                <a href="{{ route('wishlist.index') }}" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
+                                    <div class="flex items-center gap-3">
+                                        <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                        </svg>
+                                        <span>Wishlist</span>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full {{ $wishCountVal > 0 ? 'bg-[#4F26A6] text-white' : 'bg-gray-100 text-gray-400' }} text-[10.5px] font-extrabold">
+                                        {{ $wishCountVal }}
+                                    </span>
+                                </a>
+                                <a href="{{ route('cart.index') }}" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
+                                    <div class="flex items-center gap-3">
+                                        <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
+                                        </svg>
+                                        <span>Keranjang Belanja</span>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full {{ $cartCountVal > 0 ? 'bg-[#4F26A6] text-white' : 'bg-gray-100 text-gray-400' }} text-[10.5px] font-extrabold">
+                                        {{ $cartCountVal }}
+                                    </span>
+                                </a>
+
+                                <!-- Section 2: Akun & Pengaturan -->
+                                <div class="border-t border-gray-100 my-1 pt-1">
+                                    <span class="px-3 pt-1 pb-0.5 text-[10px] font-extrabold uppercase tracking-wider text-gray-400 block">Akun &amp; Pengaturan</span>
+                                </div>
+                                <a href="{{ route('profile.settings') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
+                                    <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                    <span>Pengaturan Profil &amp; Alamat</span>
+                                </a>
+                                <a href="{{ route('password.edit') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
+                                    <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 11V7a5 5 0 0110 0v4"/>
+                                    </svg>
+                                    <span>Ganti Password</span>
+                                </a>
+
+                                <!-- Section: Aktivasi Toko Seller (Khusus Buyer) -->
+                                <div class="border-t border-gray-100 my-1.5 pt-1.5">
+                                    <a
+                                        href="{{ route('seller.register') }}"
+                                        class="flex items-center justify-between p-2.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#F3EEFF] to-[#FAF9FC] hover:from-[#EAE1FF] hover:to-[#F3EEFF] border border-[#4F26A6]/20 transition-all group/seller shadow-2xs"
+                                        title="Aktivasi Toko Seller WhiMarket"
+                                    >
+                                        <div class="flex items-center gap-2.5 min-w-0">
+                                            <div class="w-8 h-8 rounded-xl bg-[#4F26A6] text-white flex items-center justify-center shrink-0 shadow-2xs group-hover/seller:scale-105 transition-transform">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                                </svg>
+                                            </div>
+                                            <div class="min-w-0">
+                                                <p class="text-xs sm:text-[13px] font-extrabold text-gray-900 group-hover/seller:text-[#4F26A6] transition-colors leading-tight truncate">
+                                                    Aktivasi Toko Seller
+                                                </p>
+                                                <p class="text-[10px] sm:text-[10.5px] text-gray-500 truncate">
+                                                    Buka toko &amp; mulai jualan
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <svg class="w-4 h-4 text-[#4F26A6] shrink-0 group-hover/seller:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </a>
+                                </div>
                             @endif
 
+                            <!-- Section 4: Administrator (khusus admin) -->
                             @if(auth()->check() && auth()->user()->isAdmin())
-                                <a href="/admin" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-[13px] font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 transition-colors">
-                                    <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                <div class="border-t border-gray-100 my-1 pt-1"></div>
+                                <a href="/admin" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-amber-800 hover:bg-amber-50 transition-colors group">
+                                    <svg class="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                                     </svg>
                                     <span>Admin Panel</span>
                                 </a>
                             @endif
 
-                            <a href="{{ route('orders.index') }}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors">
-                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                </svg>
-                                <span>Pesanan Saya</span>
-                            </a>
-                            <a href="{{ route('wishlist.index') }}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors">
-                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                </svg>
-                                <span>Wishlist</span>
-                            </a>
-                            <div class="h-[1px] bg-gray-100 my-1"></div>
+                            <!-- Section 5: Logout -->
+                            <div class="border-t border-gray-100 my-1 pt-1"></div>
                             <form method="POST" action="{{ route('logout') }}" class="w-full">
                                 @csrf
-                                <button type="submit" class="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left">
-                                    <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                <button type="submit" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left group">
+                                    <svg class="w-4 h-4 text-red-500 group-hover:text-red-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                                     </svg>
                                     <span>Keluar</span>
                                 </button>
@@ -429,6 +610,7 @@
                         </div>
                     </div>
                 @else
+                    <!-- Guest: Desktop Masuk & Daftar -->
                     <div class="hidden lg:flex items-center gap-2.5">
                         <a href="{{ route('login') }}" class="px-5 h-[44px] flex items-center justify-center rounded-xl text-[15px] font-semibold text-[#4F26A6] border-[1.5px] border-[#4F26A6] hover:bg-[#4F26A6]/5 transition-all">
                             Masuk
@@ -439,17 +621,19 @@
                     </div>
                 @endif
 
-                <!-- Mobile Hamburger Button -->
-                <button
-                    type="button"
-                    @click="isMobileMenuOpen = true"
-                    class="lg:hidden p-2 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-[#4F26A6] transition-colors focus:outline-none ml-1"
-                    aria-label="Toggle Menu"
-                >
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 6h16M4 12h16M4 18h16"/>
-                    </svg>
-                </button>
+                <!-- Mobile Hamburger Button (Only shown for GUEST) -->
+                @if(!$currentUser)
+                    <button
+                        type="button"
+                        @click="isMobileMenuOpen = true"
+                        class="lg:hidden p-2 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-[#4F26A6] transition-colors focus:outline-none ml-1 shrink-0"
+                        aria-label="Toggle Menu"
+                    >
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                @endif
             </div>
         </div>
     </header>
@@ -636,6 +820,16 @@
                 @if(auth()->user()->isSeller())
                     <a href="{{ route('seller.dashboard') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-white bg-[#4F26A6] hover:bg-[#3E1D85] transition-all text-xs">
                         Dashboard Seller
+                    </a>
+                    <a href="{{ route('seller.settings') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-[#4F26A6] bg-[#F3EEFF] hover:bg-[#EADDFE] transition-all text-xs">
+                        Pengaturan Toko &amp; Banner
+                    </a>
+                @else
+                    <a href="{{ route('seller.register') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-white bg-[#4F26A6] hover:bg-[#3E1D85] shadow-sm transition-all text-xs flex items-center justify-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                        <span>Aktivasi Toko Seller WhiMarket</span>
                     </a>
                 @endif
                 @if(auth()->user()->isAdmin())

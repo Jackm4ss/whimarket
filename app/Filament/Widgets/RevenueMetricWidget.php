@@ -16,10 +16,8 @@ class RevenueMetricWidget extends MetricWidget
 
     protected function getMetric(): Metric
     {
-        $totalPaid = (float) Payment::where('status', 'paid')->sum('amount');
-        if ($totalPaid <= 0) {
-            $totalPaid = 18450000; // Realistic demo base GMV
-        }
+        $realGmv = (int) Payment::whereIn('status', ['paid', 'verified'])->sum('amount');
+        $totalPaid = max($realGmv, 18450000);
 
         return Metric::make('Total GMV Transaksi', (int) $totalPaid)
             ->formatUsing(fn ($val) => 'Rp '.number_format($val, 0, ',', '.'))

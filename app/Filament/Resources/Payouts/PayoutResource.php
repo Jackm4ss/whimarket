@@ -16,12 +16,17 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
+use UnitEnum;
 
 class PayoutResource extends Resource
 {
     protected static ?string $model = Payout::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Keuangan & Sengketa';
+
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationLabel = 'Pencairan Dana (Payout)';
 
@@ -32,6 +37,7 @@ class PayoutResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('seller.store_name')
                     ->label('Toko Seller')

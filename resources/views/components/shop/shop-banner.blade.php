@@ -1,4 +1,11 @@
-<div class="w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-4 pb-6">
+<div class="w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-6 sm:pt-8 pb-4 sm:pb-6">
+    <!-- Breadcrumb Navigation -->
+    <nav class="flex items-center gap-2 text-xs sm:text-[13px] text-gray-500 font-medium mb-5">
+        <a href="/" class="hover:text-[#4F26A6] transition-colors">Beranda</a>
+        <span class="text-gray-300 font-normal">&gt;</span>
+        <span class="text-gray-900 font-bold">Belanja</span>
+    </nav>
+
     <div class="relative w-full rounded-2xl sm:rounded-3xl bg-[#5022CE] overflow-hidden min-h-[175px] sm:min-h-[185px] lg:h-[200px] flex items-center justify-between shadow-lg shadow-[#5022CE]/15">
         <!-- Mobile: Clean vector curves background -->
         <div class="absolute right-0 top-0 bottom-0 h-full w-auto pointer-events-none z-0 sm:hidden">

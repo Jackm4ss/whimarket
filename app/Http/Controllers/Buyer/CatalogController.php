@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Seller;
 use App\Support\MarketData;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
@@ -34,7 +35,8 @@ class CatalogController extends Controller
 
         $sellers = Seller::with(['user', 'products'])
             ->where('status', SellerStatus::VERIFIED)
-            ->take(6)
+            ->latest('id')
+            ->take(8)
             ->get();
 
         if ($sellers->isEmpty()) {
@@ -72,6 +74,7 @@ class CatalogController extends Controller
                 'primaryImage:id,product_id,image_path',
                 'seller:id,user_id,store_name,status,verified_at',
                 'seller.user:id,name,avatar',
+                'variants:id,product_id,name,price,stock',
             ])
             ->withCount('wishlists')
             ->where('status', ProductStatus::ACTIVE);
@@ -108,17 +111,22 @@ class CatalogController extends Controller
         };
 
         $products = $query->paginate(12)->withQueryString();
-        $productsList = $products->map(function ($p) {
+        $userWishlistIds = Auth::check() ? Auth::user()->wishlists()->pluck('product_id')->toArray() : [];
+        $productsList = $products->map(function ($p) use ($userWishlistIds) {
             return [
                 'id' => $p->slug,
+                'model_id' => $p->id,
                 'title' => $p->name,
                 'sellerName' => $p->seller->store_name ?? 'WhiMarket Creator',
                 'sellerAvatar' => $p->seller->user->avatar ?? '/assets/avatars/avatar-raisy.png',
                 'verified' => $p->seller->isVerified() ?? true,
+                'is_liked' => in_array($p->id, $userWishlistIds),
                 'priceText' => 'Rp '.number_format((float) $p->price, 0, ',', '.'),
                 'priceNumber' => (float) $p->price,
                 'likes' => $p->wishlists_count ?? 10,
                 'image' => $p->primary_image_url,
+                'stock' => (int) $p->total_stock,
+                'is_out_of_stock' => $p->total_stock <= 0,
                 'condition' => $p->condition?->label() ?? 'Like New',
                 'category' => $p->category?->slug ?? 'fashion',
                 'href' => route('product.detail', $p->slug),
@@ -174,12 +182,17 @@ class CatalogController extends Controller
             $sizes = ! empty($rawSizes) ? $rawSizes : ['All Size'];
 
             $variantsMap = [];
+            $variantsStockMap = [];
             foreach ($variants as $v) {
                 $variantsMap[$v->name] = $v->id;
+                $variantsStockMap[$v->id] = (int) $v->stock;
                 if (str_contains($v->name, ' - ')) {
                     $parts = explode(' - ', $v->name);
                     $sz = trim(end($parts));
                     $variantsMap[$sz] = $v->id;
+                    $variantsStockMap[$sz] = (int) $v->stock;
+                } else {
+                    $variantsStockMap[$v->name] = (int) $v->stock;
                 }
             }
             $catSlug = $productModel->category?->slug ?? '';
@@ -198,7 +211,7 @@ class CatalogController extends Controller
 
             $colors = [];
             $hasColors = false;
-            if ($isFashion) {
+            if ($productModel->slug === 'prod-hoodie-dream-plan-do' || str_contains($productModel->slug, 'hoodie-dream-plan-do')) {
                 $hasColors = true;
                 $colors = [
                     ['id' => 'purple', 'name' => 'Purple', 'image' => '/assets/products/prod-hoodie.png', 'active' => true],
@@ -220,7 +233,8 @@ class CatalogController extends Controller
                 'price' => (float) $productModel->price,
                 'price_formatted' => 'Rp '.number_format((float) $productModel->price, 0, ',', '.'),
                 'description' => $productModel->description,
-                'stock' => $productModel->total_stock ?: 10,
+                'stock' => (int) $productModel->total_stock,
+                'is_out_of_stock' => $productModel->total_stock <= 0,
                 'default_size' => $sizes[0] ?? 'All Size',
                 'has_colors' => $hasColors,
                 'colors' => $colors,
@@ -241,12 +255,36 @@ class CatalogController extends Controller
                 'gallery' => $gallery,
                 'sizes' => $sizes,
                 'variants_map' => $variantsMap,
+                'variants_stock_map' => $variantsStockMap,
                 'first_variant_id' => $variants->first()?->id,
+                'first_variant_stock' => (int) ($variants->first()?->stock ?? 0),
+
+                // Real data: no review system yet, so all zeros/empty
+                'rating' => 0,
+                'review_count' => 0,
+                'sold_count' => 0,
+                'rating_summary' => [
+                    'rating' => 0,
+                    'total_reviews' => 0,
+                    'breakdown' => [
+                        ['star' => 5, 'count' => 0, 'pct' => 0],
+                        ['star' => 4, 'count' => 0, 'pct' => 0],
+                        ['star' => 3, 'count' => 0, 'pct' => 0],
+                        ['star' => 2, 'count' => 0, 'pct' => 0],
+                        ['star' => 1, 'count' => 0, 'pct' => 0],
+                    ],
+                ],
+                'reviews' => [],
             ]);
+
+            $isOwnProduct = Auth::check() && $productModel->seller && Auth::id() === $productModel->seller->user_id;
+            $isWishlisted = Auth::check() ? $productModel->wishlists()->where('user_id', Auth::id())->exists() : false;
 
             return view('product-detail', [
                 'product' => $productData,
                 'productModel' => $productModel,
+                'isOwnProduct' => $isOwnProduct,
+                'isWishlisted' => $isWishlisted,
                 'activeTab' => 'belanja',
                 'title' => $productModel->name.' | WhiMarket',
             ]);
@@ -266,10 +304,32 @@ class CatalogController extends Controller
     {
         $sellers = Seller::with(['user', 'products'])
             ->where('status', SellerStatus::VERIFIED)
+            ->latest('id')
             ->paginate(12);
+
+        $sellersList = $sellers->map(function ($s) {
+            $isDemo = in_array(strtolower($s->username), ['rachelvennya', 'celloszx', 'raisa6690', 'fuji_an', 'windahbasudara', 'bramastavrl']);
+
+            return [
+                'id' => $s->id,
+                'name' => $s->store_name,
+                'handle' => '@'.$s->username,
+                'role' => 'Verified Creator',
+                'category' => 'selebgram',
+                'verified' => $s->isVerified(),
+                'avatar' => $s->avatar_url,
+                'cardBg' => $s->banner_url,
+                'rating' => $isDemo ? 4.9 : 0.0,
+                'reviewCount' => $isDemo ? '1.2rb' : '0',
+                'itemCount' => $s->products->count(),
+                'followerCount' => $isDemo ? '12.4rb' : '0',
+                'profileUrl' => route('seller.profile', '@'.$s->username),
+            ];
+        })->values()->all();
 
         return view('browse-seller', [
             'sellers' => $sellers,
+            'sellersList' => $sellersList,
             'activeTab' => 'seller',
             'title' => 'Daftar Seller Terverifikasi | WhiMarket',
         ]);
@@ -288,9 +348,24 @@ class CatalogController extends Controller
             $seller = Seller::with(['user', 'products.images', 'products.variants', 'products.category'])->firstOrFail();
         }
 
+        $isOwnStore = Auth::check() && Auth::id() === $seller->user_id;
+        $isDemo = in_array(strtolower($seller->username), ['rachelvennya', 'celloszx', 'raisa6690', 'fuji_an', 'windahbasudara', 'bramastavrl']);
+
+        $stats = [
+            'rating' => $isDemo ? 4.9 : null,
+            'review_count' => $isDemo ? '1.2rb' : 0,
+            'follower_count' => $isDemo ? '12.4rb' : 0,
+            'joined_date' => $seller->created_at ? $seller->created_at->translatedFormat('M Y') : 'Mar 2024',
+        ];
+
+        $reviewsList = $isDemo ? MarketData::sellerReviews() : [];
+
         return view('seller-profile', [
             'seller' => $seller,
             'products' => $seller->products,
+            'isOwnStore' => $isOwnStore,
+            'stats' => $stats,
+            'reviewsList' => $reviewsList,
             'activeTab' => 'seller',
             'title' => $seller->store_name.' (@'.$seller->username.') | WhiMarket',
         ]);

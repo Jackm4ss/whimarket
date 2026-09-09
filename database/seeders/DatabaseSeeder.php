@@ -38,6 +38,9 @@ class DatabaseSeeder extends Seeder
         $sellerRole = Role::firstOrCreate(['name' => 'seller', 'guard_name' => 'web']);
         $buyerRole = Role::firstOrCreate(['name' => 'buyer', 'guard_name' => 'web']);
 
+        $this->call(ShippingZoneSeeder::class);
+        $this->call(PlatformSettingSeeder::class);
+
         // 2. Demo Admin User
         $admin = User::firstOrCreate(
             ['email' => 'admin@whimarket.com'],
@@ -64,6 +67,17 @@ class DatabaseSeeder extends Seeder
         );
         $buyer->syncRoles([$buyerRole]);
 
+        $buyer2 = User::firstOrCreate(
+            ['email' => 'siti.nurhaliza@gmail.com'],
+            [
+                'name' => 'Siti Nurhaliza',
+                'password' => Hash::make('password'),
+                'role' => UserRole::BUYER,
+                'phone' => '081234567890',
+                'avatar' => '/assets/avatars/avatar-raisy.png',
+            ]
+        );
+        $buyer2->syncRoles([$buyerRole]);
         // Buyer default address
         Address::firstOrCreate(
             ['user_id' => $buyer->id, 'is_default' => true],
@@ -342,15 +356,15 @@ class DatabaseSeeder extends Seeder
         $orderPaid = Order::firstOrCreate(
             ['order_number' => 'WHI-20260908-DEMO02'],
             [
-                'buyer_id' => $buyer->id,
+                'buyer_id' => $buyer2->id,
                 'seller_id' => $cellosSeller->id,
                 'address_snapshot' => [
-                    'recipient_name' => 'Budi Pratama',
-                    'phone' => '081987654321',
-                    'full_address' => 'Jl. Senopati No. 45, Senayan',
-                    'city' => 'Jakarta Selatan',
-                    'province' => 'DKI Jakarta',
-                    'postal_code' => '12190',
+                    'recipient_name' => 'Siti Nurhaliza',
+                    'phone' => '081234567890',
+                    'full_address' => 'Jl. Dago Asri No. 12, Coblong',
+                    'city' => 'Bandung',
+                    'province' => 'Jawa Barat',
+                    'postal_code' => '40135',
                 ],
                 'total_amount' => 500000,
                 'shipping_cost' => 15000,

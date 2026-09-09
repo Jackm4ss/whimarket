@@ -14,7 +14,17 @@ class WishlistController extends Controller
     public function index(): View
     {
         $user = Auth::user();
-        $wishlists = $user ? $user->wishlists()->with(['product.images', 'product.variants', 'product.category', 'product.seller.user'])->latest()->get() : collect();
+        $wishlists = $user ? $user->wishlists()
+            ->with([
+                'product' => fn ($q) => $q->withCount('wishlists'),
+                'product.images',
+                'product.variants',
+                'product.category',
+                'product.seller.user',
+                'product.wishlists',
+            ])
+            ->latest()
+            ->get() : collect();
 
         return view('wishlist', [
             'wishlists' => $wishlists,
@@ -23,20 +33,20 @@ class WishlistController extends Controller
         ]);
     }
 
-    public function toggle(int $productId): JsonResponse
+    public function toggle(string|int $productId): JsonResponse
     {
         if (! Auth::check()) {
             return response()->json([
                 'error' => 'Unauthenticated',
-                'redirect' => route('auth.google.redirect'),
+                'redirect' => route('login'),
             ], 401);
         }
 
         $user = Auth::user();
-        $product = Product::findOrFail($productId);
+        $product = Product::where('id', $productId)->orWhere('slug', $productId)->firstOrFail();
 
         $existing = Wishlist::where('user_id', $user->id)
-            ->where('product_id', $productId)
+            ->where('product_id', $product->id)
             ->first();
 
         if ($existing) {
@@ -46,18 +56,20 @@ class WishlistController extends Controller
         } else {
             Wishlist::create([
                 'user_id' => $user->id,
-                'product_id' => $productId,
+                'product_id' => $product->id,
             ]);
             $isLiked = true;
             $message = 'Ditambahkan ke wishlist!';
         }
 
-        $likesCount = Wishlist::where('product_id', $productId)->count();
+        $likesCount = Wishlist::where('product_id', $product->id)->count();
+        $userWishlistsCount = Wishlist::where('user_id', $user->id)->count();
 
         return response()->json([
             'success' => true,
             'is_liked' => $isLiked,
             'likes_count' => $likesCount,
+            'user_wishlists_count' => $userWishlistsCount,
             'message' => $message,
         ]);
     }

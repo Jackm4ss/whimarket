@@ -33,6 +33,7 @@ dist/
 public/*.png
 !public/assets/**
 .agents/
+/.omp/
 .claude/
 .factory/
 .grok/

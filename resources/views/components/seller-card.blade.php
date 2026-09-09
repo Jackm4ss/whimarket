@@ -5,14 +5,15 @@
     $name = $isModel ? $seller->store_name : ($seller['name'] ?? '');
     $username = $isModel ? $seller->username : str_replace('@', '', $seller['handle'] ?? ($seller['username'] ?? ''));
     $profileUrl = '/seller/@' . $username;
-    $avatar = $isModel ? ($seller->user?->avatar ?? '/assets/avatars/avatar-raisy.png') : ($seller['avatar'] ?? '/assets/avatars/avatar-raisy.png');
+    $isDemo = in_array(strtolower($username), ['rachelvennya', 'celloszx', 'raisa6690', 'fuji_an', 'windahbasudara', 'bramastavrl']);
+    $avatar = $isModel ? $seller->avatar_url : ($seller['avatar'] ?? '/assets/avatars/avatar-raisy.png');
     $role = $isModel ? 'Verified Creator' : ($seller['role'] ?? 'Kreator');
     $verified = $isModel ? $seller->isVerified() : (!empty($seller['verified']));
-    $rating = $isModel ? 4.9 : ($seller['rating'] ?? 5.0);
+    $rating = $isModel ? ($isDemo ? 4.9 : 0.0) : ($seller['rating'] ?? 5.0);
     $itemCount = $isModel ? $seller->products()->count() : ($seller['itemCount'] ?? 10);
-    $followerCount = $isModel ? '12.5rb' : ($seller['followerCount'] ?? ($seller['salesCount'] ? $seller['salesCount'] . 'rb' : '10.5rb'));
-    $reviewCount = $isModel ? '1.2rb' : ($seller['reviewCount'] ?? '1.2rb');
-    $cardBg = $isModel ? '/assets/seller-card-cover-rachel.png' : ($seller['cardBg'] ?? '/assets/seller-card-cover-rachel.png');
+    $followerCount = $isModel ? ($isDemo ? '12.5rb' : '0') : ($seller['followerCount'] ?? ($seller['salesCount'] ? $seller['salesCount'] . 'rb' : '10.5rb'));
+    $reviewCount = $isModel ? ($isDemo ? '1.2rb' : '0') : ($seller['reviewCount'] ?? '1.2rb');
+    $cardBg = $isModel ? $seller->banner_url : ($seller['cardBg'] ?? '/assets/seller-card-cover-rachel.png');
 @endphp
 
 <div class="w-[260px] sm:w-[280px] lg:w-[280px] xl:w-[290px] shrink-0 bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_32px_rgba(72,30,188,0.08)] transition-all flex flex-col justify-between group overflow-hidden snap-start text-left">
@@ -52,17 +53,23 @@
             <p class="text-xs text-gray-400 font-medium mb-3">{{ $role }}</p>
 
             <!-- Rating Stars & Review Count -->
-            <div class="flex items-center gap-1.5 text-xs text-gray-500 mb-3.5">
-                <div class="flex items-center gap-0.5 text-[#F59E0B]">
-                    @for($i = 0; $i < 5; $i++)
-                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                    @endfor
-                </div>
-                <span class="font-bold text-gray-800">{{ number_format($rating, 1) }}</span>
-                <span class="text-gray-400 font-normal">({{ $reviewCount }} ulasan)</span>
+            <div class="flex items-center gap-1.5 text-xs text-gray-500 mb-3.5 min-h-[20px]">
+                @if($rating > 0)
+                    <div class="flex items-center gap-0.5 text-[#F59E0B]">
+                        @for($i = 0; $i < 5; $i++)
+                            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        @endfor
+                    </div>
+                    <span class="font-bold text-gray-800">{{ number_format($rating, 1) }}</span>
+                    <span class="text-gray-400 font-normal">({{ $reviewCount }} ulasan)</span>
+                @else
+                    <div class="flex items-center gap-1.5 text-gray-400 font-medium">
+                        <svg class="w-3.5 h-3.5 text-gray-300 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <span class="font-semibold text-gray-600">Belum ada ulasan</span>
+                        <span>(0 ulasan)</span>
+                    </div>
+                @endif
             </div>
-
-            <!-- Horizontal Divider Separator Line -->
             <div class="w-full border-t border-gray-200 my-3.5"></div>
 
             <!-- Stats Columns: Barang & Pengikut with Vertical Separator -->
@@ -72,7 +79,9 @@
                     <span class="text-[12px] text-gray-400 font-medium block mt-0.5">Barang</span>
                 </div>
                 <div class="pl-2">
-                    <span class="text-[17px] sm:text-[18px] font-extrabold text-[#111827] block leading-tight">{{ $followerCount }}</span>
+                    <span class="text-[17px] sm:text-lg font-extrabold text-[#111827] block leading-tight">
+                        {{ $followerCount === '0' || $followerCount === 0 ? '0' : $followerCount }}
+                    </span>
                     <span class="text-[12px] text-gray-400 font-medium block mt-0.5">Pengikut</span>
                 </div>
             </div>

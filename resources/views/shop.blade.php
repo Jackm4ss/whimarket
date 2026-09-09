@@ -15,179 +15,7 @@
     <!-- Catalog Container with Alpine filter state -->
     <div
         class="max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-2 pb-16"
-        x-data="{
-            allProducts: @js($displayProducts),
-            searchQuery: '{{ request('q') ?? '' }}',
-            selectedCategory: '{{ $initialCategory ?? 'all' }}',
-            appliedCategory: '{{ $initialCategory ?? 'all' }}',
-            maxSliderPrice: 10000000,
-            priceStep: 500000,
-            priceRange: [0, 10000000],
-            appliedPriceRange: [0, 10000000],
-            selectedConditions: ['all'],
-            appliedConditions: ['all'],
-            sortBy: '{{ request('sort', 'terbaru') }}',
-            sortDropdownOpen: false,
-            viewMode: 'grid',
-            isMobileFilterOpen: false,
-            currentPage: 1,
-            filteredProductsList: [],
-
-            init() {
-                this.applyFilters();
-                this.$watch('searchQuery', () => this.applyFilters());
-                this.$watch('sortBy', () => this.applyFilters());
-            },
-
-            openSections: {
-                kategori: false,
-                harga: false,
-                kondisi: false,
-                lokasi: false,
-            },
-
-            isLocationDropdownOpen: false,
-            locationSearchQuery: '',
-            locationsList: [
-                { id: '', name: 'Semua Lokasi' },
-                { id: 'jabodetabek', name: 'Jabodetabek' },
-                { id: 'jakarta-selatan', name: 'Jakarta Selatan' },
-                { id: 'jakarta-barat', name: 'Jakarta Barat' },
-                { id: 'jakarta-pusat', name: 'Jakarta Pusat' },
-                { id: 'jakarta-utara', name: 'Jakarta Utara' },
-                { id: 'jakarta-timur', name: 'Jakarta Timur' },
-                { id: 'bandung', name: 'Bandung' },
-                { id: 'surabaya', name: 'Surabaya' },
-                { id: 'yogyakarta', name: 'Yogyakarta' },
-                { id: 'semarang', name: 'Semarang' },
-                { id: 'medan', name: 'Medan' },
-                { id: 'bali', name: 'Bali & Denpasar' },
-                { id: 'makassar', name: 'Makassar' },
-            ],
-
-            get filteredLocations() {
-                if (!this.locationSearchQuery) return this.locationsList;
-                return this.locationsList.filter(l => l.name.toLowerCase().includes(this.locationSearchQuery.toLowerCase()));
-            },
-
-            get selectedLocationName() {
-                const loc = this.locationsList.find(l => l.id === this.selectedLocation);
-                return loc ? loc.name : 'Pilih Lokasi';
-            },
-
-            toggleSection(sec) {
-                this.openSections[sec] = !this.openSections[sec];
-            },
-
-            toggleCondition(val) {
-                if (val === 'all') {
-                    this.selectedConditions = ['all'];
-                    return;
-                }
-                let curr = this.selectedConditions.filter(x => x !== 'all');
-                if (curr.includes(val)) {
-                    curr = curr.filter(x => x !== val);
-                } else {
-                    curr.push(val);
-                }
-                this.selectedConditions = curr.length === 0 ? ['all'] : curr;
-            },
-            applyFilters() {
-                this.appliedCategory = this.selectedCategory;
-                this.appliedPriceRange = [...this.priceRange];
-                this.appliedConditions = [...this.selectedConditions];
-                this.isMobileFilterOpen = false;
-
-                const sq = (this.searchQuery || '').trim().toLowerCase();
-                const minP = this.appliedPriceRange[0];
-                const maxP = this.appliedPriceRange[1];
-                const cat = this.appliedCategory;
-                const isAllCond = this.appliedConditions.includes('all');
-                const conds = this.appliedConditions;
-
-                const mapCond = {
-                    'seperti-baru': 'Seperti Baru',
-                    'sangat-baik': 'Sangat Baik',
-                    'baik': 'Baik',
-                    'cukup': 'Cukup'
-                };
-
-                let list = this.allProducts.filter(item => {
-                    if (sq) {
-                        const matchTitle = (item.title || '').toLowerCase().includes(sq);
-                        const matchSeller = (item.sellerName || '').toLowerCase().includes(sq);
-                        if (!matchTitle && !matchSeller) return false;
-                    }
-                    if (cat !== 'all' && item.category !== cat) return false;
-                    if (item.priceNumber < minP) return false;
-                    if (maxP < this.maxSliderPrice && item.priceNumber > maxP) return false;
-                    if (!isAllCond) {
-                        const matches = conds.some(c => mapCond[c] === item.condition || c === item.condition);
-                        if (!matches) return false;
-                    }
-                    return true;
-                });
-
-                if (this.sortBy === 'harga-rendah') {
-                    list.sort((a, b) => a.priceNumber - b.priceNumber);
-                } else if (this.sortBy === 'harga-tinggi') {
-                    list.sort((a, b) => b.priceNumber - a.priceNumber);
-                } else if (this.sortBy === 'terpopuler') {
-                    list.sort((a, b) => (b.likes || 0) - (a.likes || 0));
-                }
-
-                this.filteredProductsList = list;
-            },
-
-            get filteredProducts() {
-                return this.filteredProductsList;
-            },
-
-            updateMinPrice(val) {
-                const raw = Number(val) || 0;
-                const stepped = Math.round(raw / this.priceStep) * this.priceStep;
-                this.priceRange[0] = Math.max(0, Math.min(stepped, this.priceRange[1]));
-            },
-
-            updateMaxPrice(val) {
-                const raw = Number(val) || 0;
-                const stepped = Math.round(raw / this.priceStep) * this.priceStep;
-                this.priceRange[1] = Math.min(this.maxSliderPrice, Math.max(stepped, this.priceRange[0]));
-            },
-
-            resetFilters() {
-                this.selectedCategory = 'all';
-                this.appliedCategory = 'all';
-                this.priceRange = [0, this.maxSliderPrice];
-                this.appliedPriceRange = [0, this.maxSliderPrice];
-                this.selectedConditions = ['all'];
-                this.appliedConditions = ['all'];
-                this.selectedLocation = '';
-                this.searchQuery = '';
-                this.sortBy = 'terbaru';
-                this.applyFilters();
-                const url = new URL(window.location.href);
-                if (url.search) {
-                    window.location.href = url.pathname;
-                }
-            },
-            clearSearchFilter() {
-                this.searchQuery = '';
-                this.applyFilters();
-                const url = new URL(window.location.href);
-                if (url.searchParams.has('q')) {
-                    url.searchParams.delete('q');
-                    window.location.href = url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '');
-                }
-            },
-
-            formatRupiah(num) {
-                if (num >= this.maxSliderPrice) {
-                    return 'Rp 10.000.000+';
-                }
-                return 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
-            }
-        }"
+        x-data="shopCatalog"
     >
         <div class="flex flex-col lg:flex-row items-start gap-6 xl:gap-8">
             <!-- Left Sidebar Filter (Desktop >=1024px) -->
@@ -437,13 +265,15 @@
                         </svg>
                         <span class="text-current transition-colors">Reset Filter</span>
                     </button>
-                    </aside>
                 </div>
+            </aside>
+        </div>
 
-                <!-- Mobile & Tablet Filter Drawer (Slide-Over 1:1) -->
-                <x-shop.filter-drawer />
-            <!-- Right Catalog Area -->
-            <div class="flex-1 w-full min-w-0">
+        <!-- Mobile & Tablet Filter Drawer (Slide-Over 1:1) -->
+        <x-shop.filter-drawer />
+
+        <!-- Right Catalog Area -->
+        <div class="flex-1 w-full min-w-0">
                 <!-- Breadcrumbs -->
                 <nav class="flex items-center gap-2 text-xs text-gray-400 mb-3 sm:mb-3.5 font-medium select-none">
                     <a href="/" class="hover:text-[#4F26A6] transition-colors">Beranda</a>
@@ -538,6 +368,7 @@
                             <button
                                 type="button"
                                 @click="isMobileFilterOpen = true"
+                                title="Buka Filter Mobile"
                                 class="lg:hidden inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs sm:text-sm font-semibold text-gray-700 shadow-xs hover:border-[#4F26A6] active:bg-gray-50 transition-all shrink-0 cursor-pointer"
                             >
                                 <svg class="w-4 h-4 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -618,21 +449,20 @@
                     </template>
                     <template x-for="product in filteredProducts" :key="product.id">
                         <div
-                            x-data="{ isLiked: false, likesCount: product.likes || 0 }"
                             class="bg-white rounded-2xl border border-gray-100/90 shadow-[0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_26px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col group"
                         >
                             <div class="w-full aspect-[4/5] bg-gray-100 overflow-hidden relative flex items-center justify-center">
                                 <button
                                     type="button"
-                                    @click.prevent.stop="isLiked = !isLiked; likesCount += (isLiked ? 1 : -1)"
+                                    @click.prevent.stop="toggleWishlist(product)"
                                     class="absolute top-2.5 right-2.5 z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/95 backdrop-blur-xs shadow-md flex items-center justify-center transition-transform hover:scale-105 cursor-pointer"
-                                    :class="isLiked ? 'text-[#4F26A6]' : 'text-gray-700 hover:text-[#4F26A6]'"
+                                    :class="product.is_liked ? 'text-[#4F26A6]' : 'text-gray-700 hover:text-[#4F26A6]'"
                                     title="Simpan ke Wishlist"
                                 >
                                     <svg
                                         class="w-4 h-4 transition-colors"
                                         viewBox="0 0 24 24"
-                                        :fill="isLiked ? 'currentColor' : 'none'"
+                                        :fill="product.is_liked ? 'currentColor' : 'none'"
                                         stroke="currentColor"
                                         stroke-width="2"
                                         stroke-linecap="round"
@@ -641,13 +471,23 @@
                                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                                     </svg>
                                 </button>
-                                <img
-                                    :src="product.image"
-                                    :alt="product.title"
-                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 z-0"
-                                />
+                                <a :href="product.href" class="w-full h-full block relative">
+                                    <img
+                                        :src="product.image"
+                                        :alt="product.title"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 z-0"
+                                        :class="product.is_out_of_stock ? 'grayscale opacity-60' : ''"
+                                    />
+                                    <template x-if="product.is_out_of_stock">
+                                        <div class="absolute inset-0 bg-black/40 backdrop-blur-[1px] z-10 flex items-center justify-center pointer-events-none">
+                                            <span class="px-3 py-1.5 rounded-xl bg-rose-600 text-white text-[11px] sm:text-xs font-black tracking-wider uppercase shadow-md">
+                                                Stok Habis
+                                            </span>
+                                        </div>
+                                    </template>
+                                </a>
 
-                                <template x-if="product.condition">
+                                <template x-if="product.condition && !product.is_out_of_stock">
                                     <div class="absolute bottom-2.5 left-2.5 z-20 pointer-events-none">
                                         <span class="px-2.5 sm:px-3 py-1 rounded-lg sm:rounded-xl bg-white text-gray-900 text-[11px] sm:text-[12px] font-bold shadow-md border border-black/5" x-text="product.condition"></span>
                                     </div>
@@ -663,14 +503,18 @@
                                             <x-verified-badge size="sm" class="w-3.5 h-3.5 shrink-0" />
                                         </template>
                                     </div>
-                                    <h3 class="text-[13.5px] sm:text-[14.5px] font-medium text-gray-700 mt-2 mb-3 line-clamp-1" x-text="product.title"></h3>
+                                    <h3 class="text-[13.5px] sm:text-[14.5px] font-medium text-gray-700 mt-2 mb-3 line-clamp-1">
+                                        <a :href="product.href" class="hover:text-[#4F26A6] transition-colors block">
+                                            <span x-text="product.title"></span>
+                                        </a>
+                                    </h3>
                                 </div>
                                 <div class="flex items-center justify-between pt-1">
                                     <span class="text-sm sm:text-[15.5px] font-bold text-[#4F26A6]" x-text="product.priceText"></span>
                                     <div class="inline-flex items-center gap-1 text-xs text-gray-400 font-medium">
                                         <svg
                                             class="w-3.5 h-3.5 transition-colors"
-                                            :class="isLiked ? 'text-[#4F26A6] fill-[#4F26A6]' : 'text-gray-400 fill-none'"
+                                            :class="product.is_liked ? 'text-[#4F26A6] fill-[#4F26A6]' : 'text-gray-400 fill-none'"
                                             viewBox="0 0 24 24"
                                             stroke="currentColor"
                                             stroke-width="2"
@@ -679,7 +523,7 @@
                                         >
                                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                                         </svg>
-                                        <span x-text="likesCount"></span>
+                                        <span x-text="product.likes"></span>
                                     </div>
                                 </div>
                             </div>
@@ -742,4 +586,217 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+    function registerShopCatalog() {
+        Alpine.data('shopCatalog', () => ({
+            allProducts: @js($displayProducts),
+            searchQuery: '{{ request('q') ?? '' }}',
+            selectedCategory: '{{ $initialCategory ?? 'all' }}',
+            appliedCategory: '{{ $initialCategory ?? 'all' }}',
+            maxSliderPrice: 10000000,
+            priceStep: 500000,
+            priceRange: [0, 10000000],
+            appliedPriceRange: [0, 10000000],
+            selectedConditions: ['all'],
+            appliedConditions: ['all'],
+            sortBy: '{{ request('sort', 'terbaru') }}',
+            sortDropdownOpen: false,
+            viewMode: 'grid',
+            isMobileFilterOpen: false,
+            currentPage: 1,
+            filteredProductsList: [],
+
+            init() {
+                this.applyFilters();
+                this.$watch('searchQuery', () => this.applyFilters());
+                this.$watch('sortBy', () => this.applyFilters());
+            },
+
+            async toggleWishlist(product) {
+                @if(!auth()->check())
+                    window.location.href = '{{ route('login') }}';
+                    return;
+                @endif
+                try {
+                    const res = await fetch('/wishlist/toggle/' + (product.model_id || product.id), {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const data = await res.json();
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else if (data.success) {
+                        product.is_liked = data.is_liked;
+                        product.likes = data.likes_count;
+                        if (data.user_wishlists_count !== undefined) {
+                            document.querySelectorAll('a[href*="/wishlist"] span').forEach(el => el.textContent = data.user_wishlists_count);
+                        }
+                    }
+                } catch (e) {
+                    product.is_liked = !product.is_liked;
+                }
+            },
+
+            openSections: {
+                kategori: false,
+                harga: false,
+                kondisi: false,
+                lokasi: false,
+            },
+
+            isLocationDropdownOpen: false,
+            locationSearchQuery: '',
+            locationsList: [
+                { id: '', name: 'Semua Lokasi' },
+                { id: 'jabodetabek', name: 'Jabodetabek' },
+                { id: 'jakarta-selatan', name: 'Jakarta Selatan' },
+                { id: 'jakarta-barat', name: 'Jakarta Barat' },
+                { id: 'jakarta-pusat', name: 'Jakarta Pusat' },
+                { id: 'jakarta-utara', name: 'Jakarta Utara' },
+                { id: 'jakarta-timur', name: 'Jakarta Timur' },
+                { id: 'bandung', name: 'Bandung' },
+                { id: 'surabaya', name: 'Surabaya' },
+                { id: 'yogyakarta', name: 'Yogyakarta' },
+                { id: 'semarang', name: 'Semarang' },
+                { id: 'medan', name: 'Medan' },
+                { id: 'bali', name: 'Bali & Denpasar' },
+                { id: 'makassar', name: 'Makassar' },
+            ],
+
+            get filteredLocations() {
+                if (!this.locationSearchQuery) return this.locationsList;
+                return this.locationsList.filter(l => l.name.toLowerCase().includes(this.locationSearchQuery.toLowerCase()));
+            },
+
+            get selectedLocationName() {
+                const loc = this.locationsList.find(l => l.id === this.selectedLocation);
+                return loc ? loc.name : 'Pilih Lokasi';
+            },
+
+            toggleSection(sec) {
+                this.openSections[sec] = !this.openSections[sec];
+            },
+
+            toggleCondition(val) {
+                if (val === 'all') {
+                    this.selectedConditions = ['all'];
+                    return;
+                }
+                let curr = this.selectedConditions.filter(x => x !== 'all');
+                if (curr.includes(val)) {
+                    curr = curr.filter(x => x !== val);
+                } else {
+                    curr.push(val);
+                }
+                this.selectedConditions = curr.length === 0 ? ['all'] : curr;
+            },
+            applyFilters() {
+                this.appliedCategory = this.selectedCategory;
+                this.appliedPriceRange = [...this.priceRange];
+                this.appliedConditions = [...this.selectedConditions];
+                this.isMobileFilterOpen = false;
+
+                const sq = (this.searchQuery || '').trim().toLowerCase();
+                const minP = this.appliedPriceRange[0];
+                const maxP = this.appliedPriceRange[1];
+                const cat = this.appliedCategory;
+                const isAllCond = this.appliedConditions.includes('all');
+                const conds = this.appliedConditions;
+
+                const mapCond = {
+                    'seperti-baru': 'Seperti Baru',
+                    'sangat-baik': 'Sangat Baik',
+                    'baik': 'Baik',
+                    'cukup': 'Cukup'
+                };
+
+                let list = this.allProducts.filter(item => {
+                    if (sq) {
+                        const matchTitle = (item.title || '').toLowerCase().includes(sq);
+                        const matchSeller = (item.sellerName || '').toLowerCase().includes(sq);
+                        if (!matchTitle && !matchSeller) return false;
+                    }
+                    if (cat !== 'all' && item.category !== cat) return false;
+                    if (item.priceNumber < minP) return false;
+                    if (maxP < this.maxSliderPrice && item.priceNumber > maxP) return false;
+                    if (!isAllCond) {
+                        const matches = conds.some(c => mapCond[c] === item.condition || c === item.condition);
+                        if (!matches) return false;
+                    }
+                    return true;
+                });
+
+                if (this.sortBy === 'harga-rendah') {
+                    list.sort((a, b) => a.priceNumber - b.priceNumber);
+                } else if (this.sortBy === 'harga-tinggi') {
+                    list.sort((a, b) => b.priceNumber - a.priceNumber);
+                } else if (this.sortBy === 'terpopuler') {
+                    list.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+                }
+
+                this.filteredProductsList = list;
+            },
+
+            get filteredProducts() {
+                return this.filteredProductsList;
+            },
+
+            updateMinPrice(val) {
+                const raw = Number(val) || 0;
+                const stepped = Math.round(raw / this.priceStep) * this.priceStep;
+                this.priceRange[0] = Math.max(0, Math.min(stepped, this.priceRange[1]));
+            },
+
+            updateMaxPrice(val) {
+                const raw = Number(val) || 0;
+                const stepped = Math.round(raw / this.priceStep) * this.priceStep;
+                this.priceRange[1] = Math.min(this.maxSliderPrice, Math.max(stepped, this.priceRange[0]));
+            },
+
+            resetFilters() {
+                this.selectedCategory = 'all';
+                this.appliedCategory = 'all';
+                this.priceRange = [0, this.maxSliderPrice];
+                this.appliedPriceRange = [0, this.maxSliderPrice];
+                this.selectedConditions = ['all'];
+                this.appliedConditions = ['all'];
+                this.selectedLocation = '';
+                this.searchQuery = '';
+                this.sortBy = 'terbaru';
+                this.applyFilters();
+                const url = new URL(window.location.href);
+                if (url.search) {
+                    window.location.href = url.pathname;
+                }
+            },
+            clearSearchFilter() {
+                this.searchQuery = '';
+                this.applyFilters();
+                const url = new URL(window.location.href);
+                if (url.searchParams.has('q')) {
+                    url.searchParams.delete('q');
+                    window.location.href = url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '');
+                }
+            },
+
+            formatRupiah(num) {
+                if (num >= this.maxSliderPrice) {
+                    return 'Rp 10.000.000+';
+                }
+                return 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
+            }
+        }));
+    }
+    if (window.Alpine) {
+        registerShopCatalog();
+    } else {
+        document.addEventListener('alpine:init', registerShopCatalog);
+    }
+    </script>
+    @endpush
 </x-layouts.app>

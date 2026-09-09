@@ -5,7 +5,6 @@ namespace Database\Factories;
 use App\Models\Order;
 use App\Models\Seller;
 use App\Models\User;
-use App\States\Order\PendingPayment;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class OrderFactory extends Factory
@@ -16,6 +15,7 @@ class OrderFactory extends Factory
     {
         $amount = fake()->randomElement([150000, 300000, 500000]);
         $shipping = 15000;
+        $adminFee = 2000;
 
         return [
             'order_number' => 'WHI-'.date('Ymd').'-'.strtoupper(fake()->bothify('####??')),
@@ -31,8 +31,8 @@ class OrderFactory extends Factory
             ],
             'total_amount' => $amount,
             'shipping_cost' => $shipping,
-            'grand_total' => $amount + $shipping,
-            'status' => PendingPayment::class,
+            'admin_fee' => $adminFee,
+            'grand_total' => $amount + $shipping + $adminFee,
             'inspection_deadline_at' => null,
             'completed_at' => null,
         ];

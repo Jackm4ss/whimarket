@@ -120,7 +120,7 @@ Agar halaman baru (Keranjang, Checkout, Dashboard Seller, Admin Panel, Modal Sen
 
 | No | User Flow Buyer | Alur Singkat |
 | -: | :--- | :--- |
-| 1 | **Login / Register** | Google SSO → Popup Onboarding Data Diri & Alamat (Bisa Diisi / Dilewati) → Masuk Beranda |
+| 1 | **Login / Register** | Register Akun WhiMarket (Email & Password) atau Google SSO → Popup Onboarding Data Diri & Alamat (Bisa Diisi / Dilewati) → Masuk Beranda |
 | 2 | **Mencari Produk** | Browse → Search/Filter → Product Detail |
 | 3 | **Wishlist** | Lihat produk → Tambah/Hapus Wishlist |
 | 4 | **Keranjang & Checkout** | Add to Cart → Keranjang → Pilih Alamat (Auto jika sudah diisi / Isi Baru 1x) → Buat Order |
@@ -130,7 +130,7 @@ Agar halaman baru (Keranjang, Checkout, Dashboard Seller, Admin Panel, Modal Sen
 
 #### Diagram ASCII User Flow Buyer
 ```text
-              [ 1. Google SSO ]
+       [ 1. Register Akun WhiMarket / Google SSO ]
                       │
                       ▼
         [ Akun Berhasil Masuk / Dibuat ]
@@ -243,7 +243,7 @@ Agar halaman baru (Keranjang, Checkout, Dashboard Seller, Admin Panel, Modal Sen
 
 | No | User Flow Seller / Public Figure | Alur Singkat |
 | -: | :--- | :--- |
-| 1 | **Gabung & Verifikasi Seller (Kode Akses)** | Login Google → Chat Admin via TikTok/IG → Admin Berikan Kode Akses → Masukkan Kode di WhiMarket → Toko Langsung Aktif |
+| 1 | **Gabung & Verifikasi Seller (Kode Akses)** | Register Akun WhiMarket atau Login Google → Chat Admin via TikTok/IG → Admin Berikan Kode Akses → Masukkan Kode di WhiMarket → Toko Langsung Aktif |
 | 2 | **Kelola Toko & Produk** | Masuk Dashboard → Kelola profil toko → Tambah/Edit/Hapus produk → Upload foto → Atur kategori, varian & stok |
 | 3 | **Kelola Pesanan** | Pesanan masuk → Cek detail order → Siapkan barang → Upload foto barang → Packing & kirim |
 | 4 | **Pengiriman** | Input nomor resi → Upload foto/scan resi → Update status menjadi Dikirim → Buyer dapat melihat resi |
@@ -254,9 +254,9 @@ Agar halaman baru (Keranjang, Checkout, Dashboard Seller, Admin Panel, Modal Sen
 ##### Alur Calon Seller (Flow Seller)
 | Step | Flow Seller                           | Detail                                                                               |
 | ---: | ------------------------------------- | ------------------------------------------------------------------------------------ |
-|    1 | **Login with Google**                 | Seller login atau daftar menggunakan akun Google                                     |
+|    1 | **Login / Register di WhiMarket**     | Seller login atau daftar menggunakan akun WhiMarket (email & password) atau Google SSO |
 |    2 | **Chat Admin via TikTok / Instagram** | Seller menghubungi admin WhiMarket melalui DM TikTok atau Instagram                  |
-|    3 | **Konfirmasi Email yang Terdaftar**   | Admin menanyakan email yang digunakan seller untuk login Google ke WhiMarket         |
+|    3 | **Konfirmasi Email yang Terdaftar**   | Admin menanyakan email yang digunakan seller untuk login/register di WhiMarket        |
 |    4 | **Admin Berikan Kode Akses**          | Admin memverifikasi email lalu membuat kode akses khusus seller                      |
 |    5 | **Masukkan Kode di WhiMarket**        | Seller login ke WhiMarket, kemudian memasukkan kode akses yang diberikan admin       |
 |    6 | **Toko Aktif**                        | Setelah kode valid, akun/toko seller langsung aktif dan seller dapat mulai berjualan |
@@ -265,7 +265,7 @@ Agar halaman baru (Keranjang, Checkout, Dashboard Seller, Admin Panel, Modal Sen
 | Step | Flow Admin                            | Detail                                                                      |
 | ---: | ------------------------------------- | --------------------------------------------------------------------------- |
 |    1 | **Terima DM**                         | Admin menerima pesan dari calon seller melalui TikTok/Instagram             |
-|    2 | **Tanyakan / Terima Email Terdaftar** | Admin meminta email yang digunakan untuk login Google di WhiMarket          |
+|    2 | **Tanyakan / Terima Email Terdaftar** | Admin meminta email yang digunakan untuk login/register di WhiMarket                |
 |    3 | **Generate Kode Akses**               | Admin membuat kode akses unik untuk seller tersebut                         |
 |    4 | **Berikan Kode ke Seller**            | Admin mengirim kode melalui DM TikTok/Instagram                             |
 |    5 | **Seller Aktif**                      | Setelah seller memasukkan kode yang benar di WhiMarket, toko langsung aktif |
@@ -276,9 +276,9 @@ Agar halaman baru (Keranjang, Checkout, Dashboard Seller, Admin Panel, Modal Sen
 │  CALON SELLER  │            │  DM TIKTOK / INSTAGRAM │            │ ADMIN WHIMARKET │            │ WHIMARKET SYSTEM │
 └───────┬────────┘            └───────────┬────────────┘            └────────┬────────┘            └────────┬─────────┘
         │                                 │                                  │                              │
-        │ 1. Login with Google            │                                  │                              │
+        │ 1. Register / Login di WhiMarket  │                                  │                              │
         ├──────────────────────────────────────────────────────────────────────────────────────────────────►│
-        │                                 │                                  │                      [ Akun Terdaftar ]
+        │    (Email & Password atau Google)  │                                  │                      [ Akun Terdaftar ]
         │                                 │                                  │                      (Role: Buyer)
         │                                 │                                  │                              │
         │ 2. Chat Admin via DM            │                                  │                              │
@@ -316,7 +316,7 @@ Agar halaman baru (Keranjang, Checkout, Dashboard Seller, Admin Panel, Modal Sen
 
 #### Diagram ASCII User Flowchart Gabung Seller
 ```text
-                  [ 1. Calon Seller: Login Google di WhiMarket ]
+                  [ 1. Calon Seller: Register / Login di WhiMarket ]
                                         │
                                         ▼
                            [ Akun Terdaftar di Sistem ]
@@ -361,7 +361,7 @@ Agar halaman baru (Keranjang, Checkout, Dashboard Seller, Admin Panel, Modal Sen
 
 #### 1.2.2 Diagram ASCII User Flow Seller / Public Figure (End-to-End)
 ```text
-     [ 1. Login Akun Google & Aktivasi Kode Akses ]
+     [ 1. Register / Login WhiMarket & Aktivasi Kode Akses ]
                            │
                            ├─► Chat Admin via DM TikTok / Instagram
                            ├─► Admin Berikan Kode Akses Khusus
@@ -534,7 +534,7 @@ Untuk menjaga stabilitas, optimasi, keamanan, dan mencegah pembuatan logic nativ
 | :--- | :--- | :--- |
 | **Admin Panel (/admin)** | `filament/filament:^5.0` | **Khusus Admin Panel di rute `/admin`**. Dilarang keras menggunakan Filament untuk mengganti frontend WhiMarket (Blade + Tailwind v4) yang sudah ada. Digunakan eksklusif untuk: Admin Dashboard, Seller Management, Product Moderation, Payment Verification, Order Management, Delivery Claim Verification, Dispute Management, dan Payout Management. |
 | **Role & Permissions (RBAC)** | `spatie/laravel-permission:^8.0` | Mengelola role: `buyer`, `seller`, `admin`. Model `User` menggunakan trait `HasRoles`, middleware `role:admin`, `role:seller`, `role:buyer`, direct permissions, serta integrasi Gate & Policy. |
-| **Google OAuth / Google SSO** | `laravel/socialite` | Autentikasi Google SSO untuk flow redirect & callback. **Kredensial wajib bersumber hanya dari file `.env`**, dilarang keras melakukan hardcode kredensial ke dalam file source code PHP/Blade. |
+| **Authentication (Native & Google SSO)** | `laravel/socialite` | Autentikasi dual-method: (1) Register/login native WhiMarket menggunakan email & password, (2) Google SSO via Socialite untuk flow redirect & callback. **Kredensial wajib bersumber hanya dari file `.env`**, dilarang keras melakukan hardcode kredensial ke dalam file source code PHP/Blade. |
 | **State Machine Transaksi** | `spatie/laravel-model-states:^2.14` | Digunakan untuk: (1) State Machine Order, (2) State Machine Dispute. Seluruh transisi status wajib deterministik dan **tidak boleh ada bypass transition rules** langsung ke database. |
 | **SEO & Clean Slugging** | `spatie/laravel-sluggable:^4.0` | Auto-generate slug unik produk (`/produk/{slug}`) dan slug username toko seller (`/seller/@{username}`). |
 | **Media / File Upload Management** | `spatie/laravel-medialibrary:^11.0` | Mengelola: Product images, Payment proof, Pre-shipment photo, Shipment receipt photo, Buyer dispute evidence, Video unboxing, Payout transfer proof. **Wajib gunakan private storage untuk bukti sensitif** (bukti bayar, sengketa, payout). Dilarang mengekspos internal storage path secara langsung ke publik. |
@@ -597,8 +597,9 @@ Untuk menjaga stabilitas, optimasi, keamanan, dan mencegah pembuatan logic nativ
   - `orders:auto-complete`: Menghindari pemindaian seluruh tabel dengan query terseleksi: `Order::where('status', 'delivered')->whereNotNull('inspection_deadline_at')->where('inspection_deadline_at', '<=', now())->chunkById(100, ...)`.
 
 ### 2.6 Security
-- **Authentication & SSO**:
-  - Laravel Socialite untuk Google SSO (`users.google_id`).
+- **Authentication (Dual-Method)**:
+  - Register/login native WhiMarket menggunakan email & password (`/login`, `/register`).
+  - Laravel Socialite untuk Google SSO (`users.google_id`) sebagai metode login alternatif.
 - **Authorization & RBAC**:
   - Laravel Policies & Gates untuk role: `Buyer`, `Seller`, `Admin`.
   - Buyer hanya boleh mengakses order milik sendiri; Seller hanya boleh mengelola produk dan order tokonya sendiri.
@@ -630,7 +631,7 @@ Untuk menjaga stabilitas, optimasi, keamanan, dan mencegah pembuatan logic nativ
 
 ### 3.2 Tabel dan Relasi Relasional
 1. **`users`**:
-   - `id`, `name`, `email`, `password` (nullable untuk pure Google SSO), `google_id` (nullable, indexed), `role` (enum: buyer, seller, admin, default: buyer), `phone`, `avatar`, `timestamps`.
+   - `id`, `name`, `email`, `password` (hashed dengan `Hash::make()` / `bcrypt`, nullable jika registrasi murni via Google SSO), `google_id` (nullable, indexed), `role` (enum: buyer, seller, admin, default: buyer), `phone`, `avatar`, `timestamps`.
 2. **`sellers`**:
    - `id`, `user_id` (foreignId, unique), `store_name`, `username` (unique, slug format), `bio`, `bank_name`, `bank_account_number`, `bank_account_name`, `status` (enum, default: pending), `verified_at` (nullable), `rejection_reason` (nullable), `timestamps`.
 3. **`addresses`**:
@@ -668,31 +669,38 @@ Untuk menjaga stabilitas, optimasi, keamanan, dan mencegah pembuatan logic nativ
 ## 4. Rincian Implementasi 69 Poin MVP
 
 ### Modul 1: Authentication & User Management (Item 1 - 3, 53)
-- **Item 1 (Google SSO)**:
-  - **Wajib gunakan `laravel/socialite`**.
-  - **Kredensial Resmi Google OAuth 2.0 Client**:
-    - Client ID: `14694636579-6grupovr35n8snetth2qcia0ajch27q7.apps.googleusercontent.com`
-    - Client Secret: `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`
-    - Redirect URI Local: `http://localhost:8000/auth/google/callback`
-    - Redirect URI Production: `https://whimarket.com/auth/google/callback`
-  - **Konfigurasi Environment & Services (`config/services.php`)**:
-    ```env
-    GOOGLE_CLIENT_ID=14694636579-6grupovr35n8snetth2qcia0ajch27q7.apps.googleusercontent.com
-    GOOGLE_CLIENT_SECRET=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
-    GOOGLE_REDIRECT_URI="${APP_URL}/auth/google/callback"
-    ```
-    ```php
-    // config/services.php
-    'google' => [
-        'client_id' => env('GOOGLE_CLIENT_ID'),
-        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-        'redirect' => env('GOOGLE_REDIRECT_URI'),
-    ],
-    ```
-  - Endpoint: `GET /auth/google/redirect`, `GET /auth/google/callback`.
-  - Alur: Ambil data dari Google User. Cek apakah email sudah ada di `users`. Jika belum, buat record user baru (`google_id`, `name`, `email`, `avatar`) dan otomatis assign role `buyer` via Spatie Permission.
-  - **Post-Login Onboarding (Opsional)**:
-    - Setelah register/login via Google SSO pertama kali, jika buyer belum memiliki alamat tersimpan, tampilkan modal interaktif: *"Lengkapi Alamat Pengiriman Sekarang (Opsional)"*.
+- **Item 1 (Autentikasi Dual-Method: Akun WhiMarket & Google SSO)**:
+  - **A. Akun WhiMarket Native (Email & Password)**:
+    - **Endpoint & Routing**:
+      - `GET /login`: Halaman form masuk Akun WhiMarket (email, password, remember me, switch role toggle) dengan alternatif tombol "Masuk dengan Google".
+      - `POST /login`: Validasi input (`email`, `password`), autentikasi via `Auth::attempt()`, regenerasi session ID, dan redirect ke tujuan (atau dashboard sesuai role).
+      - `GET /register`: Halaman registrasi Akun WhiMarket baru (nama lengkap, email, nomor HP/WhatsApp, password, konfirmasi password).
+      - `POST /register`: Validasi input (`name`, `email` unique, `phone`, `password` min 8 karakter), create user baru dengan hashing `Hash::make()`, otomatis assign role `buyer` via Spatie Permission, dan login sesi otomatis.
+  - **B. Google SSO (OAuth 2.0)**:
+    - **Wajib gunakan `laravel/socialite`**.
+    - **Kredensial Resmi Google OAuth 2.0 Client**:
+      - Client ID: `14694636579-6grupovr35n8snetth2qcia0ajch27q7.apps.googleusercontent.com`
+      - Client Secret: `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`
+      - Redirect URI Local: `http://localhost:8000/auth/google/callback`
+      - Redirect URI Production: `https://whimarket.com/auth/google/callback`
+    - **Konfigurasi Environment & Services (`config/services.php`)**:
+      ```env
+      GOOGLE_CLIENT_ID=14694636579-6grupovr35n8snetth2qcia0ajch27q7.apps.googleusercontent.com
+      GOOGLE_CLIENT_SECRET=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
+      GOOGLE_REDIRECT_URI="${APP_URL}/auth/google/callback"
+      ```
+      ```php
+      // config/services.php
+      'google' => [
+          'client_id' => env('GOOGLE_CLIENT_ID'),
+          'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+          'redirect' => env('GOOGLE_REDIRECT_URI'),
+      ],
+      ```
+    - Endpoint: `GET /auth/google/redirect`, `GET /auth/google/callback`.
+    - Alur: Ambil data dari Google User. Cek apakah email sudah ada di `users`. Jika belum, buat record user baru (`google_id`, `name`, `email`, `avatar`) dan otomatis assign role `buyer` via Spatie Permission. Jika email sudah ada, sinkronkan `google_id` dan login langsung.
+  - **C. Post-Login / Post-Register Onboarding (Opsional)**:
+    - Setelah registrasi atau login pertama kali (baik via Akun WhiMarket maupun Google SSO), jika buyer belum memiliki alamat tersimpan, tampilkan modal interaktif: *"Lengkapi Alamat Pengiriman Sekarang (Opsional)"*.
     - *Opsi 1 (Isi Sekarang)*: Buyer mengisi No. Handphone/WhatsApp dan Alamat Lengkap. Data otomatis tersimpan di tabel `addresses` sebagai alamat utama (`is_default = true`). Saat checkout nanti, alamat ini langsung terpilih otomatis (Zero Pain Point).
     - *Opsi 2 (Lewati / Nanti Saja)*: Buyer langsung diarahkan ke halaman beranda/belanja. Alamat cukup diisi 1 kali saat buyer pertama kali melakukan transaksi di checkout.
 - **Item 2 (Role User)**:
@@ -738,7 +746,7 @@ Untuk menjaga stabilitas, optimasi, keamanan, dan mencegah pembuatan logic nativ
 
 ### Modul 4: Seller Onboarding & Product Management (Item 11 - 17, 54, 57, 58)
 - **Item 11 (Seller Registration & Aktivasi Kode Akses)**:
-  - Calon seller login menggunakan Google SSO di WhiMarket.
+  - Calon seller register/login menggunakan Akun WhiMarket (email & password) atau Google SSO di WhiMarket.
   - Calon seller menghubungi Admin melalui DM TikTok / Instagram WhiMarket.
   - Admin menanyakan & memvalidasi email terdaftar, lalu men-generate Kode Akses khusus (VIP Access Code) di Admin Panel.
   - Admin mengirimkan kode akses ke calon seller melalui DM.
@@ -907,7 +915,7 @@ Untuk menjaga stabilitas, optimasi, keamanan, dan mencegah pembuatan logic nativ
   - Menggunakan PHPUnit:
     - **Unit Tests**: Kalkulasi harga order, validasi State Machine transition logic.
     - **Feature Tests**:
-      - `AuthenticationTest`: Google SSO mock flow, login/logout, session expiry.
+      - `AuthenticationTest`: Registrasi akun WhiMarket (email & password), login native, Google SSO mock flow, login/logout, session expiry.
       - `ProductBrowseTest`: Filter kategori, pencarian keyword, sort.
       - `CheckoutConcurrencyTest`: Simulasi 2 buyer checkout varian dengan sisa stok 1 secara bersamaan (pembuktian zero overselling).
       - `OrderLifecycleTest`: Alur utuh dari order -> transfer bukti -> admin verify -> seller ship resi -> buyer receive -> complete -> payout.
@@ -935,11 +943,11 @@ Untuk menjaga stabilitas, optimasi, keamanan, dan mencegah pembuatan logic nativ
   └── Seeder Data Awal (Kategori Realistis, Akun Demo Admin, Seller, Buyer)
 
 [Fase 2: Autentikasi & Otorisasi]
+  ├── Autentikasi Native WhiMarket (Form Registrasi & Login Email/Password)
   ├── Integrasi Laravel Socialite (Google SSO) via Environment Only
-  ├── Modal Post-SSO Onboarding Alamat (Opsional)
+  ├── Modal Post-Register / Post-SSO Onboarding Alamat (Opsional)
   ├── Middleware Spatie Role (`role:admin`, `role:seller`, `role:buyer`)
   └── Policy Otorisasi Sumber Daya (Order, Product, Seller, Dispute)
-
 [Fase 3: Migrasi Katalog Dinamis & Keranjang]
   ├── Hubungkan View Landing & Shop ke Database Eloquent (Tanpa Mengubah UI)
   ├── Implementasi Fitur Wishlist & Alpine.js Toggle

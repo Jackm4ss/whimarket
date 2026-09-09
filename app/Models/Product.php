@@ -78,7 +78,16 @@ class Product extends Model implements HasMedia
 
     public function getTotalStockAttribute(): int
     {
+        if ($this->relationLoaded('variants')) {
+            return (int) $this->variants->sum('stock');
+        }
+
         return (int) $this->variants()->sum('stock');
+    }
+
+    public function getIsOutOfStockAttribute(): bool
+    {
+        return $this->total_stock <= 0;
     }
 
     public function getPrimaryImageUrlAttribute(): string

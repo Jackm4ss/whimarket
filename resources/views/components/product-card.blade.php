@@ -1,4 +1,4 @@
-@props(['product', 'className' => ''])
+@props(['product', 'className' => '', 'isLiked' => null, 'showAddToCart' => false])
 
 @php
     $isModel = is_object($product);
@@ -10,44 +10,24 @@
     $condition = $isModel ? ($product->condition?->label() ?? 'Like New') : ($product['condition'] ?? 'Like New');
     $priceText = $isModel ? ('Rp ' . number_format((float)$product->price, 0, ',', '.')) : ($product['priceText'] ?? 'Rp 0');
     $likesCount = $isModel ? ($product->wishlists_count ?? ($product->relationLoaded('wishlists') ? $product->wishlists->count() : 0)) : ($product['likes'] ?? 0);
-    $productId = $isModel ? $product->id : ($product['id'] ?? null);
+    $productId = $isModel ? $product->id : ($product['model_id'] ?? $product['id'] ?? null);
     $href = $isModel ? route('product.detail', $product->slug) : ($product['href'] ?? '#');
-    $initialLiked = auth()->check() && $isModel && $product->relationLoaded('wishlists')
-        ? $product->wishlists->where('user_id', auth()->id())->isNotEmpty()
-        : false;
+
+    if ($isLiked !== null) {
+        $initialLiked = (bool) $isLiked;
+    } elseif ($isModel) {
+        $initialLiked = auth()->check() && (
+            $product->relationLoaded('wishlists')
+                ? $product->wishlists->where('user_id', auth()->id())->isNotEmpty()
+                : $product->wishlists()->where('user_id', auth()->id())->exists()
+        );
+    } else {
+        $initialLiked = !empty($product['is_liked']);
+    }
 @endphp
 
 <div
-    x-data="{
-        isLiked: {{ $initialLiked ? 'true' : 'false' }},
-        likesCount: {{ $likesCount }},
-        async toggleWishlist() {
-            @if(!auth()->check())
-                window.location.href = '{{ route('auth.google.redirect') }}';
-                return;
-            @else
-                @if($productId)
-                    try {
-                        const res = await fetch('/wishlist/toggle/{{ $productId }}', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json'
-                            }
-                        });
-                        const data = await res.json();
-                        this.isLiked = data.is_liked;
-                        this.likesCount = data.likes_count;
-                    } catch (e) {
-                        this.isLiked = !this.isLiked;
-                    }
-                @else
-                    this.isLiked = !this.isLiked;
-                    this.likesCount += (this.isLiked ? 1 : -1);
-                @endif
-            @endif
-        }
-    }"
+    x-data="productCard({{ $initialLiked ? 'true' : 'false' }}, {{ $likesCount }}, '{{ $productId }}')"
     class="bg-white rounded-2xl border border-gray-100/90 shadow-[0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_26px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col group {{ $className }}"
 >
     <!-- Product Image Stage -->
@@ -58,7 +38,7 @@
             @click.prevent.stop="toggleWishlist()"
             class="absolute top-2.5 right-2.5 z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/95 backdrop-blur-xs shadow-md flex items-center justify-center transition-transform hover:scale-105 cursor-pointer"
             :class="isLiked ? 'text-[#4F26A6]' : 'text-gray-700 hover:text-[#4F26A6]'"
-            title="Simpan ke Wishlist"
+            :title="isLiked ? 'Hapus dari Wishlist' : 'Simpan ke Wishlist'"
         >
             <svg
                 class="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-colors"
@@ -139,5 +119,76 @@
                 <span x-text="likesCount"></span>
             </div>
         </div>
+
+        @if($showAddToCart)
+            <div class="pt-3 border-t border-gray-100/80 mt-2">
+                <a
+                    href="{{ $href }}"
+                    class="w-full py-2 px-3 rounded-xl bg-[#F3EEFF] hover:bg-[#4F26A6] text-[#4F26A6] hover:text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] group/btn text-center"
+                >
+                    <svg class="w-3.5 h-3.5 transition-transform group-hover/btn:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
+                        <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" />
+                    </svg>
+                    <span>+ Keranjang</span>
+                </a>
+            </div>
+        @endif
     </div>
 </div>
+
+@once
+@push('scripts')
+<script>
+function registerProductCard() {
+    if (window.__whiProductCardRegistered) return;
+    window.__whiProductCardRegistered = true;
+    Alpine.data('productCard', (initialLiked, initialLikes, productId) => ({
+        isLiked: initialLiked,
+        likesCount: initialLikes,
+        async toggleWishlist() {
+            @if(!auth()->check())
+                window.location.href = '{{ route('login') }}';
+                return;
+            @endif
+            if (!productId) {
+                this.isLiked = !this.isLiked;
+                this.likesCount += (this.isLiked ? 1 : -1);
+                return;
+            }
+            try {
+                const res = await fetch('/wishlist/toggle/' + productId, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await res.json();
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else if (data.success) {
+                    this.isLiked = data.is_liked;
+                    this.likesCount = data.likes_count;
+                    if (data.user_wishlists_count !== undefined) {
+                        const badges = document.querySelectorAll('a[href*="/wishlist"] span');
+                        for (let i = 0; i < badges.length; i++) {
+                            badges[i].textContent = data.user_wishlists_count;
+                        }
+                        window.dispatchEvent(new CustomEvent('wishlist-count-updated', { detail: { count: data.user_wishlists_count, productId: productId, isLiked: this.isLiked } }));
+                    }
+                }
+            } catch (e) {
+                this.isLiked = !this.isLiked;
+            }
+        }
+    }));
+}
+if (window.Alpine) {
+    registerProductCard();
+} else {
+    document.addEventListener('alpine:init', registerProductCard);
+}
+</script>
+@endpush
+@endonce

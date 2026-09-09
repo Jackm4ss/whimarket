@@ -227,6 +227,7 @@
                     </div>
 
                     <button
+                        id="publish-product-btn"
                         type="submit"
                         class="w-full py-3.5 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-sm shadow-md shadow-[#4F26A6]/20 transition-all active:scale-[0.98] cursor-pointer text-center"
                     >

@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Disputes;
 
-use App\Enums\PayoutStatus;
 use App\Filament\Resources\Disputes\Pages\ManageDisputes;
 use App\Models\Dispute;
 use App\Models\EscrowBalance;
@@ -21,12 +20,17 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
+use UnitEnum;
 
 class DisputeResource extends Resource
 {
     protected static ?string $model = Dispute::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedScale;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Keuangan & Sengketa';
+
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationLabel = 'Pusat Mediasi Sengketa';
 
@@ -37,6 +41,7 @@ class DisputeResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('order.order_number')
                     ->label('No. Pesanan')

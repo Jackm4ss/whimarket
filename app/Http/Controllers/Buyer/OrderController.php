@@ -11,23 +11,81 @@ use App\States\Order\Completed;
 use App\States\Order\Delivered;
 use App\States\Order\Shipped;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
+use Spatie\ModelStates\State;
 
 class OrderController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $orders = Auth::user()->orders()
-            ->with(['items.variant.product.images', 'seller', 'payment', 'shipment'])
-            ->latest()
-            ->paginate(10);
+        $user = Auth::user();
+        $status = (string) $request->query('status', 'all');
+        $search = trim((string) $request->query('search', ''));
+
+        $query = $user->orders()
+            ->with([
+                'items.variant.product.images',
+                'seller.user',
+                'payment',
+                'shipment',
+            ]);
+
+        // Filter status tab
+        if ($status === 'unpaid') {
+            $query->where('status', 'pending_payment');
+        } elseif ($status === 'processing') {
+            $query->whereIn('status', ['payment_verification', 'paid', 'processing']);
+        } elseif ($status === 'shipped') {
+            $query->where('status', 'shipped');
+        } elseif ($status === 'delivered') {
+            $query->where('status', 'delivered');
+        } elseif ($status === 'completed') {
+            $query->where('status', 'completed');
+        } elseif ($status === 'cancelled') {
+            $query->whereIn('status', ['cancelled', 'disputed']);
+        }
+
+        // Filter search keyword
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('order_number', 'like', "%{$search}%")
+                    ->orWhereHas('items', function ($iq) use ($search) {
+                        $iq->where('product_name_snapshot', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('seller', function ($sq) use ($search) {
+                        $sq->where('store_name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $orders = $query->latest()->paginate(10)->withQueryString();
+
+        // Calculate count for each status tab
+        $allUserStatuses = $user->orders()->pluck('status')->map(function ($s) {
+            return $s instanceof State ? $s::$name : (string) $s;
+        });
+        $byStatus = $allUserStatuses->countBy();
+
+        $counts = [
+            'all' => $allUserStatuses->count(),
+            'unpaid' => $byStatus->get('pending_payment', 0),
+            'processing' => $byStatus->get('payment_verification', 0) + $byStatus->get('paid', 0) + $byStatus->get('processing', 0),
+            'shipped' => $byStatus->get('shipped', 0),
+            'delivered' => $byStatus->get('delivered', 0),
+            'completed' => $byStatus->get('completed', 0),
+            'cancelled' => $byStatus->get('cancelled', 0) + $byStatus->get('disputed', 0),
+        ];
 
         return view('orders.index', [
             'orders' => $orders,
             'title' => 'Pesanan Saya | WhiMarket',
             'activeTab' => 'pesanan',
+            'currentTab' => $status,
+            'search' => $search,
+            'counts' => $counts,
         ]);
     }
 

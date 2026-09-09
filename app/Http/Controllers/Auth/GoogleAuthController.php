@@ -12,8 +12,12 @@ use Laravel\Socialite\Facades\Socialite;
 
 class GoogleAuthController extends Controller
 {
-    public function redirect(): RedirectResponse
+    public function redirect(Request $request): RedirectResponse
     {
+        if ($request->filled('role')) {
+            session(['auth_role' => $request->query('role')]);
+        }
+
         return Socialite::driver('google')->redirect();
     }
 
@@ -57,6 +61,15 @@ class GoogleAuthController extends Controller
         if ($isNewUser || ! $user->addresses()->exists()) {
             session()->flash('show_onboarding_modal', true);
         }
+        $requestedRole = session()->pull('auth_role', 'buyer');
+        if ($requestedRole === 'seller') {
+            if ($user->seller && $user->seller->isVerified()) {
+                return redirect()->route('seller.dashboard');
+            }
+
+            return redirect()->route('seller.register')
+                ->with('info', 'Silakan masukkan Kode Akses VIP Anda untuk mengaktifkan akun seller.');
+        }
 
         return redirect()->intended('/');
     }
@@ -67,7 +80,7 @@ class GoogleAuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->route('login');
     }
 
     /**
@@ -81,8 +94,10 @@ class GoogleAuthController extends Controller
 
         $user = match ($role) {
             'admin' => User::where('email', 'admin@whimarket.com')->first(),
+            'bintang' => User::where('email', 'bintang.creator@gmail.com')->first(),
             'seller' => User::where('email', 'celloszx@whimarket.com')->first()
                 ?? User::where('role', UserRole::SELLER)->first(),
+            'fresh' => User::where('email', 'rina.melati@example.com')->first(),
             default => User::where('email', 'buyer@whimarket.com')->first()
                 ?? User::where('role', UserRole::BUYER)->first(),
         };
@@ -90,6 +105,12 @@ class GoogleAuthController extends Controller
         if ($user) {
             Auth::login($user, true);
             request()->session()->regenerate();
+
+            if ($user->isSeller() && $user->seller?->isVerified()) {
+                return redirect()->route('seller.dashboard');
+            }
+
+            return redirect()->to('/');
         }
 
         return redirect()->back();

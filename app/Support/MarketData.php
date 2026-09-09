@@ -446,4 +446,58 @@ class MarketData
             ],
         ];
     }
+
+    public static function sellerReviews(): array
+    {
+        return [
+            [
+                'id' => 1,
+                'author' => 'Anya Geraldine',
+                'avatar' => '/assets/avatar-anya.png',
+                'verified' => true,
+                'rating' => 5,
+                'date' => '2 hari lalu',
+                'comment' => 'Barangnya masih super bagus, sesuai deskripsi! Packing rapi banget dan pengiriman cepat. Makasih ka ♡',
+                'images' => ['/assets/review-chanel-1.png', '/assets/review-chanel-2.png', '/assets/review-chanel-3.png'],
+                'product' => [
+                    'title' => 'Tas Michael Kors Original Brown',
+                    'priceText' => 'Rp 1.200.000',
+                    'image' => '/assets/banner-chanel-bag.png',
+                    'url' => '/produk/tas-michael-kors-8',
+                ],
+            ],
+            [
+                'id' => 2,
+                'author' => 'Fuji An',
+                'avatar' => '/assets/avatars/avatar-fuji.png',
+                'verified' => true,
+                'rating' => 5,
+                'date' => '5 hari lalu',
+                'comment' => 'Bahan hoodie-nya tebel dan adem banget! Warna purple-nya cakep pol, sesuai foto. Pengiriman cepet dan packing aman.',
+                'images' => ['/assets/review-hoodie-1.png', '/assets/review-hoodie-2.png', '/assets/review-hoodie-3.png'],
+                'product' => [
+                    'title' => 'Hoodie Streamer Edition',
+                    'priceText' => 'Rp 420.000',
+                    'image' => '/assets/products/prod-hoodie.png',
+                    'url' => '/produk/hoodie-streamer-edition-10',
+                ],
+            ],
+            [
+                'id' => 3,
+                'author' => 'Raisy Febian',
+                'avatar' => '/assets/avatars/avatar-raisy.png',
+                'verified' => true,
+                'rating' => 4,
+                'date' => '1 minggu lalu',
+                'comment' => 'Keren banget kartunya, masih mulus tanpa scratch. Koleksi langka akhirnya dapet juga. Pengemasan sangat aman dengan toploader!',
+                'images' => ['/assets/review-pokemon-1.png', '/assets/review-pokemon-2.png', '/assets/review-pokemon-3.png'],
+                'product' => [
+                    'title' => 'Kartu Pokemon Rare',
+                    'priceText' => 'Rp 350.000',
+                    'image' => '/assets/products/prod-pokemon.png',
+                    'url' => '/produk/kartu-pokemon-rare-5',
+                ],
+            ],
+        ];
+    }
 }

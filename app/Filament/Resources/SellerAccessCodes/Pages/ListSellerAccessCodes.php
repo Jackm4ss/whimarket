@@ -4,16 +4,17 @@ namespace App\Filament\Resources\SellerAccessCodes\Pages;
 
 use App\Filament\Resources\SellerAccessCodes\SellerAccessCodeResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ManageRecords;
+use Filament\Resources\Pages\ListRecords;
 
-class ManageSellerAccessCodes extends ManageRecords
+class ListSellerAccessCodes extends ListRecords
 {
     protected static string $resource = SellerAccessCodeResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->label('+ Generate Kode VIP Baru'),
         ];
     }
 }

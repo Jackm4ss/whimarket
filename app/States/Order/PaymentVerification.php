@@ -8,7 +8,7 @@ class PaymentVerification extends OrderStatusState
 
     public function label(): string
     {
-        return 'Verifikasi Pembayaran';
+        return 'Sedang Di Verifikasi Pembayaran Oleh Admin';
     }
 
     public function badgeColor(): string

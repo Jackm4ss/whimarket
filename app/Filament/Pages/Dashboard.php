@@ -8,13 +8,21 @@ use App\Filament\Widgets\OrderStatusBreakdownWidget;
 use App\Filament\Widgets\RecentOrdersWidget;
 use App\Filament\Widgets\RevenueMetricWidget;
 use App\Filament\Widgets\SalesGoalWidget;
+use BackedEnum;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Livewire;
+use Filament\Support\Icons\Heroicon;
 
 class Dashboard extends BaseDashboard
 {
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedHome;
+
+    protected static ?string $navigationLabel = 'Dashboard';
+
+    protected static ?int $navigationSort = -1;
+
     public function getColumns(): int|array
     {
         return [

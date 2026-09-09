@@ -1,13 +1,16 @@
 <?php
 
+use App\Http\Controllers\Api\RegionController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Buyer\CartController;
 use App\Http\Controllers\Buyer\CatalogController;
 use App\Http\Controllers\Buyer\CheckoutController;
 use App\Http\Controllers\Buyer\DisputeController;
 use App\Http\Controllers\Buyer\OnboardingController;
 use App\Http\Controllers\Buyer\OrderController;
+use App\Http\Controllers\Buyer\ProfileController;
 use App\Http\Controllers\Buyer\SearchController;
 use App\Http\Controllers\Buyer\WishlistController;
 use App\Http\Controllers\Seller\SellerPortalController;
@@ -38,9 +41,18 @@ Route::get('/seller', [CatalogController::class, 'sellerDirectory'])->name('sell
 Route::get('/seller/{username}', [CatalogController::class, 'sellerProfile'])->name('seller.profile')->where('username', '@[A-Za-z0-9_.-]+');
 Route::get('/api/search-suggest', [SearchController::class, 'suggest'])->name('search.suggest');
 
+// Regional API Routes (Powered by Creasi Nusa)
+Route::prefix('api/regions')->name('regions.')->group(function () {
+    Route::get('/search', [RegionController::class, 'search'])->name('search');
+    Route::get('/provinces', [RegionController::class, 'provinces'])->name('provinces');
+    Route::get('/regencies', [RegionController::class, 'regencies'])->name('regencies');
+    Route::get('/districts', [RegionController::class, 'districts'])->name('districts');
+    Route::get('/villages', [RegionController::class, 'villages'])->name('villages');
+});
+
 // Wishlist Routes
 Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
-Route::post('/wishlist/toggle/{productId}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+Route::post('/wishlist/toggle/{productId}', [WishlistController::class, 'toggle'])->name('wishlist.toggle')->where('productId', '[A-Za-z0-9_.-]+');
 
 // Cart Routes
 Route::get('/keranjang', [CartController::class, 'index'])->name('cart.index');
@@ -65,6 +77,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/pesanan/{orderNumber}/komplain', [DisputeController::class, 'create'])->name('dispute.create');
     Route::post('/pesanan/{orderNumber}/komplain', [DisputeController::class, 'store'])->name('dispute.store');
 
+    // Password & Account Security
+    Route::get('/akun/password', [PasswordController::class, 'edit'])->name('password.edit');
+    Route::put('/akun/password', [PasswordController::class, 'update'])->name('password.update');
+
+    // User Profile & Address Settings
+    Route::get('/akun/pengaturan', [ProfileController::class, 'edit'])->name('profile.settings');
+    Route::put('/akun/pengaturan', [ProfileController::class, 'updateProfile'])->name('profile.settings.update');
+    Route::post('/akun/alamat', [ProfileController::class, 'storeAddress'])->name('addresses.store');
+    Route::put('/akun/alamat/{id}', [ProfileController::class, 'updateAddress'])->name('addresses.update');
+    Route::delete('/akun/alamat/{id}', [ProfileController::class, 'destroyAddress'])->name('addresses.destroy');
+    Route::post('/akun/alamat/{id}/default', [ProfileController::class, 'setDefaultAddress'])->name('addresses.default');
+
     // Seller Portal
     Route::get('/seller/register', [SellerPortalController::class, 'showRegister'])->name('seller.register');
     Route::post('/seller/register', [SellerPortalController::class, 'register'])->name('seller.register.submit');
@@ -72,6 +96,8 @@ Route::middleware('auth')->group(function () {
     // Seller Protected Routes
     Route::middleware(['auth'])->group(function () {
         Route::get('/seller/dashboard', [SellerPortalController::class, 'dashboard'])->name('seller.dashboard');
+        Route::get('/seller/settings', [SellerPortalController::class, 'settings'])->name('seller.settings');
+        Route::put('/seller/settings', [SellerPortalController::class, 'updateSettings'])->name('seller.settings.update');
         Route::get('/seller/orders', [SellerPortalController::class, 'orders'])->name('seller.orders.index');
         Route::post('/seller/orders/{id}/fulfill', [SellerPortalController::class, 'fulfill'])->name('seller.orders.fulfill');
         Route::post('/seller/orders/{id}/claim-delivered', [SellerPortalController::class, 'claimDelivered'])->name('seller.orders.claim_delivered');

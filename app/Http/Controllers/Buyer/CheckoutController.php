@@ -10,13 +10,16 @@ use App\Models\EscrowBalance;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
+use App\Models\PlatformSetting;
 use App\Models\ProductVariant;
+use App\Services\ShippingRateService;
 use App\States\Order\PaymentVerification;
 use App\States\Order\PendingPayment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -39,15 +42,39 @@ class CheckoutController extends Controller
         $defaultAddress = $addresses->firstWhere('is_default', true) ?? $addresses->first();
 
         $subtotal = $items->sum(fn ($i) => (float) $i->variant->price * $i->quantity);
-        $shippingCost = 15000;
-        $grandTotal = $subtotal + $shippingCost;
+        $defaultRate = ShippingRateService::calculate($defaultAddress?->province);
+        $shippingCost = $defaultRate['cost'];
+        $adminFee = PlatformSetting::getAdminFee();
+        $grandTotal = $subtotal + $shippingCost + $adminFee;
+        $addressesData = $addresses->map(function ($a) {
+            $rate = ShippingRateService::calculate($a->province);
+
+            return [
+                'id' => $a->id,
+                'recipient_name' => $a->recipient_name,
+                'phone' => $a->phone,
+                'full_address' => $a->full_address,
+                'province' => $a->province,
+                'city' => $a->city,
+                'district' => $a->district,
+                'postal_code' => $a->postal_code,
+                'is_default' => (bool) $a->is_default,
+                'shipping_cost' => $rate['cost'],
+                'shipping_zone' => $rate['zone'],
+                'shipping_etd' => $rate['etd'],
+            ];
+        });
 
         return view('checkout.index', [
             'items' => $items,
             'addresses' => $addresses,
+            'addressesData' => $addressesData,
             'defaultAddress' => $defaultAddress,
             'subtotal' => $subtotal,
             'shippingCost' => $shippingCost,
+            'defaultZone' => $defaultRate['zone'],
+            'defaultEtd' => $defaultRate['etd'],
+            'adminFee' => $adminFee,
             'grandTotal' => $grandTotal,
             'title' => 'Checkout Pesanan | WhiMarket',
             'activeTab' => 'checkout',
@@ -99,8 +126,10 @@ class CheckoutController extends Controller
                     $sellerId = $variant->product->seller_id;
                 }
 
-                $shippingCost = 15000;
-                $grandTotal = $totalAmount + $shippingCost;
+                $shippingRate = ShippingRateService::calculate($address->province);
+                $shippingCost = $shippingRate['cost'];
+                $adminFee = PlatformSetting::getAdminFee();
+                $grandTotal = $totalAmount + $shippingCost + $adminFee;
                 $orderNumber = 'WHI-'.date('Ymd').'-'.strtoupper(Str::random(6));
 
                 $order = Order::create([
@@ -118,10 +147,10 @@ class CheckoutController extends Controller
                     ],
                     'total_amount' => $totalAmount,
                     'shipping_cost' => $shippingCost,
+                    'admin_fee' => $adminFee,
                     'grand_total' => $grandTotal,
                     'status' => PendingPayment::class,
                 ]);
-
                 // Create Order Items
                 foreach ($items as $item) {
                     $variant = $lockedVariants->get($item->product_variant_id);
@@ -167,14 +196,23 @@ class CheckoutController extends Controller
         }
     }
 
-    public function showPayment(string $orderNumber): View
+    public function showPayment(string $orderNumber): View|RedirectResponse
     {
-        $order = Order::with(['items', 'seller', 'payment'])
+        $order = Order::with(['items.variant.product.variants', 'seller', 'payment'])
             ->where('order_number', $orderNumber)
             ->firstOrFail();
 
+        if ($order->buyer_id !== auth()->id() && ! auth()->user()?->isAdmin()) {
+            abort(403, 'Akses ditolak. Anda tidak memiliki izin untuk melihat instruksi pembayaran pesanan ini.');
+        }
+
+        $isOutOfStock = $order->items->contains(function ($item) {
+            return ($item->variant?->stock ?? 0) <= 0 || ($item->variant?->product?->total_stock ?? 0) <= 0;
+        });
+
         return view('checkout.payment', [
             'order' => $order,
+            'isOutOfStock' => $isOutOfStock,
             'title' => 'Instruksi Pembayaran #'.$order->order_number.' | WhiMarket',
             'activeTab' => 'checkout',
         ]);
@@ -182,21 +220,76 @@ class CheckoutController extends Controller
 
     public function uploadProof(Request $request, string $orderNumber): RedirectResponse
     {
-        $order = Order::with('payment')->where('order_number', $orderNumber)->firstOrFail();
+        $order = Order::with(['items.variant.product.variants', 'payment'])
+            ->where('order_number', $orderNumber)
+            ->firstOrFail();
+
+        if ($order->buyer_id !== auth()->id() && ! auth()->user()?->isAdmin()) {
+            abort(403, 'Akses ditolak. Anda tidak memiliki izin untuk mengunggah bukti pembayaran pesanan ini.');
+        }
+
+        if (! in_array($order->status::$name, ['pending_payment', 'payment_verification'], true)) {
+            return redirect()->route('orders.show', $order->order_number)
+                ->with('error', 'Pesanan ini saat ini tidak membutuhkan pengunggahan bukti pembayaran.');
+        }
+
+        $isOutOfStock = $order->items->contains(function ($item) {
+            return ($item->variant?->stock ?? 0) <= 0 || ($item->variant?->product?->total_stock ?? 0) <= 0;
+        });
+
+        if ($isOutOfStock) {
+            return redirect()->route('orders.index')
+                ->with('error', 'Maaf, stok barang pada pesanan ini sudah habis dari penjual. Pembayaran tidak dapat diproses.');
+        }
 
         $validated = $request->validate([
             'sender_bank_name' => 'required|string|max:50',
             'sender_account_name' => 'required|string|max:100',
-            'proof' => 'required|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'proof' => 'required|file|image|mimes:jpeg,png,jpg,webp|max:10240',
+        ], [
+            'sender_bank_name.required' => 'Nama bank pengirim wajib diisi.',
+            'sender_bank_name.max' => 'Nama bank pengirim maksimal 50 karakter.',
+            'sender_account_name.required' => 'Nama pemilik rekening wajib diisi.',
+            'sender_account_name.max' => 'Nama pemilik rekening maksimal 100 karakter.',
+            'proof.required' => 'Foto bukti transfer wajib diunggah.',
+            'proof.file' => 'Bukti transfer harus berupa file.',
+            'proof.image' => 'Bukti transfer harus berupa gambar yang valid.',
+            'proof.mimes' => 'Format bukti transfer harus berupa file JPG, PNG, atau WEBP.',
+            'proof.max' => 'Ukuran file bukti transfer tidak boleh melebihi 10MB.',
         ]);
 
         $proofFile = $request->file('proof');
-        $filename = 'proof_'.$order->id.'_'.Str::uuid().'.'.$proofFile->getClientOriginalExtension();
+
+        // Deep binary inspection: verify real image signature & dimensions to prevent disguised files/hacks
+        $imageInfo = @getimagesize($proofFile->getPathname());
+        if ($imageInfo !== false && in_array($imageInfo[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP], true)) {
+            // Map safe extension strictly from inspected binary mime, not user-supplied extension
+            $extension = match ($imageInfo[2]) {
+                IMAGETYPE_JPEG => 'jpg',
+                IMAGETYPE_PNG => 'png',
+                IMAGETYPE_WEBP => 'webp',
+                default => 'jpg',
+            };
+        } else {
+            // Fallback: Laravel's image validation already passed, use validated client extension
+            $ext = strtolower($proofFile->getClientOriginalExtension() ?: 'jpg');
+            $extension = in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true) ? $ext : 'jpg';
+        }
+
+        $filename = 'proof_'.$order->id.'_'.Str::random(32).'.'.$extension;
         $path = $proofFile->storeAs('payments', $filename, 'public');
 
+        // Cleanup old proof file if exists to prevent storage accumulation/bottleneck
+        if ($order->payment && $order->payment->proof_path && Storage::disk('public')->exists($order->payment->proof_path)) {
+            Storage::disk('public')->delete($order->payment->proof_path);
+        }
+
+        $cleanBankName = strip_tags(trim($validated['sender_bank_name']));
+        $cleanAccountName = strip_tags(trim($validated['sender_account_name']));
+
         $order->payment->update([
-            'sender_bank_name' => $validated['sender_bank_name'],
-            'sender_account_name' => $validated['sender_account_name'],
+            'sender_bank_name' => $cleanBankName,
+            'sender_account_name' => $cleanAccountName,
             'proof_path' => $path,
             'status' => PaymentStatus::PENDING_REVIEW,
         ]);
@@ -207,6 +300,6 @@ class CheckoutController extends Controller
         }
 
         return redirect()->route('orders.show', $order->order_number)
-            ->with('success', 'Bukti pembayaran berhasil diunggah! Admin WhiMarket sedang memverifikasi transfer kamu.');
+            ->with('success', 'Bukti pembayaran berhasil diunggah! Admin WhiMarket sedang memverifikasi transfer Anda.');
     }
 }

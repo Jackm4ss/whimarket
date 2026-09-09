@@ -11,7 +11,6 @@
     x-transition:leave-end="opacity-0"
     @click="isMobileFilterOpen = false"
     class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 lg:hidden flex items-end justify-center p-0"
-    style="display: none;"
 >
     <div
         @click.stop

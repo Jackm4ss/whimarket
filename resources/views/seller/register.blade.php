@@ -26,7 +26,7 @@
 
             <!-- Activation Card -->
             <div class="bg-white rounded-3xl border border-gray-100/90 shadow-[0_12px_40px_rgba(79,38,166,0.06)] p-6 sm:p-10">
-                <form action="{{ route('seller.register.submit') }}" method="POST" class="space-y-6">
+                <form id="seller-activate-form" action="{{ route('seller.register.submit') }}" method="POST" class="space-y-6">
                     @csrf
 
                     <!-- VIP Code Input -->
@@ -141,6 +141,7 @@
 
                     <!-- Submit Button -->
                     <button
+                        id="seller-activate-btn"
                         type="submit"
                         class="w-full py-4 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-base shadow-lg shadow-[#4F26A6]/25 transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
                     >

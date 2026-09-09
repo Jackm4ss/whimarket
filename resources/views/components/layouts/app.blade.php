@@ -22,7 +22,7 @@
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-[#4F26A6] selection:text-white bg-[#FAF9FC] text-[#111827] font-sans antialiased" x-data="{ mobileMenuOpen: false }">
+<body class="min-h-screen w-full max-w-full overflow-x-hidden flex flex-col justify-between selection:bg-[#4F26A6] selection:text-white bg-[#FAF9FC] text-[#111827] font-sans antialiased" x-data="{ mobileMenuOpen: false }">
 
     @include('layouts.navbar', [
         'activeTab' => $activeTab ?? 'beranda',
@@ -37,6 +37,8 @@
 
     @include('layouts.footer')
     <x-onboarding-modal />
+    @include('components.region-selector-scripts')
+    @stack('scripts')
 
 </body>
 </html>

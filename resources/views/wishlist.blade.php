@@ -1,25 +1,46 @@
 <x-layouts.app :title="$title" activeTab="wishlist">
-    <main class="max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-8 sm:py-10">
+    <main class="max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-6 sm:pt-8 pb-24 sm:pb-32 lg:pb-36">
+        <!-- Breadcrumb Navigation -->
+        <nav class="flex items-center gap-2 text-xs sm:text-[13px] text-gray-500 font-medium mb-6">
+            <a href="/" class="hover:text-[#4F26A6] transition-colors">Beranda</a>
+            <span class="text-gray-300 font-normal">&gt;</span>
+            <span class="text-gray-900 font-bold">Wishlist Saya</span>
+        </nav>
+
         <!-- Header Section -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-gray-100">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-10 pb-6 sm:pb-8 border-b border-gray-100">
             <div>
-                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F3EEFF] text-[#4F26A6] text-xs font-bold mb-2.5">
-                    <svg class="w-3.5 h-3.5 text-[#4F26A6]" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                    </svg>
-                    <span>Koleksi Favoritmu</span>
+                <div class="flex items-center gap-3">
+                    <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
+                        Wishlist Saya
+                    </h1>
+                    @auth
+                        @if($wishlists->isNotEmpty())
+                            <span class="text-xs font-bold text-[#4F26A6] bg-[#F3EEFF] px-3 py-1 rounded-full border border-[#4F26A6]/10">
+                                {{ $wishlists->count() }} Barang
+                            </span>
+                        @endif
+                    @endauth
                 </div>
-                <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
-                    Wishlist Saya
-                </h1>
-                <p class="text-sm sm:text-[15px] text-gray-500 mt-1">
+                <p class="text-sm sm:text-[15px] text-gray-500 mt-1.5">
                     @guest
                         Masuk ke akunmu untuk melihat dan menyimpan produk favoritmu.
                     @else
-                        Daftar barang pre-loved dan merchandise kreator yang kamu simpan.
+                        Daftar barang pre-loved dan merchandise kreator favorit yang kamu simpan.
                     @endguest
                 </p>
             </div>
+            @auth
+                <a
+                    href="/belanja"
+                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border-2 border-[#4F26A6] text-[#4F26A6] hover:bg-[#4F26A6]/5 font-bold text-xs sm:text-sm transition-all shrink-0"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <span>Eksplor Produk Lain</span>
+                </a>
+            @endauth
         </div>
 
         @if($wishlists->isEmpty())
@@ -71,10 +92,10 @@
             </div>
         @else
             <!-- Wishlist Products Grid -->
-            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-5 lg:gap-6">
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 lg:gap-6">
                 @foreach($wishlists as $item)
                     @if($item->product)
-                        <x-product-card :product="$item->product" />
+                        <x-product-card :product="$item->product" :isLiked="true" :showAddToCart="true" />
                     @endif
                 @endforeach
             </div>

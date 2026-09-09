@@ -14,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class SellerResource extends Resource
 {
@@ -21,15 +22,25 @@ class SellerResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingStorefront;
 
+    protected static string|UnitEnum|null $navigationGroup = 'Mitra Toko (Seller)';
+
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationLabel = 'Manajemen Toko Seller';
 
     protected static ?string $modelLabel = 'Toko Seller';
 
     protected static ?string $pluralModelLabel = 'Daftar Toko & Seller';
 
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('store_name')
                     ->label('Nama Toko')
