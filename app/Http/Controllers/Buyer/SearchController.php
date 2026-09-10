@@ -72,7 +72,7 @@ class SearchController extends Controller
                     'name' => $s->store_name,
                     'username' => $s->username,
                     'url' => route('seller.profile', '@'.$s->username),
-                    'avatar' => $s->user->avatar ?? '/assets/avatars/avatar-raisy.png',
+                    'avatar' => $s->avatar_url,
                 ]);
 
             return [

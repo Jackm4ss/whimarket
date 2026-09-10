@@ -182,4 +182,87 @@ class SellerProductEditTest extends TestCase
         // 5. Total stock
         $this->assertEquals(14, $product->total_stock);
     }
+
+    public function test_seller_can_replace_specific_existing_product_photo(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create(['role' => UserRole::SELLER]);
+        $seller = Seller::create([
+            'user_id' => $user->id,
+            'store_name' => 'Toko Ganti Foto',
+            'username' => 'toko-ganti-foto',
+            'bank_name' => 'BCA',
+            'bank_account_number' => '456',
+            'bank_account_name' => 'Ganti',
+            'status' => SellerStatus::VERIFIED,
+            'verified_at' => now(),
+        ]);
+
+        $category = Category::firstOrCreate(['slug' => 'fashion'], ['name' => 'Fashion', 'is_active' => true]);
+
+        $product = Product::create([
+            'seller_id' => $seller->id,
+            'category_id' => $category->id,
+            'name' => 'Jaket Denim Vintage',
+            'slug' => 'jaket-denim-vintage',
+            'description' => 'Jaket denim tebal premium.',
+            'price' => 500000,
+            'condition' => ProductCondition::VERY_GOOD,
+            'status' => ProductStatus::ACTIVE,
+        ]);
+
+        $variant = ProductVariant::create([
+            'product_id' => $product->id,
+            'name' => 'Size XL',
+            'sku' => 'JKT-XL',
+            'price' => 500000,
+            'stock' => 3,
+        ]);
+
+        // Setup initial photo in fake storage
+        Storage::disk('public')->put('products/initial_denim.jpg', 'fake initial image data');
+        $existingPhoto = ProductImage::create([
+            'product_id' => $product->id,
+            'image_path' => '/storage/products/initial_denim.jpg',
+            'sort_order' => 0,
+            'is_primary' => true,
+        ]);
+        // Replacement file
+        $replacementPhoto = UploadedFile::fake()->create('new_denim.jpg', 150, 'image/jpeg');
+
+        $response = $this->actingAs($user)->put(route('seller.products.update', $product->id), [
+            'name' => $product->name,
+            'category_id' => $category->id,
+            'description' => $product->description,
+            'price' => $product->price,
+            'condition' => $product->condition->value,
+            'status' => $product->status->value,
+            'replace_images' => [
+                $existingPhoto->id => $replacementPhoto,
+            ],
+            'variants' => [
+                [
+                    'id' => $variant->id,
+                    'name' => $variant->name,
+                    'price' => $variant->price,
+                    'stock' => $variant->stock,
+                ],
+            ],
+        ]);
+
+        $response->assertRedirect(route('seller.products.index'));
+        $response->assertSessionHas('success');
+
+        $existingPhoto->refresh();
+
+        // Old initial file must be deleted from disk
+        Storage::disk('public')->assertMissing('products/initial_denim.jpg');
+
+        // New file must exist on disk and record image_path must be updated
+        $newDiskPath = str_replace('/storage/', '', $existingPhoto->image_path);
+        $this->assertNotEquals('/storage/products/initial_denim.jpg', $existingPhoto->image_path);
+        Storage::disk('public')->assertExists($newDiskPath);
+        $this->assertTrue($existingPhoto->is_primary);
+    }
 }

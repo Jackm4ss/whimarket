@@ -701,7 +701,7 @@ Untuk menjaga stabilitas, optimasi, keamanan, dan mencegah pembuatan logic nativ
     - Alur: Ambil data dari Google User. Cek apakah email sudah ada di `users`. Jika belum, buat record user baru (`google_id`, `name`, `email`, `avatar`) dan otomatis assign role `buyer` via Spatie Permission. Jika email sudah ada, sinkronkan `google_id` dan login langsung.
   - **C. Post-Login / Post-Register Onboarding (Opsional)**:
     - Setelah registrasi atau login pertama kali (baik via Akun WhiMarket maupun Google SSO), jika buyer belum memiliki alamat tersimpan, tampilkan modal interaktif: *"Lengkapi Alamat Pengiriman Sekarang (Opsional)"*.
-    - *Opsi 1 (Isi Sekarang)*: Buyer mengisi No. Handphone/WhatsApp dan Alamat Lengkap. Data otomatis tersimpan di tabel `addresses` sebagai alamat utama (`is_default = true`). Saat checkout nanti, alamat ini langsung terpilih otomatis (Zero Pain Point).
+    - *Opsi 1 (Isi Sekarang)*: Buyer mengisi No. Handphone/WhatsApp dan Alamat Lengkap. Data otomatis tersimpan di tabel `addresses` sebagai alamat utama (`is_default = true`). Saat checkout nanti, alamat ini langsung terpilih otomatis.
     - *Opsi 2 (Lewati / Nanti Saja)*: Buyer langsung diarahkan ke halaman beranda/belanja. Alamat cukup diisi 1 kali saat buyer pertama kali melakukan transaksi di checkout.
 - **Item 2 (Role User)**:
   - **Gunakan plugin `spatie/laravel-permission`** (^8.3).

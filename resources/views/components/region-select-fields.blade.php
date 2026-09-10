@@ -24,7 +24,7 @@
                 x-model="searchQuery"
                 @input="onSearchInput($event)"
                 @focus="if(searchResults.length > 0) showSearchResults = true"
-                placeholder="Ketik nama kota, kecamatan, atau kode pos (misal: Soreang, Kebayoran, atau 12190)..."
+                placeholder="Cari kota atau kecamatan..."
                 class="w-full rounded-xl border border-gray-200 bg-white pl-10 pr-10 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#4F26A6] focus:ring-2 focus:ring-[#4F26A6]/20 transition-all outline-none"
             />
             <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
@@ -94,23 +94,26 @@
     </div>
 
     <!-- Selection Confirmation Pill / Toggle Manual View -->
-    <div x-show="selectedProvince" class="p-2.5 rounded-xl bg-purple-50/70 border border-purple-200/50 flex items-center justify-between gap-2 text-xs">
-        <div class="flex items-center gap-2 min-w-0">
-            <span class="w-5 h-5 rounded-full bg-[#4F26A6] text-white flex items-center justify-center shrink-0">
+    <div x-show="selectedProvince" class="p-2.5 sm:p-3 rounded-2xl bg-purple-50/80 border border-purple-200/60 flex items-center justify-between gap-2.5 text-xs">
+        <div class="flex items-center gap-2 min-w-0 flex-1">
+            <span class="w-5 h-5 rounded-full bg-[#4F26A6] text-white flex items-center justify-center shrink-0 shadow-2xs">
                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
             </span>
-            <span class="text-purple-950 font-bold truncate">
-                <span x-text="selectedDistrict ? selectedDistrict + ', ' : ''"></span>
-                <span x-text="selectedCity ? selectedCity + ', ' : ''"></span>
-                <span x-text="selectedProvince"></span>
-                <span x-text="selectedPostalCode ? ' (' + selectedPostalCode + ')' : ''"></span>
-            </span>
+            <div class="text-purple-950 font-bold min-w-0 flex-1">
+                <span class="text-purple-700 font-semibold mr-1">Wilayah Terpilih:</span>
+                <span class="text-purple-950 font-extrabold">
+                    <span x-text="selectedDistrict ? selectedDistrict + ', ' : ''"></span>
+                    <span x-text="selectedCity ? selectedCity + ', ' : ''"></span>
+                    <span x-text="selectedProvince"></span>
+                    <span x-text="selectedPostalCode ? ' (' + selectedPostalCode + ')' : ''"></span>
+                </span>
+            </div>
         </div>
         <button
             type="button"
             @click="showManualSelection = !showManualSelection"
-            class="text-[11px] font-bold text-[#4F26A6] hover:underline shrink-0 cursor-pointer"
-            x-text="showManualSelection ? 'Sembunyikan Pilihan' : 'Ubah / Rincian'"
+            class="text-[11px] font-bold text-[#4F26A6] hover:underline shrink-0 cursor-pointer whitespace-nowrap"
+            x-text="showManualSelection ? 'Sembunyikan' : 'Ubah / Rincian'"
         ></button>
     </div>
 

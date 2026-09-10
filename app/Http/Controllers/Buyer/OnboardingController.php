@@ -18,12 +18,22 @@ class OnboardingController extends Controller
             'full_address' => 'required|string|max:1000',
             'province' => 'required|string|max:100',
             'city' => 'required|string|max:100',
-            'district' => 'required|string|max:100',
-            'postal_code' => 'required|string|max:10',
+            'district' => 'nullable|string|max:100',
+            'postal_code' => 'nullable|string|max:10',
         ]);
 
-        $user = Auth::user();
+        if (! empty($validated['phone'])) {
+            $digits = preg_replace('/[^0-9]/', '', $validated['phone']);
+            if (str_starts_with($digits, '62')) {
+                $validated['phone'] = '+62'.substr($digits, 2);
+            } elseif (str_starts_with($digits, '0')) {
+                $validated['phone'] = '+62'.substr($digits, 1);
+            } elseif ($digits !== '') {
+                $validated['phone'] = '+62'.$digits;
+            }
+        }
 
+        $user = Auth::user();
         // Update phone if empty
         if (! $user->phone) {
             $user->update(['phone' => $validated['phone']]);
@@ -31,6 +41,8 @@ class OnboardingController extends Controller
 
         // Set previous addresses to non-default
         $user->addresses()->update(['is_default' => false]);
+        $validated['district'] = ! empty($validated['district']) ? $validated['district'] : ($validated['city'] ?? '');
+        $validated['postal_code'] = ! empty($validated['postal_code']) ? $validated['postal_code'] : '';
 
         $address = $user->addresses()->create(array_merge($validated, [
             'is_default' => true,

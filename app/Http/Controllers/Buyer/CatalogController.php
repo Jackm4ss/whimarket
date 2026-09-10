@@ -19,9 +19,6 @@ class CatalogController extends Controller
     public function home(): View
     {
         $categories = Category::where('is_active', true)->get();
-        if ($categories->isEmpty()) {
-            $categories = MarketData::categories();
-        }
 
         $products = Product::with(['images', 'variants', 'category', 'seller.user', 'wishlists'])
             ->where('status', ProductStatus::ACTIVE)
@@ -30,19 +27,11 @@ class CatalogController extends Controller
             ->take(8)
             ->get();
 
-        if ($products->isEmpty()) {
-            $products = MarketData::landingProducts();
-        }
-
         $sellers = Seller::with(['user', 'products'])
             ->where('status', SellerStatus::VERIFIED)
             ->latest('id')
             ->take(8)
             ->get();
-
-        if ($sellers->isEmpty()) {
-            $sellers = MarketData::sellers();
-        }
 
         return view('landing', [
             'categories' => $categories,
@@ -63,9 +52,7 @@ class CatalogController extends Controller
         $search = $request->query('q');
 
         $categories = Cache::remember('shop_active_categories', 300, function () {
-            $cats = Category::where('is_active', true)->select('id', 'name', 'slug')->get();
-
-            return $cats->isEmpty() ? MarketData::categories() : $cats;
+            return Category::where('is_active', true)->select('id', 'name', 'slug')->get();
         });
 
         $query = Product::query()
@@ -119,7 +106,7 @@ class CatalogController extends Controller
                 'model_id' => $p->id,
                 'title' => $p->name,
                 'sellerName' => $p->seller->store_name ?? 'WhiMarket Creator',
-                'sellerAvatar' => $p->seller->user->avatar ?? '/assets/avatars/avatar-raisy.png',
+                'sellerAvatar' => $p->seller?->avatar_url,
                 'verified' => $p->seller->isVerified() ?? true,
                 'is_liked' => in_array($p->id, $userWishlistIds),
                 'priceText' => 'Rp '.number_format((float) $p->price, 0, ',', '.'),
@@ -148,162 +135,150 @@ class CatalogController extends Controller
         $productModel = Product::with(['images', 'variants', 'category', 'seller.user', 'wishlists'])
             ->where('slug', $slug)
             ->orWhere('id', $slug)
-            ->first();
-
-        if ($productModel) {
-            // Build view data array matching product-detail.blade.php contract
-            $gallery = [];
-            foreach ($productModel->images as $img) {
-                $gallery[] = [
-                    'id' => (string) $img->id,
-                    'thumb' => $img->image_path,
-                    'main' => $img->image_path,
-                    'alt' => $productModel->name,
-                ];
-            }
-            if (empty($gallery)) {
-                $gallery[] = [
-                    'id' => '1',
-                    'thumb' => $productModel->primary_image_url,
-                    'main' => $productModel->primary_image_url,
-                    'alt' => $productModel->name,
-                ];
-            }
-
-            $variants = $productModel->variants;
-            $rawSizes = $variants->pluck('name')->map(function ($name) {
-                if (str_contains($name, ' - ')) {
-                    $parts = explode(' - ', $name);
-
-                    return trim(end($parts));
-                }
-
-                return $name;
-            })->unique()->values()->all();
-            $sizes = ! empty($rawSizes) ? $rawSizes : ['All Size'];
-
-            $variantsMap = [];
-            $variantsStockMap = [];
-            foreach ($variants as $v) {
-                $variantsMap[$v->name] = $v->id;
-                $variantsStockMap[$v->id] = (int) $v->stock;
-                if (str_contains($v->name, ' - ')) {
-                    $parts = explode(' - ', $v->name);
-                    $sz = trim(end($parts));
-                    $variantsMap[$sz] = $v->id;
-                    $variantsStockMap[$sz] = (int) $v->stock;
-                } else {
-                    $variantsStockMap[$v->name] = (int) $v->stock;
-                }
-            }
-            $catSlug = $productModel->category?->slug ?? '';
-            $prodName = strtolower($productModel->name);
-
-            $isFashion = (in_array($catSlug, ['fashion', 'merchandise']) && ! str_contains($prodName, 'topi')) || str_contains($prodName, 'hoodie') || str_contains($prodName, 't-shirt') || str_contains($prodName, 'jaket');
-            $isPerfume = $catSlug === 'kecantikan' || str_contains($prodName, 'parfum');
-
-            $variantLabel = match (true) {
-                $isPerfume => 'Pilih Ukuran / Volume',
-                $isFashion => 'Pilih Ukuran',
-                $catSlug === 'elektronik' => 'Pilih Varian',
-                $catSlug === 'hobi' => 'Pilih Edisi / Varian',
-                default => 'Pilih Varian',
-            };
-
-            $colors = [];
-            $hasColors = false;
-            if ($productModel->slug === 'prod-hoodie-dream-plan-do' || str_contains($productModel->slug, 'hoodie-dream-plan-do')) {
-                $hasColors = true;
-                $colors = [
-                    ['id' => 'purple', 'name' => 'Purple', 'image' => '/assets/products/prod-hoodie.png', 'active' => true],
-                    ['id' => 'black', 'name' => 'Black', 'image' => '/assets/detail/hoodie_color_black.png', 'active' => false],
-                    ['id' => 'white', 'name' => 'White', 'image' => '/assets/detail/hoodie_color_white.png', 'active' => false],
-                    ['id' => 'grey', 'name' => 'Grey', 'image' => '/assets/detail/hoodie_color_grey.png', 'active' => false],
-                ];
-            }
-
-            $defaultDetail = MarketData::productDetail();
-            $productData = array_merge($defaultDetail, [
-                'id' => $productModel->slug,
-                'model_id' => $productModel->id,
-                'title' => $productModel->name,
-                'category' => $productModel->category?->name ?? 'Merchandise',
-                'category_slug' => $productModel->category?->slug ?? 'merchandise',
-                'subcategory' => $productModel->category?->name ?? 'Barang',
-                'badge' => $productModel->condition?->label() ?? 'Seperti Baru',
-                'price' => (float) $productModel->price,
-                'price_formatted' => 'Rp '.number_format((float) $productModel->price, 0, ',', '.'),
-                'description' => $productModel->description,
-                'stock' => (int) $productModel->total_stock,
-                'is_out_of_stock' => $productModel->total_stock <= 0,
-                'default_size' => $sizes[0] ?? 'All Size',
-                'has_colors' => $hasColors,
-                'colors' => $colors,
-                'variant_label' => $variantLabel,
-                'seller' => [
-                    'name' => $productModel->seller?->store_name ?? 'WhiMarket Creator',
-                    'username' => $productModel->seller?->username ?? 'creator',
-                    'role' => 'Verified Creator',
-                    'avatar' => $productModel->seller?->user?->avatar ?? '/assets/avatars/avatar-raisy.png',
-                    'verified' => $productModel->seller?->isVerified() ?? true,
-                    'href' => '/seller/@'.($productModel->seller?->username ?? 'creator'),
-                ],
-                'breadcrumbs' => [
-                    ['name' => 'Beranda', 'href' => '/'],
-                    ['name' => $productModel->category?->name ?? 'Belanja', 'href' => '/belanja?kategori='.($productModel->category?->slug ?? 'all')],
-                    ['name' => $productModel->name, 'href' => null],
-                ],
-                'gallery' => $gallery,
-                'sizes' => $sizes,
-                'variants_map' => $variantsMap,
-                'variants_stock_map' => $variantsStockMap,
-                'first_variant_id' => $variants->first()?->id,
-                'first_variant_stock' => (int) ($variants->first()?->stock ?? 0),
-
-                // Real data: no review system yet, so all zeros/empty
-                'rating' => 0,
-                'review_count' => 0,
-                'sold_count' => 0,
-                'rating_summary' => [
-                    'rating' => 0,
-                    'total_reviews' => 0,
-                    'breakdown' => [
-                        ['star' => 5, 'count' => 0, 'pct' => 0],
-                        ['star' => 4, 'count' => 0, 'pct' => 0],
-                        ['star' => 3, 'count' => 0, 'pct' => 0],
-                        ['star' => 2, 'count' => 0, 'pct' => 0],
-                        ['star' => 1, 'count' => 0, 'pct' => 0],
-                    ],
-                ],
-                'reviews' => [],
-            ]);
-
-            $isOwnProduct = Auth::check() && $productModel->seller && Auth::id() === $productModel->seller->user_id;
-            $isWishlisted = Auth::check() ? $productModel->wishlists()->where('user_id', Auth::id())->exists() : false;
-            $isFollowingSeller = Auth::check() && $productModel->seller ? Auth::user()->isFollowing($productModel->seller) : false;
-            $isSellerActive = $productModel->seller && $productModel->seller->status === SellerStatus::VERIFIED;
-            $isActive = ($productModel->status === ProductStatus::ACTIVE) && $isSellerActive;
-
-            return view('product-detail', [
-                'product' => $productData,
-                'productModel' => $productModel,
-                'isOwnProduct' => $isOwnProduct,
-                'isWishlisted' => $isWishlisted,
-                'isActive' => $isActive,
-                'isFollowingSeller' => $isFollowingSeller,
-                'isSellerActive' => $isSellerActive,
-                'activeTab' => 'belanja',
-                'title' => $productModel->name.' | WhiMarket',
-            ]);
+            ->firstOrFail();
+        // Build view data array matching product-detail.blade.php contract
+        $gallery = [];
+        foreach ($productModel->images as $img) {
+            $gallery[] = [
+                'id' => (string) $img->id,
+                'thumb' => $img->image_path,
+                'main' => $img->image_path,
+                'alt' => $productModel->name,
+            ];
+        }
+        if (empty($gallery)) {
+            $gallery[] = [
+                'id' => '1',
+                'thumb' => $productModel->primary_image_url,
+                'main' => $productModel->primary_image_url,
+                'alt' => $productModel->name,
+            ];
         }
 
-        // Fallback to MarketData detail
-        $fallback = MarketData::productDetail();
+        $variants = $productModel->variants;
+        $rawSizes = $variants->pluck('name')->map(function ($name) {
+            if (str_contains($name, ' - ')) {
+                $parts = explode(' - ', $name);
+
+                return trim(end($parts));
+            }
+
+            return $name;
+        })->unique()->values()->all();
+        $sizes = ! empty($rawSizes) ? $rawSizes : ['All Size'];
+
+        $variantsMap = [];
+        $variantsStockMap = [];
+        foreach ($variants as $v) {
+            $variantsMap[$v->name] = $v->id;
+            $variantsStockMap[$v->id] = (int) $v->stock;
+            if (str_contains($v->name, ' - ')) {
+                $parts = explode(' - ', $v->name);
+                $sz = trim(end($parts));
+                $variantsMap[$sz] = $v->id;
+                $variantsStockMap[$sz] = (int) $v->stock;
+            } else {
+                $variantsStockMap[$v->name] = (int) $v->stock;
+            }
+        }
+        $catSlug = $productModel->category?->slug ?? '';
+        $prodName = strtolower($productModel->name);
+
+        $isFashion = (in_array($catSlug, ['fashion', 'merchandise']) && ! str_contains($prodName, 'topi')) || str_contains($prodName, 'hoodie') || str_contains($prodName, 't-shirt') || str_contains($prodName, 'jaket');
+        $isPerfume = $catSlug === 'kecantikan' || str_contains($prodName, 'parfum');
+
+        $variantLabel = match (true) {
+            $isPerfume => 'Pilih Ukuran / Volume',
+            $isFashion => 'Pilih Ukuran',
+            $catSlug === 'elektronik' => 'Pilih Varian',
+            $catSlug === 'hobi' => 'Pilih Edisi / Varian',
+            default => 'Pilih Varian',
+        };
+
+        $colors = [];
+        $hasColors = false;
+        if ($productModel->slug === 'prod-hoodie-dream-plan-do' || str_contains($productModel->slug, 'hoodie-dream-plan-do')) {
+            $hasColors = true;
+            $colors = [
+                ['id' => 'purple', 'name' => 'Purple', 'image' => '/assets/products/prod-hoodie.png', 'active' => true],
+                ['id' => 'black', 'name' => 'Black', 'image' => '/assets/detail/hoodie_color_black.png', 'active' => false],
+                ['id' => 'white', 'name' => 'White', 'image' => '/assets/detail/hoodie_color_white.png', 'active' => false],
+                ['id' => 'grey', 'name' => 'Grey', 'image' => '/assets/detail/hoodie_color_grey.png', 'active' => false],
+            ];
+        }
+
+        $defaultDetail = MarketData::productDetail();
+        $productData = array_merge($defaultDetail, [
+            'id' => $productModel->slug,
+            'model_id' => $productModel->id,
+            'title' => $productModel->name,
+            'category' => $productModel->category?->name ?? 'Merchandise',
+            'category_slug' => $productModel->category?->slug ?? 'merchandise',
+            'subcategory' => $productModel->category?->name ?? 'Barang',
+            'badge' => $productModel->condition?->label() ?? 'Seperti Baru',
+            'price' => (float) $productModel->price,
+            'price_formatted' => 'Rp '.number_format((float) $productModel->price, 0, ',', '.'),
+            'description' => $productModel->description,
+            'stock' => (int) $productModel->total_stock,
+            'is_out_of_stock' => $productModel->total_stock <= 0,
+            'default_size' => $sizes[0] ?? 'All Size',
+            'has_colors' => $hasColors,
+            'colors' => $colors,
+            'variant_label' => $variantLabel,
+            'seller' => [
+                'name' => $productModel->seller?->store_name ?? 'WhiMarket Creator',
+                'username' => $productModel->seller?->username ?? 'creator',
+                'role' => 'Verified Creator',
+                'avatar' => $productModel->seller?->avatar_url,
+                'verified' => $productModel->seller?->isVerified() ?? true,
+                'href' => '/seller/@'.($productModel->seller?->username ?? 'creator'),
+            ],
+            'breadcrumbs' => [
+                ['name' => 'Beranda', 'href' => '/'],
+                ['name' => $productModel->category?->name ?? 'Belanja', 'href' => '/belanja?kategori='.($productModel->category?->slug ?? 'all')],
+                ['name' => $productModel->name, 'href' => null],
+            ],
+            'gallery' => $gallery,
+            'sizes' => $sizes,
+            'variants_map' => $variantsMap,
+            'variants_stock_map' => $variantsStockMap,
+            'first_variant_id' => $variants->first()?->id,
+            'first_variant_stock' => (int) ($variants->first()?->stock ?? 0),
+
+            // Real data: no review system yet, so all zeros/empty
+            'rating' => 0,
+            'review_count' => 0,
+            'sold_count' => 0,
+            'rating_summary' => [
+                'rating' => 0,
+                'total_reviews' => 0,
+                'breakdown' => [
+                    ['star' => 5, 'count' => 0, 'pct' => 0],
+                    ['star' => 4, 'count' => 0, 'pct' => 0],
+                    ['star' => 3, 'count' => 0, 'pct' => 0],
+                    ['star' => 2, 'count' => 0, 'pct' => 0],
+                    ['star' => 1, 'count' => 0, 'pct' => 0],
+                ],
+            ],
+            'reviews' => [],
+        ]);
+
+        $isOwnProduct = Auth::check() && $productModel->seller && Auth::id() === $productModel->seller->user_id;
+        $isWishlisted = Auth::check() ? $productModel->wishlists()->where('user_id', Auth::id())->exists() : false;
+        $isFollowingSeller = Auth::check() && $productModel->seller ? Auth::user()->isFollowing($productModel->seller) : false;
+        $isSellerActive = $productModel->seller && $productModel->seller->status === SellerStatus::VERIFIED;
+        $isActive = ($productModel->status === ProductStatus::ACTIVE) && $isSellerActive;
 
         return view('product-detail', [
-            'product' => $fallback,
+            'product' => $productData,
+            'productModel' => $productModel,
+            'isOwnProduct' => $isOwnProduct,
+            'isWishlisted' => $isWishlisted,
+            'isActive' => $isActive,
+            'isFollowingSeller' => $isFollowingSeller,
+            'isSellerActive' => $isSellerActive,
             'activeTab' => 'belanja',
-            'title' => $fallback['title'].' | WhiMarket',
+            'title' => $productModel->name.' | WhiMarket',
         ]);
     }
 
@@ -347,12 +322,7 @@ class CatalogController extends Controller
 
         $seller = Seller::with(['user'])
             ->where('username', $cleanUsername)
-            ->first();
-
-        if (! $seller) {
-            // Fallback for demo usernames
-            $seller = Seller::with(['user'])->firstOrFail();
-        }
+            ->firstOrFail();
 
         $isOwnStore = Auth::check() && Auth::id() === $seller->user_id;
         $isFollowing = Auth::check() ? Auth::user()->isFollowing($seller) : false;

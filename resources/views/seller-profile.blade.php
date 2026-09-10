@@ -2,7 +2,7 @@
     $sellerName = isset($seller) ? ($seller->store_name ?? 'Seller WhiMarket') : 'Rachel Vennya';
     $sellerHandle = isset($seller) ? ($seller->username ?? 'rachel_venya') : 'rachel_venya';
     $sellerAvatar = isset($seller) ? ($seller->avatar_url ?? ($seller->user?->avatar ?? '/assets/avatar-rachel-exact.png')) : '/assets/avatar-rachel-exact.png';
-    $sellerBanner = isset($seller) ? ($seller->banner_url ?? '/assets/seller-banner-rachel.png') : '/assets/seller-banner-rachel.png';
+    $sellerBanner = isset($seller) ? ($seller->banner_url ?? '/assets/default-seller-banner.png') : '/assets/default-seller-banner.png';
     $isStoreActive = $isStoreActive ?? (isset($seller) ? $seller->status === \App\Enums\SellerStatus::VERIFIED : true);
     $sellerRole = $isStoreActive ? (isset($seller) ? 'Verified Creator' : 'Selebgram') : 'Toko Dinonaktifkan Sementara';
     $sellerBio = isset($seller) && !empty($seller->bio) ? $seller->bio : '“Let good things find a new home ♡”';
@@ -31,64 +31,7 @@
             'category' => $p->category?->slug ?? 'fashion',
             'href' => route('product.detail', $p->slug),
         ];
-    })->values()->all() : [
-        [
-            'id' => 'rv_1',
-            'title' => 'Nike Dunk Low Purple Exclusive',
-            'sellerName' => $sellerName,
-            'sellerAvatar' => $sellerAvatar,
-            'verified' => true,
-            'condition' => 'Seperti Baru',
-            'priceText' => 'Rp 1.200.000',
-            'priceNumber' => 1200000,
-            'likes' => 128,
-            'image' => '/assets/products/prod-dunk.png',
-            'category' => 'fashion',
-            'href' => '/produk/prod-dunk-purple',
-        ],
-        [
-            'id' => 'rv_2',
-            'title' => 'Tas Michael Kors Original Brown',
-            'sellerName' => $sellerName,
-            'sellerAvatar' => $sellerAvatar,
-            'verified' => true,
-            'condition' => 'Sangat Baik',
-            'priceText' => 'Rp 2.450.000',
-            'priceNumber' => 2450000,
-            'likes' => 215,
-            'image' => '/assets/banner-chanel-bag.png',
-            'category' => 'tas',
-            'href' => '/produk/tas-michael-kors-8',
-        ],
-        [
-            'id' => 'rv_3',
-            'title' => 'Varsity Jacket Whimarket Exclusive',
-            'sellerName' => $sellerName,
-            'sellerAvatar' => $sellerAvatar,
-            'verified' => true,
-            'condition' => 'Seperti Baru',
-            'priceText' => 'Rp 650.000',
-            'priceNumber' => 650000,
-            'likes' => 94,
-            'image' => '/assets/products/prod-hoodie.png',
-            'category' => 'fashion',
-            'href' => '/produk/hoodie-streamer-edition-10',
-        ],
-        [
-            'id' => 'rv_4',
-            'title' => 'Jaket Denim Vintage Washed',
-            'sellerName' => $sellerName,
-            'sellerAvatar' => $sellerAvatar,
-            'verified' => true,
-            'condition' => 'Baik',
-            'priceText' => 'Rp 450.000',
-            'priceNumber' => 450000,
-            'likes' => 142,
-            'image' => '/assets/products/prod-denim.png',
-            'category' => 'fashion',
-            'href' => '/produk/jaket-denim-vintage-1',
-        ],
-    ];
+    })->values()->all() : [];
 @endphp
 <x-layouts.app
     :title="$sellerName . ' - Toko Resmi WhiMarket'"

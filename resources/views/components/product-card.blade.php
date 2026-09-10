@@ -5,7 +5,7 @@
     $title = $isModel ? $product->name : ($product['title'] ?? '');
     $image = $isModel ? $product->primary_image_url : ($product['image'] ?? '/assets/placeholder-product.png');
     $sellerName = $isModel ? ($product->seller?->store_name ?? 'WhiMarket Creator') : ($product['sellerName'] ?? 'WhiMarket Creator');
-    $sellerAvatar = $isModel ? ($product->seller?->user?->avatar ?? '/assets/avatars/avatar-raisy.png') : ($product['sellerAvatar'] ?? '/assets/avatars/avatar-raisy.png');
+    $sellerAvatar = $isModel ? ($product->seller?->avatar_url ?? 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><rect width="128" height="128" rx="64" fill="%23F3EEFF"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="52" fill="%234F26A6">W</text></svg>') : ($product['sellerAvatar'] ?? 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><rect width="128" height="128" rx="64" fill="%23F3EEFF"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="52" fill="%234F26A6">W</text></svg>');
     $verified = $isModel ? ($product->seller?->isVerified() ?? true) : ($product['verified'] ?? true);
     $condition = $isModel ? ($product->condition?->label() ?? 'Like New') : ($product['condition'] ?? 'Like New');
     $priceText = $isModel ? ('Rp ' . number_format((float)$product->price, 0, ',', '.')) : ($product['priceText'] ?? 'Rp 0');

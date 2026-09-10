@@ -25,9 +25,15 @@
         </a>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
-        @foreach($products as $product)
-            <x-product-card :product="$product" />
-        @endforeach
-    </div>
+    @if(count($products) > 0)
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
+            @foreach($products as $product)
+                <x-product-card :product="$product" />
+            @endforeach
+        </div>
+    @else
+        <div class="bg-white rounded-2xl border border-gray-100 p-8 sm:p-12 text-center shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+            <p class="text-sm sm:text-base text-gray-500 font-medium">Belum ada produk yang tersedia saat ini.</p>
+        </div>
+    @endif
 </section>

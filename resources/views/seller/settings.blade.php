@@ -189,7 +189,7 @@
                     <div class="relative w-full h-[180px] sm:h-[240px] md:h-[280px] lg:h-[300px] rounded-2xl sm:rounded-3xl overflow-hidden bg-purple-900/10 border border-gray-200/80 group">
                         <!-- Banner Image -->
                         <img
-                            :src="bannerPreview ? bannerPreview : (removeBanner ? '/assets/seller-banner-rachel.png' : currentBanner)"
+                            :src="bannerPreview ? bannerPreview : (removeBanner ? '/assets/default-seller-banner.png' : currentBanner)"
                             alt="Banner Toko"
                             class="w-full h-full object-cover object-center transition-all duration-300 group-hover:brightness-95"
                         />
@@ -207,11 +207,10 @@
 
                             <button
                                 type="button"
-                                x-show="bannerPreview || (!removeBanner && currentBanner !== '/assets/seller-banner-rachel.png')"
+                                x-show="bannerPreview || (!removeBanner && currentBanner !== '/assets/default-seller-banner.png')"
                                 @click="resetBanner()"
                                 class="p-2 rounded-xl bg-white/95 hover:bg-white text-rose-600 hover:text-rose-700 shadow-sm transition-all backdrop-blur-md cursor-pointer border border-white/60"
                                 title="Reset ke banner standar"
-                            >
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
                         </div>

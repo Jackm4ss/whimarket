@@ -114,6 +114,16 @@ class ProfileController extends Controller
             'city.required' => 'Kota/Kabupaten wajib diisi.',
             'full_address.required' => 'Alamat lengkap wajib diisi.',
         ]);
+        if (! empty($validated['phone'])) {
+            $digits = preg_replace('/[^0-9]/', '', $validated['phone']);
+            if (str_starts_with($digits, '62')) {
+                $validated['phone'] = '+62'.substr($digits, 2);
+            } elseif (str_starts_with($digits, '0')) {
+                $validated['phone'] = '+62'.substr($digits, 1);
+            } elseif ($digits !== '') {
+                $validated['phone'] = '+62'.$digits;
+            }
+        }
 
         $isFirstAddress = $user->addresses()->count() === 0;
         $shouldBeDefault = $request->boolean('is_default') || $isFirstAddress;
@@ -160,6 +170,16 @@ class ProfileController extends Controller
             'city.required' => 'Kota/Kabupaten wajib diisi.',
             'full_address.required' => 'Alamat lengkap wajib diisi.',
         ]);
+        if (! empty($validated['phone'])) {
+            $digits = preg_replace('/[^0-9]/', '', $validated['phone']);
+            if (str_starts_with($digits, '62')) {
+                $validated['phone'] = '+62'.substr($digits, 2);
+            } elseif (str_starts_with($digits, '0')) {
+                $validated['phone'] = '+62'.substr($digits, 1);
+            } elseif ($digits !== '') {
+                $validated['phone'] = '+62'.$digits;
+            }
+        }
 
         if ($request->boolean('is_default')) {
             $user->addresses()->where('id', '!=', $id)->update(['is_default' => false]);

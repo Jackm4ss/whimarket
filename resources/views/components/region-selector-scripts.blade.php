@@ -1,6 +1,6 @@
 <script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('regionSelectorComponent', (initialData = {}) => ({
+    window.regionSelectorComponent = function(initialData = {}) {
+        return {
             provinces: [],
             regencies: [],
             districts: [],
@@ -280,6 +280,14 @@
                     this.selectedPostalCode = val;
                 }
             }
-        }));
-    });
+        };
+    };
+
+    if (window.Alpine) {
+        Alpine.data('regionSelectorComponent', window.regionSelectorComponent);
+    } else {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('regionSelectorComponent', window.regionSelectorComponent);
+        });
+    }
 </script>

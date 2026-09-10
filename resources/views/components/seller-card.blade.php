@@ -13,7 +13,7 @@
     $itemCount = $isModel ? $seller->products()->count() : ($seller['itemCount'] ?? 10);
     $followerCount = $isModel ? ($isDemo ? '12.5rb' : '0') : ($seller['followerCount'] ?? ($seller['salesCount'] ? $seller['salesCount'] . 'rb' : '10.5rb'));
     $reviewCount = $isModel ? ($isDemo ? '1.2rb' : '0') : ($seller['reviewCount'] ?? '1.2rb');
-    $cardBg = $isModel ? $seller->banner_url : ($seller['cardBg'] ?? '/assets/seller-card-cover-rachel.png');
+    $cardBg = $isModel ? $seller->banner_url : ($seller['cardBg'] ?? '/assets/default-seller-banner.png');
 @endphp
 
 <div class="w-[260px] sm:w-[280px] lg:w-[280px] xl:w-[290px] shrink-0 bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_32px_rgba(72,30,188,0.08)] transition-all flex flex-col justify-between group overflow-hidden snap-start text-left">

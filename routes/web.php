@@ -65,7 +65,7 @@ Route::get('/keranjang', [CartController::class, 'index'])->name('cart.index');
 Route::post('/keranjang/add', [CartController::class, 'add'])->name('cart.add');
 Route::patch('/keranjang/item/{id}', [CartController::class, 'updateItem'])->name('cart.update');
 Route::delete('/keranjang/item/{id}', [CartController::class, 'removeItem'])->name('cart.remove');
-
+Route::post('/keranjang/select-all', [CartController::class, 'selectAll'])->name('cart.select-all');
 // Checkout & Payment Routes
 Route::middleware('auth')->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');

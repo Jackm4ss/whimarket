@@ -128,65 +128,6 @@
                 </div>
             </div>
 
-            <!-- Floating Creator Profile Cards (Right Stack) -->
-            <div class="absolute right-0 sm:right-2 lg:right-0 top-3 sm:top-5 flex flex-col gap-1.5 sm:gap-2.5 z-30 scale-75 sm:scale-90 lg:scale-100 origin-top-right">
-                <div class="absolute -top-7 sm:-top-8 right-6 sm:right-8 z-40 pointer-events-none">
-                    <svg class="w-6 h-6 sm:w-7 sm:h-7 text-[#4F26A6]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07l14.14-14.14" />
-                    </svg>
-                </div>
-
-                <!-- Creator 1: Rachel Vennya -->
-                <a href="/seller/@rachel_venya" class="bg-white/95 backdrop-blur-md rounded-2xl p-2 sm:p-2.5 px-3 sm:px-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] border border-gray-100 flex items-center gap-2.5 sm:gap-3 w-[195px] sm:w-[220px] transition-transform hover:-translate-y-0.5">
-                    <img src="/assets/avatar-rachel.png" alt="Rachel Vennya" width="44" height="44" decoding="async" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shrink-0 ring-2 ring-purple-100" />
-                    <div class="flex flex-col min-w-0">
-                        <div class="flex items-center gap-1 sm:gap-1.5">
-                            <span class="text-xs sm:text-[13.5px] font-bold text-gray-900 truncate">Rachel Vennya</span>
-                            <x-verified-badge size="sm" class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-                        </div>
-                        <span class="text-[10px] sm:text-[11.5px] text-gray-500 font-medium">@rachelvennya</span>
-                        <div class="flex items-center gap-1 text-[9.5px] sm:text-[11px] text-gray-500 font-medium mt-0.5">
-                            <span class="text-[#F59E0B] font-bold">★ 4.9</span>
-                            <span class="text-gray-300">•</span>
-                            <span>120 terjual</span>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Creator 2: Jerome Polin -->
-                <div class="bg-white/95 backdrop-blur-md rounded-2xl p-2 sm:p-2.5 px-3 sm:px-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] border border-gray-100 flex items-center gap-2.5 sm:gap-3 w-[195px] sm:w-[220px] transition-transform hover:-translate-y-0.5">
-                    <img src="/assets/avatar-jerome.png" alt="Jerome Polin" width="44" height="44" decoding="async" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shrink-0 ring-2 ring-purple-100" />
-                    <div class="flex flex-col min-w-0">
-                        <div class="flex items-center gap-1 sm:gap-1.5">
-                            <span class="text-xs sm:text-[13.5px] font-bold text-gray-900 truncate">Jerome Polin</span>
-                            <x-verified-badge size="sm" class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-                        </div>
-                        <span class="text-[10px] sm:text-[11.5px] text-gray-500 font-medium">@jeromepolin</span>
-                        <div class="flex items-center gap-1 text-[9.5px] sm:text-[11px] text-gray-500 font-medium mt-0.5">
-                            <span class="text-[#F59E0B] font-bold">★ 5.0</span>
-                            <span class="text-gray-300">•</span>
-                            <span>85 terjual</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Creator 3: Anya Geraldine -->
-                <div class="bg-white/95 backdrop-blur-md rounded-2xl p-2 sm:p-2.5 px-3 sm:px-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.06)] border border-gray-100 flex items-center gap-2.5 sm:gap-3 w-[195px] sm:w-[220px] transition-transform hover:-translate-y-0.5">
-                    <img src="/assets/avatar-anya.png" alt="Anya Geraldine" width="44" height="44" decoding="async" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover shrink-0 ring-2 ring-purple-100" />
-                    <div class="flex flex-col min-w-0">
-                        <div class="flex items-center gap-1 sm:gap-1.5">
-                            <span class="text-xs sm:text-[13.5px] font-bold text-gray-900 truncate">Anya Geraldine</span>
-                            <x-verified-badge size="sm" class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-                        </div>
-                        <span class="text-[10px] sm:text-[11.5px] text-gray-500 font-medium">@anyageraldine</span>
-                        <div class="flex items-center gap-1 text-[9.5px] sm:text-[11px] text-gray-500 font-medium mt-0.5">
-                            <span class="text-[#F59E0B] font-bold">★ 4.9</span>
-                            <span class="text-gray-300">•</span>
-                            <span>95 terjual</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Sticky Paper Note (Bottom Right) -->
             <div class="absolute right-1 sm:right-4 -bottom-3 sm:-bottom-2 z-30 rotate-[-3.5deg] scale-80 sm:scale-90 lg:scale-100 origin-bottom-right transition-transform hover:rotate-0">

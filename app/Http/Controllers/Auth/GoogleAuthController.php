@@ -105,6 +105,9 @@ class GoogleAuthController extends Controller
         if ($user) {
             Auth::login($user, true);
             request()->session()->regenerate();
+            if (! $user->addresses()->exists()) {
+                request()->session()->flash('show_onboarding_modal', true);
+            }
 
             if ($user->isSeller() && $user->seller) {
                 return redirect()->route('seller.dashboard');

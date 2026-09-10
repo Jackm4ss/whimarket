@@ -182,4 +182,53 @@ class WishlistAndCartTest extends TestCase
         ]);
         $this->assertDatabaseMissing('cart_items', ['id' => $cartItem->id]);
     }
+
+    public function test_cart_page_displays_initial_avatar_for_seller_without_profile_picture_and_not_raisy(): void
+    {
+        $sellerUser = User::factory()->create(['role' => UserRole::SELLER, 'avatar' => null]);
+        $seller = Seller::create([
+            'user_id' => $sellerUser->id,
+            'store_name' => 'Toko Tanpa Avatar',
+            'username' => 'toko-tanpa-avatar',
+            'bank_name' => 'BCA',
+            'bank_account_number' => '999888',
+            'bank_account_name' => 'Tanpa Avatar',
+            'status' => SellerStatus::VERIFIED,
+            'verified_at' => now(),
+        ]);
+
+        $category = Category::firstOrCreate(['slug' => 'fashion'], ['name' => 'Fashion', 'is_active' => true]);
+        $product = Product::create([
+            'seller_id' => $seller->id,
+            'category_id' => $category->id,
+            'name' => 'Kemeja Polos Unik',
+            'slug' => 'kemeja-polos-unik',
+            'description' => 'Kemeja polos rapi.',
+            'price' => 120000,
+            'condition' => ProductCondition::LIKE_NEW,
+            'status' => ProductStatus::ACTIVE,
+        ]);
+
+        $variant = ProductVariant::create([
+            'product_id' => $product->id,
+            'name' => 'Size L',
+            'sku' => 'KMJ-L',
+            'price' => 120000,
+            'stock' => 5,
+        ]);
+
+        $buyer = User::factory()->create(['role' => UserRole::BUYER]);
+        $cart = Cart::create(['user_id' => $buyer->id]);
+        $cart->items()->create([
+            'product_variant_id' => $variant->id,
+            'quantity' => 1,
+            'is_selected' => true,
+        ]);
+
+        $response = $this->actingAs($buyer)->get(route('cart.index'));
+        $response->assertOk();
+        $response->assertSee('Toko Tanpa Avatar');
+        $response->assertDontSee('avatar-raisy.png');
+        $this->assertStringContainsString('data:image/svg+xml', $seller->avatar_url);
+    }
 }

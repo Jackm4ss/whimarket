@@ -143,4 +143,57 @@ class OrderLifecycleTest extends TestCase
         $this->assertEquals(PayoutStatus::PENDING, $payout->status);
         $this->assertEquals($order->total_amount, $payout->amount);
     }
+
+    public function test_buyer_can_checkout_and_upload_payment_proof_when_variant_stock_is_one(): void
+    {
+        Storage::fake('public');
+
+        $sellerUser = User::factory()->seller()->create();
+        $sellerUser->assignRole('seller');
+        $seller = Seller::factory()->create(['user_id' => $sellerUser->id]);
+
+        $buyer = User::factory()->buyer()->create();
+        $buyer->assignRole('buyer');
+        $address = Address::factory()->create(['user_id' => $buyer->id]);
+
+        $product = Product::factory()->create(['seller_id' => $seller->id]);
+        $variant = ProductVariant::factory()->create(['product_id' => $product->id, 'stock' => 1, 'price' => 250000]);
+
+        $cart = Cart::create(['user_id' => $buyer->id]);
+        CartItem::create([
+            'cart_id' => $cart->id,
+            'product_variant_id' => $variant->id,
+            'quantity' => 1,
+            'is_selected' => true,
+        ]);
+
+        // Checkout 1-stock item
+        $responseCheckout = $this->actingAs($buyer)->post(route('checkout.process'), [
+            'address_id' => $address->id,
+        ]);
+        $responseCheckout->assertRedirect();
+
+        $order = Order::where('buyer_id', $buyer->id)->first();
+        $this->assertNotNull($order);
+        $this->assertTrue($order->status->equals(PendingPayment::class));
+        $this->assertEquals(0, $variant->fresh()->stock);
+
+        // Visit payment page: must be accessible without out-of-stock warning
+        $responsePayment = $this->actingAs($buyer)->get(route('payment.show', $order->order_number));
+        $responsePayment->assertOk();
+        $responsePayment->assertDontSee('Stok Barang Ini Telah Habis');
+
+        // Upload proof: must succeed despite remaining catalog stock being 0
+        $file = UploadedFile::fake()->create('bukti_transfer.png', 120, 'image/png');
+        $responseProof = $this->actingAs($buyer)->post(route('payment.upload', $order->order_number), [
+            'sender_bank_name' => 'BCA',
+            'sender_account_name' => 'Budi Pembeli',
+            'proof' => $file,
+        ]);
+        $responseProof->assertRedirect();
+
+        $order->refresh();
+        $this->assertTrue($order->status->equals(PaymentVerification::class));
+        $this->assertEquals(PaymentStatus::PENDING_REVIEW, $order->payment->status);
+    }
 }

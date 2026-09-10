@@ -50,28 +50,87 @@
             enctype="multipart/form-data"
             x-data="{
                 price: {{ old('price', (int)$product->price) }},
-                existingImages: @js($product->images->map(fn($img) => ['id' => $img->id, 'url' => $img->image_path, 'is_primary' => (bool)$img->is_primary])->values()->all()),
+                existingImages: @js($product->images->map(fn($img) => [
+                    'id' => $img->id,
+                    'url' => $img->image_path,
+                    'original_url' => $img->image_path,
+                    'is_primary' => (bool)$img->is_primary,
+                    'is_replaced' => false,
+                ])->values()->all()),
                 deletedImages: [],
                 deleteExistingImage(imgId) {
                     if (this.existingImages.length <= 1 && this.newPreviews.length === 0) {
                         alert('Produk harus memiliki minimal 1 foto.');
                         return;
                     }
+                    this.cancelReplace(imgId);
                     this.deletedImages.push(imgId);
                     this.existingImages = this.existingImages.filter(img => img.id !== imgId);
                 },
+                triggerReplace(imgId) {
+                    const input = document.getElementById('replace-input-' + imgId);
+                    if (input) input.click();
+                },
+                onReplaceSelected(e, imgId) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const imgObj = this.existingImages.find(img => img.id === imgId);
+                    if (imgObj) {
+                        if (imgObj.previewUrl) {
+                            URL.revokeObjectURL(imgObj.previewUrl);
+                        }
+                        imgObj.previewUrl = URL.createObjectURL(file);
+                        imgObj.url = imgObj.previewUrl;
+                        imgObj.is_replaced = true;
+                    }
+                },
+                cancelReplace(imgId) {
+                    const imgObj = this.existingImages.find(img => img.id === imgId);
+                    if (imgObj) {
+                        if (imgObj.previewUrl) {
+                            URL.revokeObjectURL(imgObj.previewUrl);
+                            imgObj.previewUrl = null;
+                        }
+                        imgObj.url = imgObj.original_url;
+                        imgObj.is_replaced = false;
+                        const input = document.getElementById('replace-input-' + imgId);
+                        if (input) input.value = '';
+                    }
+                },
+                newFiles: [],
                 newPreviews: [],
                 onFilesSelected(e) {
                     const files = Array.from(e.target.files);
-                    this.newPreviews = files.map(file => ({
-                        name: file.name,
-                        size: (file.size / 1024).toFixed(0) + ' KB',
-                        url: URL.createObjectURL(file)
-                    }));
+                    files.forEach(file => {
+                        this.newFiles.push(file);
+                        this.newPreviews.push({
+                            name: file.name,
+                            size: (file.size / 1024).toFixed(0) + ' KB',
+                            url: URL.createObjectURL(file)
+                        });
+                    });
+                    this.syncNewFileInput();
+                },
+                removeNewFile(pIdx) {
+                    if (this.newPreviews[pIdx]) {
+                        URL.revokeObjectURL(this.newPreviews[pIdx].url);
+                    }
+                    this.newFiles.splice(pIdx, 1);
+                    this.newPreviews.splice(pIdx, 1);
+                    this.syncNewFileInput();
                 },
                 removeNewFiles() {
+                    this.newPreviews.forEach(p => URL.revokeObjectURL(p.url));
                     this.newPreviews = [];
-                    if (this.$refs.fileInput) this.$refs.fileInput.value = '';
+                    this.newFiles = [];
+                    this.syncNewFileInput();
+                },
+                syncNewFileInput() {
+                    const dt = new DataTransfer();
+                    this.newFiles.forEach(f => dt.items.add(f));
+                    if (this.$refs.fileInput) {
+                        this.$refs.fileInput.files = dt.files;
+                    }
                 },
                 variants: @js($product->variants->map(fn($v) => ['id' => $v->id, 'name' => $v->name, 'price' => (float)$v->price, 'stock' => $v->stock])->values()->all()),
                 addVariant() {
@@ -198,23 +257,77 @@
                             <template x-for="(img, idx) in existingImages" :key="img.id">
                                 <div class="relative group aspect-square rounded-2xl overflow-hidden border border-gray-200/80 bg-gray-50 shadow-xs">
                                     <img :src="img.url" alt="Foto Produk" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                    <!-- Top Left Badges -->
+                                    <div class="absolute top-2 left-2 flex flex-col gap-1 z-10 pointer-events-none">
+                                        <template x-if="idx === 0 || img.is_primary">
+                                            <span class="px-2 py-0.5 rounded-lg bg-[#4F26A6] text-white text-[10px] font-bold shadow-xs">
+                                                Foto Utama
+                                            </span>
+                                        </template>
+                                        <template x-if="img.is_replaced">
+                                            <span class="px-2 py-0.5 rounded-lg bg-amber-500 text-white text-[10px] font-bold shadow-xs flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                                <span>Foto Diganti</span>
+                                            </span>
+                                        </template>
+                                    </div>
 
-                                    <!-- Primary Badge -->
-                                    <template x-if="idx === 0 || img.is_primary">
-                                        <span class="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-[#4F26A6] text-white text-[10px] font-bold shadow-xs">
-                                            Foto Utama
-                                        </span>
-                                    </template>
-
-                                    <!-- Delete Button Overlay -->
+                                    <!-- Top Right Delete Button -->
                                     <button
                                         type="button"
                                         @click="deleteExistingImage(img.id)"
-                                        class="absolute top-2 right-2 w-7 h-7 rounded-xl bg-white/95 hover:bg-rose-600 text-gray-600 hover:text-white flex items-center justify-center shadow-md transition-all cursor-pointer"
+                                        class="absolute top-2 right-2 w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-white/95 hover:bg-rose-600 text-gray-700 hover:text-white flex items-center justify-center shadow-md transition-all cursor-pointer z-10 active:scale-95"
                                         title="Hapus foto ini"
                                     >
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                     </button>
+
+                                    <!-- Hidden File Input for Image Replacement -->
+                                    <input
+                                        type="file"
+                                        :id="'replace-input-' + img.id"
+                                        :name="'replace_images[' + img.id + ']'"
+                                        accept="image/jpeg,image/png,image/webp,image/jpg"
+                                        class="hidden"
+                                        @change="onReplaceSelected($event, img.id)"
+                                    />
+
+                                    <!-- Bottom Action Bar (Ganti Foto & Batalkan) -->
+                                    <div class="absolute inset-x-0 bottom-0 p-1.5 sm:p-2 bg-gradient-to-t from-black/85 via-black/50 to-transparent flex items-center gap-1.5 z-10">
+                                        <template x-if="!img.is_replaced">
+                                            <button
+                                                type="button"
+                                                @click.stop="triggerReplace(img.id)"
+                                                class="w-full py-1.5 px-2 rounded-xl bg-white/95 hover:bg-white text-gray-900 text-[11px] font-extrabold flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer active:scale-95 hover:text-[#4F26A6]"
+                                                title="Ganti foto ini"
+                                            >
+                                                <svg class="w-3.5 h-3.5 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                                <span>Ganti Foto</span>
+                                            </button>
+                                        </template>
+
+                                        <template x-if="img.is_replaced">
+                                            <div class="w-full flex items-center gap-1.5">
+                                                <button
+                                                    type="button"
+                                                    @click.stop="triggerReplace(img.id)"
+                                                    class="flex-1 py-1.5 px-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-extrabold flex items-center justify-center gap-1 shadow-sm transition-all cursor-pointer active:scale-95"
+                                                    title="Pilih foto lain"
+                                                >
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                                    <span>Ubah</span>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    @click.stop="cancelReplace(img.id)"
+                                                    class="w-7 h-7 rounded-xl bg-white/95 hover:bg-white text-gray-700 hover:text-rose-600 flex items-center justify-center shadow-sm transition-all cursor-pointer active:scale-95 shrink-0"
+                                                    title="Batal ganti foto"
+                                                >
+                                                    <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                </button>
+                                            </div>
+                                        </template>
+                                    </div>
                                 </div>
                             </template>
                         </div>
@@ -247,16 +360,24 @@
                         <template x-if="newPreviews.length > 0">
                             <div class="mt-4 p-4 rounded-2xl bg-[#FAF9FC] border border-gray-100 space-y-3">
                                 <div class="flex items-center justify-between">
-                                    <span class="text-xs font-bold text-gray-700">Foto Baru yang Akan Diunggah:</span>
+                                    <span class="text-xs font-bold text-gray-700">Foto Baru yang Akan Diunggah (<span x-text="newPreviews.length"></span>):</span>
                                     <button type="button" @click="removeNewFiles()" class="text-xs font-bold text-rose-600 hover:underline cursor-pointer">
-                                        Batalkan Pilihan Baru
+                                        Hapus Semua Foto Baru
                                     </button>
                                 </div>
                                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                     <template x-for="(preview, pIdx) in newPreviews" :key="pIdx">
-                                        <div class="relative aspect-square rounded-xl overflow-hidden border border-purple-200/80 shadow-2xs">
-                                            <img :src="preview.url" class="w-full h-full object-cover" />
-                                            <span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-black/70 text-white text-[9px] font-bold" x-text="preview.size"></span>
+                                        <div class="relative group aspect-square rounded-2xl overflow-hidden border-2 border-purple-200/80 bg-white shadow-2xs">
+                                            <img :src="preview.url" :alt="preview.name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                            <button
+                                                type="button"
+                                                @click="removeNewFile(pIdx)"
+                                                class="absolute top-2 right-2 w-7 h-7 rounded-xl bg-white/95 hover:bg-rose-600 text-gray-700 hover:text-white flex items-center justify-center shadow-md transition-all cursor-pointer z-10"
+                                                title="Hapus foto ini"
+                                            >
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            </button>
+                                            <span class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded-lg bg-black/70 backdrop-blur-xs text-white text-[9px] font-bold" x-text="preview.size"></span>
                                         </div>
                                     </template>
                                 </div>

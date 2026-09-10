@@ -28,6 +28,7 @@ class CartController extends Controller
                 'items' => collect(),
                 'groupedItems' => collect(),
                 'selectedSubtotal' => 0,
+                'cartConfigItems' => [],
                 'title' => 'Keranjang Belanja | WhiMarket',
                 'activeTab' => 'keranjang',
             ]);
@@ -48,12 +49,22 @@ class CartController extends Controller
             ->get();
         $groupedItems = $items->groupBy(fn ($item) => $item->variant?->product?->seller?->store_name ?? 'WhiMarket Creator');
         $selectedSubtotal = $items->where('is_selected', true)->sum(fn ($i) => (float) $i->variant->price * $i->quantity);
+        $cartConfigItems = $items->map(fn ($i) => [
+            'id' => $i->id,
+            'quantity' => (int) $i->quantity,
+            'is_selected' => (bool) $i->is_selected,
+            'price' => (float) $i->variant->price,
+            'stock' => (int) $i->variant->stock,
+            'is_active' => $i->variant?->product?->status === ProductStatus::ACTIVE
+                && ($i->variant?->product?->seller?->status === SellerStatus::VERIFIED),
+        ])->values()->all();
 
         return view('cart', [
             'cart' => $cart,
             'items' => $items,
             'groupedItems' => $groupedItems,
             'selectedSubtotal' => $selectedSubtotal,
+            'cartConfigItems' => $cartConfigItems,
             'title' => 'Keranjang Belanja | WhiMarket',
             'activeTab' => 'keranjang',
         ]);
@@ -246,5 +257,44 @@ class CartController extends Controller
         }
 
         return redirect()->back()->with('success', 'Item berhasil dihapus dari keranjang.');
+    }
+
+    public function selectAll(Request $request): JsonResponse
+    {
+        if (! Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated.'], 401);
+        }
+
+        if (Auth::user()->isAdmin()) {
+            return response()->json(['success' => false, 'message' => 'Akun Administrator tidak dapat menggunakan keranjang belanja.'], 403);
+        }
+
+        $isSelected = $request->boolean('is_selected', true);
+        $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
+
+        if ($isSelected) {
+            $cart->items()
+                ->whereHas('variant.product', fn ($pq) => $pq->where('status', ProductStatus::ACTIVE))
+                ->whereHas('variant.product.seller', fn ($sq) => $sq->where('status', SellerStatus::VERIFIED))
+                ->update(['is_selected' => true]);
+
+            $cart->items()
+                ->where(function ($q) {
+                    $q->whereHas('variant.product', fn ($pq) => $pq->where('status', '!=', ProductStatus::ACTIVE))
+                        ->orWhereHas('variant.product.seller', fn ($sq) => $sq->where('status', '!=', SellerStatus::VERIFIED));
+                })
+                ->update(['is_selected' => false]);
+        } else {
+            $cart->items()->update(['is_selected' => false]);
+        }
+
+        $items = $cart->items()->with('variant')->get();
+        $selectedSubtotal = $items->where('is_selected', true)->sum(fn ($i) => (float) $i->variant->price * $i->quantity);
+
+        return response()->json([
+            'success' => true,
+            'selected_subtotal' => $selectedSubtotal,
+            'selected_count' => $items->where('is_selected', true)->count(),
+        ]);
     }
 }

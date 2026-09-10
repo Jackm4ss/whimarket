@@ -22,6 +22,11 @@
                 full_address: '',
                 is_default: false
             },
+            editingPhoneDisplay: '',
+            get editFullPhone() {
+                const cleaned = (this.editingPhoneDisplay || '').replace(/[^0-9]/g, '');
+                return cleaned.length > 0 ? '+62' + cleaned : '';
+            },
             deletingAddressId: null,
             deletingAddressName: '',
 
@@ -58,8 +63,26 @@
             },
             openEditModal(addr) {
                 this.editingAddress = { ...addr };
+                let p = addr.phone || '';
+                let d = p.replace(/[^0-9]/g, '');
+                if (d.startsWith('62')) d = d.substring(2);
+                else if (d.startsWith('0')) d = d.substring(1);
+                this.editingPhoneDisplay = d;
                 this.editModalOpen = true;
                 this.$dispatch('load-edit-address', addr);
+            },
+            handleEditPhoneInput(e) {
+                let val = e.target.value.replace(/[^0-9+]/g, '');
+                if (val.startsWith('+62')) {
+                    val = val.substring(3);
+                } else if (val.startsWith('62')) {
+                    val = val.substring(2);
+                } else if (val.startsWith('0')) {
+                    val = val.substring(1);
+                }
+                val = val.replace(/[^0-9]/g, '');
+                this.editingPhoneDisplay = val;
+                e.target.value = val;
             },
             promptDeleteAddress(id, name) {
                 this.deletingAddressId = id;
@@ -527,31 +550,84 @@
             x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto"
+            class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto"
         >
             <div
                 @click.outside="addModalOpen = false"
-                class="bg-white rounded-3xl border border-gray-100 shadow-[0_25px_60px_rgba(79,38,166,0.22)] max-w-lg w-full p-6 sm:p-8 relative my-8"
+                style="max-height: 90dvh;"
+                class="bg-white rounded-3xl border border-gray-100 shadow-[0_25px_60px_rgba(79,38,166,0.22)] max-w-lg w-full p-4 sm:p-6 md:p-8 relative flex flex-col min-h-0 overflow-hidden my-auto"
             >
-                <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+                <div class="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 shrink-0">
                     <div class="flex items-center gap-2.5">
                         <div class="w-8 h-8 rounded-xl bg-purple-50 text-[#4F26A6] flex items-center justify-center">
                             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 4v16m8-8H4"/></svg>
                         </div>
-                        <h3 class="text-lg sm:text-xl font-extrabold text-gray-900">Tambah Alamat Pengiriman</h3>
+                        <h3 class="text-base sm:text-lg font-extrabold text-gray-900">Tambah Alamat Pengiriman</h3>
                     </div>
                     <button type="button" @click="addModalOpen = false" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition-colors cursor-pointer" title="Tutup">✕</button>
                 </div>
 
-                <form action="{{ route('addresses.store') }}" method="POST" class="space-y-3.5 text-left">
+                <form action="{{ route('addresses.store') }}" method="POST" class="flex flex-col flex-1 min-h-0 overflow-hidden text-left">
                     @csrf
+                    <div class="space-y-3.5 flex-1 min-h-0 overflow-y-auto pr-1 sm:pr-2 overscroll-contain">
                     <div>
                         <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">Nama Penerima <span class="text-rose-500">*</span></label>
                         <input type="text" name="recipient_name" required placeholder="Contoh: Budi Pratama" class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 focus:border-[#4F26A6] focus:ring-2 focus:ring-[#4F26A6]/20 transition-all outline-none"/>
                     </div>
-                    <div>
+                    <div
+                        x-data="{
+                            phoneDisplay: '',
+                            get fullPhone() {
+                                const cleaned = (this.phoneDisplay || '').replace(/[^0-9]/g, '');
+                                return cleaned.length > 0 ? '+62' + cleaned : '';
+                            },
+                            handleInput(e) {
+                                let val = e.target.value.replace(/[^0-9+]/g, '');
+                                if (val.startsWith('+62')) {
+                                    val = val.substring(3);
+                                } else if (val.startsWith('62')) {
+                                    val = val.substring(2);
+                                } else if (val.startsWith('0')) {
+                                    val = val.substring(1);
+                                }
+                                val = val.replace(/[^0-9]/g, '');
+                                this.phoneDisplay = val;
+                                e.target.value = val;
+                            }
+                        }"
+                    >
                         <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">No. Handphone / WhatsApp <span class="text-rose-500">*</span></label>
-                        <input type="tel" name="phone" required placeholder="Contoh: 081234567890" class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 focus:border-[#4F26A6] focus:ring-2 focus:ring-[#4F26A6]/20 transition-all outline-none"/>
+                        <input type="hidden" name="phone" :value="fullPhone" />
+                        <div class="relative flex items-stretch rounded-xl border border-gray-200 bg-white transition-all overflow-hidden focus-within:border-[#4F26A6] focus-within:ring-2 focus-within:ring-[#4F26A6]/20">
+                            <div class="flex items-center gap-1.5 px-3 py-2.5 bg-gray-50 border-r border-gray-200 text-gray-700 select-none shrink-0">
+                                <div class="w-4 h-3 rounded-xs overflow-hidden shadow-2xs border border-gray-300 flex flex-col shrink-0" title="Indonesia">
+                                    <div class="h-1/2 w-full bg-[#E70011]"></div>
+                                    <div class="h-1/2 w-full bg-white"></div>
+                                </div>
+                                <span class="text-xs sm:text-sm font-extrabold text-gray-900 tracking-tight">+62</span>
+                            </div>
+                            <input
+                                type="tel"
+                                x-model="phoneDisplay"
+                                @input="handleInput($event)"
+                                @paste="setTimeout(() => handleInput({ target: $el }), 0)"
+                                placeholder="812-3456-7890"
+                                maxlength="15"
+                                required
+                                class="w-full bg-transparent px-3 py-2.5 text-sm text-gray-900 font-medium placeholder:text-gray-400 focus:outline-none tracking-wide"
+                                autocomplete="tel-national"
+                            />
+                            <div class="flex items-center pr-2.5" x-show="phoneDisplay" x-cloak>
+                                <button
+                                    type="button"
+                                    @click="phoneDisplay = ''"
+                                    class="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-colors text-xs font-bold cursor-pointer"
+                                    title="Hapus nomor"
+                                >
+                                    &times;
+                                 </button>
+                            </div>
+                        </div>
                     </div>
                     <div x-data="regionSelectorComponent()">
                         <x-region-select-fields />
@@ -565,8 +641,9 @@
                         <input type="checkbox" name="is_default" value="1" class="w-4 h-4 rounded text-[#4F26A6] accent-[#4F26A6] focus:ring-[#4F26A6]" />
                         <span class="text-xs text-gray-700 font-semibold">Jadikan sebagai alamat pengiriman utama</span>
                     </label>
+                    </div>
 
-                    <div class="pt-4 mt-5 border-t border-gray-100 flex items-center justify-end gap-3">
+                    <div class="pt-3 mt-3 sm:pt-4 sm:mt-4 border-t border-gray-100 flex items-center justify-end gap-3 shrink-0">
                         <button type="button" @click="addModalOpen = false" class="px-4 py-2.5 text-xs font-semibold text-gray-500 hover:text-gray-800 transition-colors cursor-pointer">Batal</button>
                         <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white text-xs font-bold shadow-md shadow-[#4F26A6]/20 transition-all cursor-pointer">Simpan Alamat</button>
                     </div>
@@ -584,32 +661,64 @@
             x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto"
+            class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto"
         >
             <div
                 @click.outside="editModalOpen = false"
-                class="bg-white rounded-3xl border border-gray-100 shadow-[0_25px_60px_rgba(79,38,166,0.22)] max-w-lg w-full p-6 sm:p-8 relative my-8"
+                style="max-height: 90dvh;"
+                class="bg-white rounded-3xl border border-gray-100 shadow-[0_25px_60px_rgba(79,38,166,0.22)] max-w-lg w-full p-4 sm:p-6 md:p-8 relative flex flex-col min-h-0 overflow-hidden my-auto"
             >
-                <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+                <div class="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 shrink-0">
                     <div class="flex items-center gap-2.5">
                         <div class="w-8 h-8 rounded-xl bg-purple-50 text-[#4F26A6] flex items-center justify-center">
                             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                         </div>
-                        <h3 class="text-lg sm:text-xl font-extrabold text-gray-900">Ubah Alamat Pengiriman</h3>
+                        <h3 class="text-base sm:text-lg font-extrabold text-gray-900">Ubah Alamat Pengiriman</h3>
                     </div>
                     <button type="button" @click="editModalOpen = false" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition-colors cursor-pointer" title="Tutup">✕</button>
                 </div>
 
-                <form :action="'/akun/alamat/' + editingAddress.id" method="POST" class="space-y-3.5 text-left">
+                <form :action="'/akun/alamat/' + editingAddress.id" method="POST" class="flex flex-col flex-1 min-h-0 overflow-hidden text-left">
                     @csrf
                     @method('PUT')
+                    <div class="space-y-3.5 flex-1 min-h-0 overflow-y-auto pr-1 sm:pr-2 overscroll-contain">
                     <div>
                         <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">Nama Penerima <span class="text-rose-500">*</span></label>
                         <input type="text" name="recipient_name" x-model="editingAddress.recipient_name" required class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 focus:border-[#4F26A6] focus:ring-2 focus:ring-[#4F26A6]/20 transition-all outline-none"/>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">No. Handphone / WhatsApp <span class="text-rose-500">*</span></label>
-                        <input type="tel" name="phone" x-model="editingAddress.phone" required class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 focus:border-[#4F26A6] focus:ring-2 focus:ring-[#4F26A6]/20 transition-all outline-none"/>
+                        <input type="hidden" name="phone" :value="editFullPhone" />
+                        <div class="relative flex items-stretch rounded-xl border border-gray-200 bg-white transition-all overflow-hidden focus-within:border-[#4F26A6] focus-within:ring-2 focus-within:ring-[#4F26A6]/20">
+                            <div class="flex items-center gap-1.5 px-3 py-2.5 bg-gray-50 border-r border-gray-200 text-gray-700 select-none shrink-0">
+                                <div class="w-4 h-3 rounded-xs overflow-hidden shadow-2xs border border-gray-300 flex flex-col shrink-0" title="Indonesia">
+                                    <div class="h-1/2 w-full bg-[#E70011]"></div>
+                                    <div class="h-1/2 w-full bg-white"></div>
+                                </div>
+                                <span class="text-xs sm:text-sm font-extrabold text-gray-900 tracking-tight">+62</span>
+                            </div>
+                            <input
+                                type="tel"
+                                x-model="editingPhoneDisplay"
+                                @input="handleEditPhoneInput($event)"
+                                @paste="setTimeout(() => handleEditPhoneInput({ target: $el }), 0)"
+                                placeholder="812-3456-7890"
+                                maxlength="15"
+                                required
+                                class="w-full bg-transparent px-3 py-2.5 text-sm text-gray-900 font-medium placeholder:text-gray-400 focus:outline-none tracking-wide"
+                                autocomplete="tel-national"
+                            />
+                            <div class="flex items-center pr-2.5" x-show="editingPhoneDisplay" x-cloak>
+                                <button
+                                    type="button"
+                                    @click="editingPhoneDisplay = ''"
+                                    class="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-colors text-xs font-bold cursor-pointer"
+                                    title="Hapus nomor"
+                                >
+                                    &times;
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <div
                         x-data="regionSelectorComponent({
@@ -631,8 +740,9 @@
                         <input type="checkbox" name="is_default" value="1" :checked="editingAddress.is_default" class="w-4 h-4 rounded text-[#4F26A6] accent-[#4F26A6] focus:ring-[#4F26A6]" />
                         <span class="text-xs text-gray-700 font-semibold">Jadikan sebagai alamat pengiriman utama</span>
                     </label>
+                    </div>
 
-                    <div class="pt-4 mt-5 border-t border-gray-100 flex items-center justify-end gap-3">
+                    <div class="pt-3 mt-3 sm:pt-4 sm:mt-4 border-t border-gray-100 flex items-center justify-end gap-3 shrink-0">
                         <button type="button" @click="editModalOpen = false" class="px-4 py-2.5 text-xs font-semibold text-gray-500 hover:text-gray-800 transition-colors cursor-pointer">Batal</button>
                         <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white text-xs font-bold shadow-md shadow-[#4F26A6]/20 transition-all cursor-pointer">Simpan Perubahan</button>
                     </div>

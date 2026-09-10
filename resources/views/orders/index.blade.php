@@ -183,7 +183,7 @@
                                 <!-- Seller Profile Photo + Store name -->
                                 <div class="flex items-center gap-2">
                                     @php
-                                        $sellerAvatar = $order->seller?->avatar_url ?? '/assets/avatars/avatar-raisy.png';
+                                        $sellerAvatar = $order->seller?->avatar_url ?? 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><rect width="128" height="128" rx="64" fill="%23F3EEFF"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="52" fill="%234F26A6">W</text></svg>';
                                     @endphp
                                     @if($order->seller)
                                         <a
@@ -210,7 +210,7 @@
                                         <div class="inline-flex items-center gap-2">
                                             <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full overflow-hidden bg-[#F3EEFF] border border-gray-200 shrink-0">
                                                 <img
-                                                    src="/assets/avatars/avatar-raisy.png"
+                                                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128' viewBox='0 0 128 128'><rect width='128' height='128' rx='64' fill='%23F3EEFF'/><text x='50%' y='54%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='900' font-size='52' fill='%234F26A6'>W</text></svg>"
                                                     alt="WhiMarket Seller"
                                                     class="w-full h-full object-cover"
                                                 />

@@ -1,21 +1,5 @@
 @php
-    $sellersData = !empty($sellersList) ? $sellersList : [
-        [
-            'id' => 'sel_rachel',
-            'name' => 'Rachel Vennya',
-            'handle' => '@rachel_venya',
-            'role' => 'Selebgram',
-            'category' => 'selebgram',
-            'verified' => true,
-            'avatar' => '/assets/avatar-rachel-exact.png',
-            'cardBg' => '/assets/seller-card-cover-rachel.png',
-            'rating' => 4.9,
-            'reviewCount' => '1.2rb',
-            'itemCount' => 112,
-            'followerCount' => '12.4rb',
-            'profileUrl' => '/seller/@rachel_venya',
-        ]
-    ];
+    $sellersData = $sellersList ?? [];
 @endphp
 <x-layouts.app :title="'Dukung Kreator Favoritmu - WhiMarket'" activeTab="seller">
     <main class="w-full max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-6 sm:py-8" x-data="browseSeller">

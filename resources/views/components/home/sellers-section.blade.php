@@ -57,55 +57,62 @@
             </svg>
         </button>
 
-        <!-- Slider Track -->
-        <div
-            x-ref="sliderTrack"
-            class="flex gap-3.5 sm:gap-4 lg:gap-5 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-            @foreach($sellers as $seller)
-                <x-seller-card :seller="$seller" />
-            @endforeach
+        @if(count($sellers) > 0)
+            <!-- Slider Track -->
+            <div
+                x-ref="sliderTrack"
+                class="flex gap-3.5 sm:gap-4 lg:gap-5 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+                @foreach($sellers as $seller)
+                    <x-seller-card :seller="$seller" />
+                @endforeach
 
-            <!-- 6th Card: Lihat Semua Seller -->
-            <a
-                href="/seller"
-                class="w-[260px] sm:w-[280px] lg:w-[280px] xl:w-[290px] shrink-0 bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_32px_rgba(72,30,188,0.08)] hover:-translate-y-1 transition-all flex flex-col items-center justify-center p-6 text-center group min-h-[340px] snap-start cursor-pointer"
-            >
-                <div class="w-16 h-16 rounded-2xl bg-[#EDE4FF] text-[#4F26A6] flex items-center justify-center mb-4 shadow-xs group-hover:scale-110 group-hover:bg-[#4F26A6] group-hover:text-white transition-all">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                <!-- 6th Card: Lihat Semua Seller -->
+                <a
+                    href="/seller"
+                    class="w-[260px] sm:w-[280px] lg:w-[280px] xl:w-[290px] shrink-0 bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_32px_rgba(72,30,188,0.08)] hover:-translate-y-1 transition-all flex flex-col items-center justify-center p-6 text-center group min-h-[340px] snap-start cursor-pointer"
+                >
+                    <div class="w-16 h-16 rounded-2xl bg-[#EDE4FF] text-[#4F26A6] flex items-center justify-center mb-4 shadow-xs group-hover:scale-110 group-hover:bg-[#4F26A6] group-hover:text-white transition-all">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-black text-gray-900 group-hover:text-[#4F26A6] transition-colors mb-2">
+                        Lihat Semua Seller
+                    </h3>
+                    <p class="text-xs sm:text-[13px] text-gray-500 font-medium max-w-[210px] leading-relaxed">
+                        Jelajahi seluruh seller, artis, dan kreator favorit lainnya
+                    </p>
+                </a>
+            </div>
+            <!-- Mobile Navigation Controls -->
+            <div class="flex lg:hidden items-center justify-center gap-3 mt-3 sm:mt-6">
+                <button
+                    type="button"
+                    @click="scroll('left')"
+                    class="w-10 h-10 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-gray-700 hover:text-[#4F26A6] active:scale-95 transition-all"
+                    aria-label="Scroll Left"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>
-                </div>
-                <h3 class="text-base sm:text-lg font-black text-gray-900 group-hover:text-[#4F26A6] transition-colors mb-2">
-                    Lihat Semua Seller
-                </h3>
-                <p class="text-xs sm:text-[13px] text-gray-500 font-medium max-w-[210px] leading-relaxed">
-                    Jelajahi seluruh seller, artis, dan kreator favorit lainnya
-                </p>
-            </a>
-        </div>
-        <!-- Mobile Navigation Controls -->
-        <div class="flex lg:hidden items-center justify-center gap-3 mt-3 sm:mt-6">
-            <button
-                type="button"
-                @click="scroll('left')"
-                class="w-10 h-10 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-gray-700 hover:text-[#4F26A6] active:scale-95 transition-all"
-                aria-label="Scroll Left"
-            >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-            </button>
-            <button
-                type="button"
-                @click="scroll('right')"
-                class="w-10 h-10 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-gray-700 hover:text-[#4F26A6] active:scale-95 transition-all"
-                aria-label="Scroll Right"
-            >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-            </button>
+                </button>
+                <button
+                    type="button"
+                    @click="scroll('right')"
+                    class="w-10 h-10 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-gray-700 hover:text-[#4F26A6] active:scale-95 transition-all"
+                    aria-label="Scroll Right"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        @else
+            <div class="bg-white rounded-2xl border border-gray-100 p-8 sm:p-12 text-center shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+                <p class="text-sm sm:text-base text-gray-500 font-medium">Belum ada seller terdaftar saat ini.</p>
+            </div>
+        @endif
         </div>
     </div>
 </section>

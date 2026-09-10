@@ -269,4 +269,27 @@ class SellerProfileUpdateTest extends TestCase
         $homeResponse->assertOk();
         $homeResponse->assertSee('Toko Muncul Di Direktori');
     }
+
+    public function test_seller_defaults_to_clean_ecommerce_banner_when_none_uploaded(): void
+    {
+        $user = User::factory()->create(['role' => UserRole::SELLER]);
+        $seller = Seller::create([
+            'user_id' => $user->id,
+            'store_name' => 'Toko Baru Minimalis',
+            'username' => 'toko-baru-minimalis',
+            'bio' => 'Toko dengan banner standar',
+            'bank_name' => 'BCA',
+            'bank_account_number' => '1234567890',
+            'bank_account_name' => 'Owner',
+            'status' => SellerStatus::VERIFIED,
+            'verified_at' => now(),
+        ]);
+
+        $this->assertEquals('/assets/default-seller-banner.png', $seller->banner_url);
+
+        $response = $this->get(route('seller.profile', '@'.$seller->username));
+        $response->assertOk();
+        $response->assertSee('/assets/default-seller-banner.png');
+        $response->assertDontSee('seller-banner-rachel');
+    }
 }

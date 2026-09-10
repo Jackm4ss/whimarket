@@ -63,8 +63,8 @@ class CheckoutController extends Controller
         $defaultAddress = $addresses->firstWhere('is_default', true) ?? $addresses->first();
 
         $subtotal = $items->sum(fn ($i) => (float) $i->variant->price * $i->quantity);
-        $defaultRate = ShippingRateService::calculate($defaultAddress?->province);
-        $shippingCost = $defaultRate['cost'];
+        $defaultRate = $defaultAddress ? ShippingRateService::calculate($defaultAddress->province) : null;
+        $shippingCost = $defaultRate ? (int) $defaultRate['cost'] : 0;
         $adminFee = PlatformSetting::getAdminFee();
         $grandTotal = $subtotal + $shippingCost + $adminFee;
         $addressesData = $addresses->map(function ($a) {
@@ -93,8 +93,8 @@ class CheckoutController extends Controller
             'defaultAddress' => $defaultAddress,
             'subtotal' => $subtotal,
             'shippingCost' => $shippingCost,
-            'defaultZone' => $defaultRate['zone'],
-            'defaultEtd' => $defaultRate['etd'],
+            'defaultZone' => $defaultRate['zone'] ?? '',
+            'defaultEtd' => $defaultRate['etd'] ?? '',
             'adminFee' => $adminFee,
             'grandTotal' => $grandTotal,
             'title' => 'Checkout Pesanan | WhiMarket',
@@ -117,6 +117,9 @@ class CheckoutController extends Controller
 
         $validated = $request->validate([
             'address_id' => 'required|exists:addresses,id',
+        ], [
+            'address_id.required' => 'Pilih atau tambahkan alamat pengiriman terlebih dahulu.',
+            'address_id.exists' => 'Alamat pengiriman yang dipilih tidak valid.',
         ]);
 
         $address = Address::where('user_id', $user->id)->findOrFail($validated['address_id']);
@@ -239,13 +242,8 @@ class CheckoutController extends Controller
             abort(403, 'Akses ditolak. Anda tidak memiliki izin untuk melihat instruksi pembayaran pesanan ini.');
         }
 
-        $isOutOfStock = $order->items->contains(function ($item) {
-            return ($item->variant?->stock ?? 0) <= 0 || ($item->variant?->product?->total_stock ?? 0) <= 0;
-        });
-
         return view('checkout.payment', [
             'order' => $order,
-            'isOutOfStock' => $isOutOfStock,
             'title' => 'Instruksi Pembayaran #'.$order->order_number.' | WhiMarket',
             'activeTab' => 'checkout',
         ]);
@@ -264,15 +262,6 @@ class CheckoutController extends Controller
         if (! in_array($order->status::$name, ['pending_payment', 'payment_verification'], true)) {
             return redirect()->route('orders.show', $order->order_number)
                 ->with('error', 'Pesanan ini saat ini tidak membutuhkan pengunggahan bukti pembayaran.');
-        }
-
-        $isOutOfStock = $order->items->contains(function ($item) {
-            return ($item->variant?->stock ?? 0) <= 0 || ($item->variant?->product?->total_stock ?? 0) <= 0;
-        });
-
-        if ($isOutOfStock) {
-            return redirect()->route('orders.index')
-                ->with('error', 'Maaf, stok barang pada pesanan ini sudah habis dari penjual. Pembayaran tidak dapat diproses.');
         }
 
         $validated = $request->validate([

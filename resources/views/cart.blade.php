@@ -1,7 +1,13 @@
 <x-layouts.app :title="$title" activeTab="keranjang">
+    <script>
+    window.cartConfig = {
+        items: @json($cartConfigItems),
+        csrfToken: @json(csrf_token()),
+    };
+    </script>
     <main
         class="max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-6 sm:pt-8 pb-24 sm:pb-32 lg:pb-36"
-        x-data="cartManager({{ $items->count() }}, {{ (float) $selectedSubtotal }}, {{ $items->where('is_selected', true)->count() }})"
+        x-data="cartManager()"
     >
         <!-- Breadcrumb Navigation -->
         <nav class="flex items-center gap-2 text-xs sm:text-[13px] text-gray-500 font-medium mb-6">
@@ -83,12 +89,22 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-10 items-start">
                 <!-- Left: Items Grouped by Seller (8 cols) -->
                 <div class="lg:col-span-8 space-y-6 sm:space-y-7">
-                    <!-- Cart Items Header Bar -->
+                    <!-- Cart Items Header Bar with Select All -->
                     <div class="bg-white rounded-2xl px-6 py-4 border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#4F26A6]"></span>
-                            <span class="text-xs sm:text-sm font-bold text-gray-800">
-                                Daftar Produk di Keranjang (<span x-text="itemsCount"></span> Barang)
+                        <div class="flex items-center gap-3">
+                            <button
+                                type="button"
+                                @click="toggleSelectAll()"
+                                class="w-5 h-5 rounded-md flex items-center justify-center transition-all cursor-pointer shrink-0 border"
+                                :class="isAllSelected ? 'bg-[#4F26A6] border-[#4F26A6] text-white shadow-2xs' : 'bg-white border-gray-300 hover:border-[#4F26A6]'"
+                                title="Pilih Semua Barang"
+                            >
+                                <svg x-show="isAllSelected" class="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </button>
+                            <span class="text-xs sm:text-sm font-bold text-gray-800 cursor-pointer select-none" @click="toggleSelectAll()">
+                                Pilih Semua (<span x-text="itemsCount"></span> Barang)
                             </span>
                         </div>
                         <span class="text-xs text-gray-500 font-medium">
@@ -97,13 +113,17 @@
                     </div>
 
                     @foreach($groupedItems as $sellerName => $sellerItems)
+                        @php
+                            $seller = $sellerItems->first()?->variant?->product?->seller;
+                            $sellerAvatar = $seller?->avatar_url ?? 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><rect width="128" height="128" rx="64" fill="%23F3EEFF"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="52" fill="%234F26A6">W</text></svg>';
+                        @endphp
                         <div class="bg-white rounded-3xl border border-gray-100/90 shadow-[0_4px_24px_rgba(0,0,0,0.03)] overflow-hidden">
                             <!-- Seller Header Bar -->
                             <div class="px-6 py-4.5 bg-[#FAF9FC] border-b border-gray-100 flex items-center justify-between">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-full overflow-hidden bg-purple-100 shrink-0">
+                                    <div class="w-8 h-8 rounded-full overflow-hidden bg-purple-100 shrink-0 flex items-center justify-center">
                                         <img
-                                            src="{{ $sellerItems->first()->variant->product->seller->user->avatar ?? '/assets/avatars/avatar-raisy.png' }}"
+                                            src="{{ $sellerAvatar }}"
                                             alt="{{ $sellerName }}"
                                             class="w-full h-full object-cover"
                                         />
@@ -126,7 +146,6 @@
                                     @endphp
                                     <div
                                         class="pt-6 first:pt-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 {{ ! $isItemActive ? 'opacity-70 bg-gray-50/80 p-3.5 rounded-2xl border border-dashed border-gray-200' : '' }}"
-                                        x-data="cartRow({{ $item->quantity }}, {{ $item->is_selected ? 'true' : 'false' }}, {{ (float) $item->variant->price }}, {{ (int) $item->variant->stock }}, {{ $item->id }})"
                                     >
                                         <!-- Checkbox & Product Info -->
                                         <div class="flex items-center gap-3.5 sm:gap-4 flex-1 min-w-0">
@@ -134,12 +153,12 @@
                                                 <!-- Custom Brand Purple Checkbox (Zero Blue) -->
                                                 <button
                                                     type="button"
-                                                    @click="toggle()"
+                                                    @click="toggleItem({{ $item->id }})"
                                                     class="w-5 h-5 rounded-md flex items-center justify-center transition-all cursor-pointer shrink-0 border"
-                                                    :class="selected ? 'bg-[#4F26A6] border-[#4F26A6] text-white shadow-2xs' : 'bg-white border-gray-300 hover:border-[#4F26A6]'"
+                                                    :class="getItem({{ $item->id }})?.is_selected ? 'bg-[#4F26A6] border-[#4F26A6] text-white shadow-2xs' : 'bg-white border-gray-300 hover:border-[#4F26A6]'"
                                                     title="Pilih Barang"
                                                 >
-                                                    <svg x-show="selected" class="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <svg x-show="getItem({{ $item->id }})?.is_selected" class="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                                     </svg>
                                                 </button>
@@ -187,7 +206,7 @@
                                         <div class="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-gray-50">
                                             <!-- Desktop Price -->
                                             <div class="text-right hidden sm:block">
-                                                <span class="text-sm sm:text-[15px] font-extrabold text-[#4F26A6] block" x-text="formatRupiah(price * qty)"></span>
+                                                <span class="text-sm sm:text-[15px] font-extrabold text-[#4F26A6] block" x-text="formatRupiah((getItem({{ $item->id }})?.price || {{ (float)$item->variant->price }}) * (getItem({{ $item->id }})?.quantity || {{ (int)$item->quantity }}))"></span>
                                             </div>
 
                                             @if($isItemActive)
@@ -195,19 +214,19 @@
                                                 <div class="inline-flex items-center border border-gray-200 rounded-xl bg-white overflow-hidden shadow-2xs">
                                                     <button
                                                         type="button"
-                                                        @click="dec()"
-                                                        :disabled="qty <= 1"
+                                                        @click="dec({{ $item->id }})"
+                                                        :disabled="(getItem({{ $item->id }})?.quantity || 1) <= 1"
                                                         class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                                                     >
                                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"/>
                                                         </svg>
                                                     </button>
-                                                    <span class="w-8 text-center text-xs font-bold text-gray-900 select-none" x-text="qty"></span>
+                                                    <span class="w-8 text-center text-xs font-bold text-gray-900 select-none" x-text="getItem({{ $item->id }})?.quantity || 1"></span>
                                                     <button
                                                         type="button"
-                                                        @click="inc()"
-                                                        :disabled="qty >= max"
+                                                        @click="inc({{ $item->id }})"
+                                                        :disabled="(getItem({{ $item->id }})?.quantity || 1) >= (getItem({{ $item->id }})?.stock || 1)"
                                                         class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                                                     >
                                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -405,10 +424,8 @@
         if (window.__whiCartRegistered) return;
         window.__whiCartRegistered = true;
 
-        Alpine.data('cartManager', (initCount, initSubtotal, initSelected) => ({
-            itemsCount: initCount,
-            selectedSubtotal: initSubtotal,
-            selectedCount: initSelected,
+        Alpine.data('cartManager', () => ({
+            items: (window.cartConfig && window.cartConfig.items) ? JSON.parse(JSON.stringify(window.cartConfig.items)) : [],
             loading: false,
             deleteModalOpen: false,
             deletingItemId: null,
@@ -418,49 +435,134 @@
             deletingItemSeller: '',
             isDeleting: false,
 
-            async updateQuantity(itemId, newQty) {
-                if (newQty < 1) return;
+            get itemsCount() {
+                return this.items.length;
+            },
+
+            get activeItems() {
+                return this.items.filter(i => i.is_active);
+            },
+
+            get selectedItems() {
+                return this.items.filter(i => i.is_selected && i.is_active);
+            },
+
+            get selectedCount() {
+                return this.selectedItems.length;
+            },
+
+            get selectedSubtotal() {
+                return this.selectedItems.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+            },
+
+            get isAllSelected() {
+                return this.activeItems.length > 0 && this.activeItems.every(i => i.is_selected);
+            },
+
+            getItem(id) {
+                return this.items.find(i => i.id === id);
+            },
+
+            async toggleItem(itemId) {
+                const item = this.getItem(itemId);
+                if (!item || !item.is_active) return;
+
+                const prev = item.is_selected;
+                item.is_selected = !prev;
+
                 try {
                     const res = await fetch('/keranjang/item/' + itemId, {
                         method: 'PATCH',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': window.cartConfig.csrfToken,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({ is_selected: item.is_selected })
+                    });
+                    const data = await res.json();
+                    if (!res.ok || !data.success) {
+                        item.is_selected = prev;
+                        alert(data.message || 'Gagal mengubah pilihan barang.');
+                    }
+                } catch (e) {
+                    item.is_selected = prev;
+                    console.error(e);
+                }
+            },
+
+            async toggleSelectAll() {
+                const active = this.activeItems;
+                if (active.length === 0) return;
+
+                const targetState = !this.isAllSelected;
+                const previousStates = active.map(i => ({ id: i.id, state: i.is_selected }));
+
+                active.forEach(i => i.is_selected = targetState);
+
+                try {
+                    const res = await fetch('/keranjang/select-all', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': window.cartConfig.csrfToken,
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({ is_selected: targetState })
+                    });
+                    const data = await res.json();
+                    if (!res.ok || !data.success) {
+                        previousStates.forEach(ps => {
+                            const it = this.getItem(ps.id);
+                            if (it) it.is_selected = ps.state;
+                        });
+                        alert(data.message || 'Gagal mengubah status semua pilihan barang.');
+                    }
+                } catch (e) {
+                    previousStates.forEach(ps => {
+                        const it = this.getItem(ps.id);
+                        if (it) it.is_selected = ps.state;
+                    });
+                    console.error(e);
+                }
+            },
+
+            async inc(itemId) {
+                const item = this.getItem(itemId);
+                if (!item || item.quantity >= item.stock) return;
+                await this.updateQuantity(itemId, item.quantity + 1);
+            },
+
+            async dec(itemId) {
+                const item = this.getItem(itemId);
+                if (!item || item.quantity <= 1) return;
+                await this.updateQuantity(itemId, item.quantity - 1);
+            },
+
+            async updateQuantity(itemId, newQty) {
+                const item = this.getItem(itemId);
+                if (!item || newQty < 1 || newQty > item.stock) return;
+
+                const prev = item.quantity;
+                item.quantity = newQty;
+
+                try {
+                    const res = await fetch('/keranjang/item/' + itemId, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': window.cartConfig.csrfToken,
                             'Accept': 'application/json',
                         },
                         body: JSON.stringify({ quantity: newQty })
                     });
                     const data = await res.json();
-                    if (data.success) {
-                        this.selectedSubtotal = data.selected_subtotal;
-                        this.selectedCount = data.selected_count;
-                        return data.quantity;
+                    if (!res.ok || !data.success) {
+                        item.quantity = prev;
+                        alert(data.message || 'Gagal mengubah kuantitas barang.');
                     }
                 } catch (e) {
-                    console.error(e);
-                }
-                return newQty;
-            },
-
-            async toggleSelected(itemId, isSelected) {
-                try {
-                    const res = await fetch('/keranjang/item/' + itemId, {
-                        method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json',
-                        },
-                        body: JSON.stringify({ is_selected: isSelected })
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        this.selectedSubtotal = data.selected_subtotal;
-                        this.selectedCount = data.selected_count;
-                    } else {
-                        alert(data.message || 'Gagal mengubah status pilihan barang.');
-                        window.location.reload();
-                    }
+                    item.quantity = prev;
                     console.error(e);
                 }
             },
@@ -481,7 +583,7 @@
                     const res = await fetch('/keranjang/item/' + this.deletingItemId, {
                         method: 'DELETE',
                         headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': window.cartConfig.csrfToken,
                             'Accept': 'application/json',
                         }
                     });
@@ -501,41 +603,7 @@
                 return 'Rp ' + Number(num).toLocaleString('id-ID');
             }
         }));
-
-        Alpine.data('cartRow', (initQty, initSelected, initPrice, initMax, itemId) => ({
-            qty: initQty,
-            selected: initSelected,
-            price: initPrice,
-            max: initMax,
-
-            async inc() {
-                if (this.qty < this.max) {
-                    const parent = this.$root.closest('[x-data*="cartManager"]')?._x_dataStack?.[0];
-                    if (parent) {
-                        this.qty = await parent.updateQuantity(itemId, this.qty + 1);
-                    }
-                }
-            },
-
-            async dec() {
-                if (this.qty > 1) {
-                    const parent = this.$root.closest('[x-data*="cartManager"]')?._x_dataStack?.[0];
-                    if (parent) {
-                        this.qty = await parent.updateQuantity(itemId, this.qty - 1);
-                    }
-                }
-            },
-
-            toggle() {
-                this.selected = !this.selected;
-                const parent = this.$root.closest('[x-data*="cartManager"]')?._x_dataStack?.[0];
-                if (parent) {
-                    parent.toggleSelected(itemId, this.selected);
-                }
-            }
-        }));
     }
-
     if (window.Alpine) {
         registerCartComponents();
     } else {

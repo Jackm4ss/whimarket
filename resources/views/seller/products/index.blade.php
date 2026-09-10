@@ -56,6 +56,7 @@
                         <span>Tambah Produk (Nonaktif)</span>
                     </button>
                 @endif
+            </div>
         </div>
         @if($seller->status !== \App\Enums\SellerStatus::VERIFIED)
             <div class="mb-6 p-4.5 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-900 text-sm flex items-start gap-3.5 shadow-sm">
@@ -109,7 +110,8 @@
                     </a>
                 </div>
             @else
-                <div class="overflow-x-auto">
+                <!-- Desktop Table View (md and up) -->
+                <div class="hidden md:block overflow-x-auto">
                     <table class="w-full text-left text-sm">
                         <thead class="text-xs uppercase tracking-wider text-gray-400 border-b border-gray-100 bg-[#FAF9FC]">
                             <tr>
@@ -211,6 +213,77 @@
                     </table>
                 </div>
 
+                <!-- Mobile Card View (below md) -->
+                <div class="block md:hidden divide-y divide-gray-100">
+                    @foreach($products as $product)
+                        <div class="p-4 space-y-3 hover:bg-gray-50/60 transition-colors">
+                            <div class="flex items-start gap-3">
+                                <img
+                                    src="{{ $product->primary_image_url }}"
+                                    alt="{{ $product->name }}"
+                                    class="w-16 h-16 rounded-2xl object-cover border border-gray-100 bg-gray-50 shrink-0"
+                                />
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-1.5 mb-1">
+                                        <span class="px-2 py-0.5 rounded-md bg-gray-100 text-gray-700 text-[10px] font-semibold">
+                                            {{ $product->category->name ?? 'Merchandise' }}
+                                        </span>
+                                        @if($product->status->value === 'active')
+                                            @if($product->total_stock <= 0)
+                                                <span class="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200/60 text-[10px] font-semibold">
+                                                    Stok Habis
+                                                </span>
+                                            @else
+                                                <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-[10px] font-semibold">
+                                                    Aktif
+                                                </span>
+                                            @endif
+                                        @else
+                                            <span class="px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 text-[10px] font-semibold">
+                                                {{ ucfirst($product->status->value) }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <a href="{{ route('product.detail', $product->slug) }}" target="_blank" class="font-bold text-gray-900 hover:text-[#4F26A6] text-sm line-clamp-2 leading-snug">
+                                        {{ $product->name }}
+                                    </a>
+                                    <span class="text-xs text-gray-400 font-medium block mt-0.5">
+                                        {{ $product->condition?->label() }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-1 text-xs border-t border-gray-50">
+                                <div>
+                                    <div class="font-extrabold text-sm text-[#4F26A6]">
+                                        Rp {{ number_format((float)$product->price, 0, ',', '.') }}
+                                    </div>
+                                    <div class="text-[11px] text-gray-500 font-medium">
+                                        {{ $product->variants->count() }} varian &bull; Total stok: {{ $product->total_stock }}
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <a
+                                        href="{{ route('seller.products.edit', $product->id) }}"
+                                        class="px-3.5 py-1.5 rounded-xl border border-gray-200 text-gray-700 hover:text-[#4F26A6] hover:bg-gray-50 text-xs font-bold transition-all"
+                                    >
+                                        Edit
+                                    </a>
+                                    <button
+                                        type="button"
+                                        @click="promptDelete({{ $product->id }}, '{{ addslashes($product->name) }}')"
+                                        class="p-2 rounded-xl text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-all cursor-pointer"
+                                        title="Hapus Produk"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
                 <div class="p-4 border-t border-gray-100">
                     {{ $products->links() }}
                 </div>

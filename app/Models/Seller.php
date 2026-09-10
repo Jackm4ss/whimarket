@@ -110,7 +110,7 @@ class Seller extends Model
             return $this->banner_image;
         }
 
-        return '/assets/seller-banner-rachel.png';
+        return '/assets/default-seller-banner.png';
     }
 
     public function getAvatarUrlAttribute(): string

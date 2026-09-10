@@ -107,4 +107,15 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->role === UserRole::ADMIN || $this->hasRole('admin');
     }
+
+    public function getAvatarUrlAttribute(): string
+    {
+        if (! empty($this->avatar)) {
+            return $this->avatar;
+        }
+
+        $initial = strtoupper(substr($this->name ?: 'U', 0, 1));
+
+        return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><rect width="128" height="128" rx="64" fill="%23F3EEFF"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="52" fill="%234F26A6">'.$initial.'</text></svg>';
+    }
 }

@@ -1,6 +1,5 @@
 @php
-    $defaultCatalog = \App\Support\MarketData::shopProducts();
-    $displayProducts = !empty($productsList) ? $productsList : $defaultCatalog;
+    $displayProducts = $productsList ?? [];
 @endphp
 <x-layouts.app
     title="WhiMarket - Marketplace Pre-loved & Merchandise"

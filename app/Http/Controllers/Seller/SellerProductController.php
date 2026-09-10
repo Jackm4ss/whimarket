@@ -218,6 +218,8 @@ class SellerProductController extends Controller
             'condition' => 'required|string',
             'status' => 'required|string',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'replace_images' => 'nullable|array',
+            'replace_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'deleted_images' => 'nullable|array',
             'deleted_images.*' => 'integer|exists:product_images,id',
             'variants' => 'required|array|min:1',
@@ -230,6 +232,8 @@ class SellerProductController extends Controller
             'variants.min' => 'Setidaknya harus ada minimal 1 varian produk.',
             'images.*.image' => 'File harus berupa gambar.',
             'images.*.max' => 'Ukuran setiap foto maksimal 5MB.',
+            'replace_images.*.image' => 'File pengganti harus berupa gambar.',
+            'replace_images.*.max' => 'Ukuran setiap foto pengganti maksimal 5MB.',
         ]);
 
         // 1. Update basic attributes
@@ -255,7 +259,25 @@ class SellerProductController extends Controller
             }
         }
 
-        // 3. Process Newly Uploaded Images
+        // 3. Process Replaced Images
+        if ($request->hasFile('replace_images')) {
+            foreach ($request->file('replace_images') as $imgId => $file) {
+                if (! $file || ! $file->isValid()) {
+                    continue;
+                }
+                $img = ProductImage::where('product_id', $product->id)->find($imgId);
+                if ($img) {
+                    if (str_starts_with($img->image_path, '/storage/')) {
+                        Storage::disk('public')->delete(str_replace('/storage/', '', $img->image_path));
+                    }
+                    $filename = 'prod_'.$product->id.'_r'.$imgId.'_'.Str::uuid().'.'.$file->getClientOriginalExtension();
+                    $path = '/storage/'.$file->storeAs('products', $filename, 'public');
+                    $img->update(['image_path' => $path]);
+                }
+            }
+        }
+
+        // 4. Process Newly Uploaded Images
         if ($request->hasFile('images')) {
             $existingCount = $product->images()->count();
             foreach ($request->file('images') as $idx => $file) {
