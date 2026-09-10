@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Buyer;
 
 use App\Enums\PaymentStatus;
+use App\Enums\ProductStatus;
+use App\Enums\SellerStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Address;
 use App\Models\Cart;
@@ -38,6 +40,22 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Pilih minimal satu barang di keranjang untuk melanjutkan checkout.');
         }
 
+        $inactiveItem = $items->first(fn ($i) => ! $i->variant?->product || $i->variant->product->status !== ProductStatus::ACTIVE || $i->variant->product->seller?->status !== SellerStatus::VERIFIED);
+        if ($inactiveItem) {
+            $cart->items()
+                ->where(function ($q) {
+                    $q->whereHas('variant.product', fn ($pq) => $pq->where('status', '!=', ProductStatus::ACTIVE))
+                        ->orWhereHas('variant.product.seller', fn ($sq) => $sq->where('status', '!=', SellerStatus::VERIFIED));
+                })
+                ->update(['is_selected' => false]);
+
+            $isSellerInactive = $inactiveItem->variant?->product?->seller && $inactiveItem->variant->product->seller->status !== SellerStatus::VERIFIED;
+            $msg = $isSellerInactive
+                ? "Toko penjual '{$inactiveItem->variant->product->seller->store_name}' sedang dinonaktifkan sehingga produk tidak dapat dibeli."
+                : "Produk '".($inactiveItem->variant?->product?->name ?? 'Produk')."' sedang tidak aktif dan tidak dapat dibeli.";
+
+            return redirect()->route('cart.index')->with('error', $msg);
+        }
         $addresses = $user->addresses()->latest()->get();
         $defaultAddress = $addresses->firstWhere('is_default', true) ?? $addresses->first();
 
@@ -114,10 +132,19 @@ class CheckoutController extends Controller
                 foreach ($items as $item) {
                     $variant = $lockedVariants->get($item->product_variant_id);
 
-                    if (! $variant || $variant->stock < $item->quantity) {
-                        throw new \Exception("Stok untuk produk '{$variant->product->name}' ({$variant->name}) tidak mencukupi.");
+                    $isProductActive = $variant && $variant->product && $variant->product->status === ProductStatus::ACTIVE;
+                    $isSellerActive = $variant?->product?->seller && $variant->product->seller->status === SellerStatus::VERIFIED;
+
+                    if (! $isProductActive || ! $isSellerActive) {
+                        $msg = (! $isSellerActive && $variant?->product?->seller)
+                            ? "Toko penjual '{$variant->product->seller->store_name}' sedang dinonaktifkan sehingga produk tidak dapat dibeli."
+                            : "Produk '".($variant?->product?->name ?? 'Produk')."' sedang tidak aktif dan tidak dapat dibeli.";
+                        throw new \Exception($msg);
                     }
 
+                    if ($variant->stock < $item->quantity) {
+                        throw new \Exception("Stok untuk produk '{$variant->product->name}' ({$variant->name}) tidak mencukupi.");
+                    }
                     // Decrement variant stock
                     $variant->decrement('stock', $item->quantity);
 

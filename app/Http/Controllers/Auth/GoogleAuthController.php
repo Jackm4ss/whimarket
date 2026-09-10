@@ -106,7 +106,7 @@ class GoogleAuthController extends Controller
             Auth::login($user, true);
             request()->session()->regenerate();
 
-            if ($user->isSeller() && $user->seller?->isVerified()) {
+            if ($user->isSeller() && $user->seller) {
                 return redirect()->route('seller.dashboard');
             }
 

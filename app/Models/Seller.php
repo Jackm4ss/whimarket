@@ -6,6 +6,7 @@ use App\Enums\SellerStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -67,6 +68,29 @@ class Seller extends Model
     public function payouts(): HasMany
     {
         return $this->hasMany(Payout::class);
+    }
+
+    public function followers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'seller_followers', 'seller_id', 'user_id')->withTimestamps();
+    }
+
+    public function sellerFollowers(): HasMany
+    {
+        return $this->hasMany(SellerFollower::class);
+    }
+
+    public function getFollowersCountFormattedAttribute(): string
+    {
+        $isDemo = in_array(strtolower($this->username), ['rachelvennya', 'celloszx', 'raisa6690', 'fuji_an', 'windahbasudara', 'bramastavrl']);
+        $realCount = $this->followers()->count();
+        $total = $isDemo ? (12400 + $realCount) : $realCount;
+
+        if ($total >= 1000) {
+            return number_format($total / 1000, 1, ',', '.').'rb';
+        }
+
+        return (string) $total;
     }
 
     public function isVerified(): bool

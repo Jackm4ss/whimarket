@@ -19,19 +19,14 @@ use Illuminate\View\View;
 
 class SellerProductController extends Controller
 {
-    private function getVerifiedSeller(): ?Seller
+    private function getSeller(): ?Seller
     {
-        $seller = Auth::user()?->seller;
-        if (! $seller || ! $seller->isVerified()) {
-            return null;
-        }
-
-        return $seller;
+        return Auth::user()?->seller;
     }
 
     public function index(Request $request): View|RedirectResponse
     {
-        $seller = $this->getVerifiedSeller();
+        $seller = $this->getSeller();
         if (! $seller) {
             return redirect()->route('seller.register')
                 ->with('info', 'Silakan aktifkan toko Anda dengan kode akses resmi terlebih dahulu.');
@@ -57,10 +52,15 @@ class SellerProductController extends Controller
 
     public function create(): View|RedirectResponse
     {
-        $seller = $this->getVerifiedSeller();
+        $seller = $this->getSeller();
         if (! $seller) {
             return redirect()->route('seller.register')
                 ->with('info', 'Silakan aktifkan toko Anda dengan kode akses resmi terlebih dahulu.');
+        }
+
+        if (! $seller->isVerified()) {
+            return redirect()->route('seller.products.index')
+                ->with('error', 'Toko Anda sedang dinonaktifkan oleh administrator. Anda belum dapat menambah produk baru.');
         }
 
         $categories = Category::where('is_active', true)->get();
@@ -75,10 +75,15 @@ class SellerProductController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $seller = $this->getVerifiedSeller();
+        $seller = $this->getSeller();
         if (! $seller) {
             return redirect()->route('seller.register')
                 ->with('info', 'Silakan aktifkan toko Anda dengan kode akses resmi terlebih dahulu.');
+        }
+
+        if (! $seller->isVerified()) {
+            return redirect()->route('seller.products.index')
+                ->with('error', 'Toko Anda sedang dinonaktifkan oleh administrator. Anda belum dapat menambah produk baru.');
         }
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -154,10 +159,15 @@ class SellerProductController extends Controller
 
     public function edit(int $id): View|RedirectResponse
     {
-        $seller = $this->getVerifiedSeller();
+        $seller = $this->getSeller();
         if (! $seller) {
             return redirect()->route('seller.register')
                 ->with('info', 'Silakan aktifkan toko Anda dengan kode akses resmi terlebih dahulu.');
+        }
+
+        if (! $seller->isVerified()) {
+            return redirect()->route('seller.products.index')
+                ->with('error', 'Toko Anda sedang dinonaktifkan oleh administrator. Anda belum dapat mengubah produk saat ini.');
         }
         $product = $seller->products()->with(['variants', 'images'])->findOrFail($id);
         $categories = Category::where('is_active', true)->get();
@@ -173,10 +183,15 @@ class SellerProductController extends Controller
 
     public function update(Request $request, int $id): RedirectResponse
     {
-        $seller = $this->getVerifiedSeller();
+        $seller = $this->getSeller();
         if (! $seller) {
             return redirect()->route('seller.register')
                 ->with('info', 'Silakan aktifkan toko Anda dengan kode akses resmi terlebih dahulu.');
+        }
+
+        if (! $seller->isVerified()) {
+            return redirect()->route('seller.products.index')
+                ->with('error', 'Toko Anda sedang dinonaktifkan oleh administrator. Anda belum dapat mengubah produk saat ini.');
         }
         $product = $seller->products()->with(['images', 'variants'])->findOrFail($id);
 
@@ -288,10 +303,15 @@ class SellerProductController extends Controller
 
     public function destroy(int $id): RedirectResponse
     {
-        $seller = $this->getVerifiedSeller();
+        $seller = $this->getSeller();
         if (! $seller) {
             return redirect()->route('seller.register')
                 ->with('info', 'Silakan aktifkan toko Anda dengan kode akses resmi terlebih dahulu.');
+        }
+
+        if (! $seller->isVerified()) {
+            return redirect()->route('seller.products.index')
+                ->with('error', 'Toko Anda sedang dinonaktifkan oleh administrator. Anda belum dapat menghapus produk saat ini.');
         }
         $product = $seller->products()->findOrFail($id);
         $name = $product->name;

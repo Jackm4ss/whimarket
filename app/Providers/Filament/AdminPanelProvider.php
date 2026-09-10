@@ -263,6 +263,32 @@ class AdminPanelProvider extends PanelProvider
                             border: 1px solid rgba(0, 0, 0, 0.06) !important;
                             font-weight: 600 !important;
                         }
+                        /* Modal Solid Background, Backdrop Dimming & Elevation */
+                        .fi-modal-window,
+                        .fi-modal-content,
+                        [role="dialog"] .fi-modal-window {
+                            background-color: #FFFFFF !important;
+                            opacity: 1 !important;
+                            transform: none !important;
+                            border: 1px solid #E2E8F0 !important;
+                            border-radius: 1rem !important;
+                            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+                        }
+                        .fi-modal-close-overlay {
+                            background-color: rgba(15, 23, 42, 0.65) !important;
+                            backdrop-filter: blur(4px) !important;
+                            opacity: 1 !important;
+                        }
+                        .fi-modal-header {
+                            background-color: #FFFFFF !important;
+                            border-bottom: 1px solid #F1F5F9 !important;
+                            padding: 1rem 1.5rem !important;
+                        }
+                        .fi-modal-footer {
+                            background-color: #F8FAFC !important;
+                            border-top: 1px solid #F1F5F9 !important;
+                            padding: 0.875rem 1.5rem !important;
+                        }
                     </style>
                 ')
             )

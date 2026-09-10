@@ -25,6 +25,7 @@ class CatalogController extends Controller
 
         $products = Product::with(['images', 'variants', 'category', 'seller.user', 'wishlists'])
             ->where('status', ProductStatus::ACTIVE)
+            ->whereHas('seller', fn ($sq) => $sq->where('status', SellerStatus::VERIFIED))
             ->latest()
             ->take(8)
             ->get();
@@ -77,8 +78,8 @@ class CatalogController extends Controller
                 'variants:id,product_id,name,price,stock',
             ])
             ->withCount('wishlists')
-            ->where('status', ProductStatus::ACTIVE);
-
+            ->where('status', ProductStatus::ACTIVE)
+            ->whereHas('seller', fn ($sq) => $sq->where('status', SellerStatus::VERIFIED));
         if ($categorySlug && $categorySlug !== 'all') {
             $query->whereHas('category', fn ($q) => $q->where('slug', $categorySlug));
         }
@@ -279,12 +280,18 @@ class CatalogController extends Controller
 
             $isOwnProduct = Auth::check() && $productModel->seller && Auth::id() === $productModel->seller->user_id;
             $isWishlisted = Auth::check() ? $productModel->wishlists()->where('user_id', Auth::id())->exists() : false;
+            $isFollowingSeller = Auth::check() && $productModel->seller ? Auth::user()->isFollowing($productModel->seller) : false;
+            $isSellerActive = $productModel->seller && $productModel->seller->status === SellerStatus::VERIFIED;
+            $isActive = ($productModel->status === ProductStatus::ACTIVE) && $isSellerActive;
 
             return view('product-detail', [
                 'product' => $productData,
                 'productModel' => $productModel,
                 'isOwnProduct' => $isOwnProduct,
                 'isWishlisted' => $isWishlisted,
+                'isActive' => $isActive,
+                'isFollowingSeller' => $isFollowingSeller,
+                'isSellerActive' => $isSellerActive,
                 'activeTab' => 'belanja',
                 'title' => $productModel->name.' | WhiMarket',
             ]);
@@ -320,9 +327,8 @@ class CatalogController extends Controller
                 'avatar' => $s->avatar_url,
                 'cardBg' => $s->banner_url,
                 'rating' => $isDemo ? 4.9 : 0.0,
-                'reviewCount' => $isDemo ? '1.2rb' : '0',
                 'itemCount' => $s->products->count(),
-                'followerCount' => $isDemo ? '12.4rb' : '0',
+                'followerCount' => $s->followers_count_formatted,
                 'profileUrl' => route('seller.profile', '@'.$s->username),
             ];
         })->values()->all();
@@ -339,31 +345,40 @@ class CatalogController extends Controller
     {
         $cleanUsername = ltrim($username, '@');
 
-        $seller = Seller::with(['user', 'products.images', 'products.variants', 'products.category', 'products.wishlists'])
+        $seller = Seller::with(['user'])
             ->where('username', $cleanUsername)
             ->first();
 
         if (! $seller) {
             // Fallback for demo usernames
-            $seller = Seller::with(['user', 'products.images', 'products.variants', 'products.category'])->firstOrFail();
+            $seller = Seller::with(['user'])->firstOrFail();
         }
 
         $isOwnStore = Auth::check() && Auth::id() === $seller->user_id;
+        $isFollowing = Auth::check() ? Auth::user()->isFollowing($seller) : false;
         $isDemo = in_array(strtolower($seller->username), ['rachelvennya', 'celloszx', 'raisa6690', 'fuji_an', 'windahbasudara', 'bramastavrl']);
 
         $stats = [
             'rating' => $isDemo ? 4.9 : null,
             'review_count' => $isDemo ? '1.2rb' : 0,
-            'follower_count' => $isDemo ? '12.4rb' : 0,
+            'follower_count' => $seller->followers_count_formatted,
             'joined_date' => $seller->created_at ? $seller->created_at->translatedFormat('M Y') : 'Mar 2024',
         ];
 
         $reviewsList = $isDemo ? MarketData::sellerReviews() : [];
 
+        $products = $seller->products()
+            ->with(['images', 'variants', 'category', 'wishlists'])
+            ->when(! $isOwnStore, fn ($q) => $q->where('status', ProductStatus::ACTIVE))
+            ->latest('id')
+            ->get();
+
         return view('seller-profile', [
             'seller' => $seller,
-            'products' => $seller->products,
+            'products' => $products,
             'isOwnStore' => $isOwnStore,
+            'isFollowing' => $isFollowing,
+            'isStoreActive' => $seller->status === SellerStatus::VERIFIED,
             'stats' => $stats,
             'reviewsList' => $reviewsList,
             'activeTab' => 'seller',

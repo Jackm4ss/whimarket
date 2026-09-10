@@ -3,7 +3,8 @@
     $sellerHandle = isset($seller) ? ($seller->username ?? 'rachel_venya') : 'rachel_venya';
     $sellerAvatar = isset($seller) ? ($seller->avatar_url ?? ($seller->user?->avatar ?? '/assets/avatar-rachel-exact.png')) : '/assets/avatar-rachel-exact.png';
     $sellerBanner = isset($seller) ? ($seller->banner_url ?? '/assets/seller-banner-rachel.png') : '/assets/seller-banner-rachel.png';
-    $sellerRole = isset($seller) ? 'Verified Creator' : 'Selebgram';
+    $isStoreActive = $isStoreActive ?? (isset($seller) ? $seller->status === \App\Enums\SellerStatus::VERIFIED : true);
+    $sellerRole = $isStoreActive ? (isset($seller) ? 'Verified Creator' : 'Selebgram') : 'Toko Dinonaktifkan Sementara';
     $sellerBio = isset($seller) && !empty($seller->bio) ? $seller->bio : '“Let good things find a new home ♡”';
     $sellerItemsCount = isset($products) ? $products->count() : 112;
     $sellerRating = isset($stats['rating']) && $stats['rating'] !== null ? $stats['rating'] : null;
@@ -108,6 +109,24 @@
             <span class="text-gray-300 font-normal">&gt;</span>
             <span class="text-gray-900 font-bold">{{ $sellerName }}</span>
         </nav>
+        {{-- Inactive Store Notice --}}
+        @if(!($isStoreActive ?? true))
+            <div class="mb-5 rounded-2xl bg-amber-50 border-2 border-amber-300 p-4.5 sm:p-5 shadow-sm">
+                <div class="flex items-start gap-3.5">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h2 class="text-base font-bold text-amber-950 mb-0.5">Toko Ini Sedang Dinonaktifkan Sementara</h2>
+                        <p class="text-xs sm:text-sm text-amber-800 leading-relaxed">
+                            Toko penjual ini sedang dalam status nonaktif atau ditangguhkan oleh administrator WhiMarket. Seluruh produk dari toko ini saat ini tidak dapat dibeli atau di-checkout oleh pembeli.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         <!-- 2. Hero Banner (reduced height: aspect 1568/380 with max height constraint) -->
         <div class="relative w-full h-[180px] sm:h-[240px] md:h-[280px] lg:h-[300px] xl:h-[320px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xs">
@@ -161,14 +180,19 @@
                             <h1 class="text-[25px] xl:text-[28px] font-black text-[#111827] tracking-tight leading-tight">
                                 {{ $sellerName }}
                             </h1>
-                            <x-verified-badge size="md" class="w-5.5 h-5.5 shrink-0" />
+                            @if($isStoreActive)
+                                <x-verified-badge size="md" class="w-5.5 h-5.5 shrink-0" />
+                            @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                    Toko Sedang Nonaktif
+                                </span>
+                            @endif
                         </div>
 
                         <!-- Subtitle / Role -->
-                        <p class="text-[14px] text-gray-500 font-medium mb-1">
+                        <p class="text-[14px] {{ $isStoreActive ? 'text-gray-500 font-medium' : 'text-amber-700 font-bold' }} mb-1">
                             {{ $sellerRole }}
                         </p>
-
                         <!-- Bio quote -->
                         <p class="text-[14.5px] text-gray-700 font-normal mb-3">
                             &ldquo;{{ $sellerBio }}&rdquo;
@@ -207,7 +231,7 @@
                                 <svg class="w-[18px] h-[18px] text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
-                                <span class="font-semibold text-gray-800 whitespace-nowrap text-[13.5px]">
+                                <span class="font-semibold text-gray-800 whitespace-nowrap text-[13.5px]" x-text="followersCount + ' Pengikut'">
                                     {{ is_numeric($sellerFollowerCount) && $sellerFollowerCount == 0 ? '0' : $sellerFollowerCount }} Pengikut
                                 </span>
                             </div>
@@ -241,8 +265,9 @@
                     @else
                         <button
                             type="button"
-                            @click="isFollowing = !isFollowing"
-                            class="px-7 h-11 sm:h-11.5 rounded-xl text-[14px] font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                            @click="toggleFollow()"
+                            :disabled="isFollowLoading"
+                            class="px-7 h-11 sm:h-11.5 rounded-xl text-[14px] font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs disabled:opacity-75"
                             :class="isFollowing ? 'bg-gray-100 text-gray-800 hover:bg-gray-200' : 'bg-[#4F26A6] text-white hover:bg-[#3E1D85] shadow-[0_4px_16px_rgba(79,38,166,0.22)]'"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -257,30 +282,35 @@
 
             <!-- Mobile Only (< 768px): Responsive layout matching user mobile preference -->
             <div class="flex flex-col md:hidden w-full">
-                <!-- Top row: Avatar + Name on left, 3-dots button on right -->
+                <!-- Top row: Avatar + Name on left -->
                 <div class="flex items-start justify-between w-full gap-2 sm:gap-4">
-                    <div class="flex items-end gap-3 sm:gap-6 min-w-0">
+                    <div class="flex items-end gap-3 sm:gap-6 min-w-0 flex-1">
                         <div class="-mt-12 sm:-mt-16 shrink-0 z-20">
                             <img
                                 src="{{ $sellerAvatar }}"
                                 alt="{{ $sellerName }}"
-                                class="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full object-cover ring-4 sm:ring-[5px] ring-white shadow-lg bg-white"
+                                class="w-22 h-22 sm:w-28 sm:h-28 rounded-full object-cover ring-4 sm:ring-[5px] ring-white shadow-lg bg-white"
                             />
                         </div>
-                        <div class="flex flex-col pt-5 sm:pt-7 md:pt-8 pb-1 min-w-0">
-                            <div class="flex items-center gap-1.5 sm:gap-2">
-                                <h1 class="text-[19px] sm:text-[25px] font-black text-[#111827] tracking-tight leading-tight whitespace-nowrap">
+                        <div class="flex flex-col pt-3 sm:pt-6 pb-1 min-w-0 flex-1">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <h1 class="text-[18px] sm:text-[22px] font-black text-[#111827] tracking-tight leading-tight">
                                     {{ $sellerName }}
                                 </h1>
-                                <x-verified-badge size="md" class="w-4.5 h-4.5 sm:w-5 sm:h-5 shrink-0" />
+                                @if($isStoreActive)
+                                    <x-verified-badge size="md" class="w-4.5 h-4.5 sm:w-5 sm:h-5 shrink-0" />
+                                @else
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 shrink-0">
+                                        Toko Nonaktif
+                                    </span>
+                                @endif
                             </div>
-                            <p class="text-[13px] sm:text-[14px] text-gray-500 font-medium mt-0.5">
+                            <p class="text-[13px] sm:text-[14px] {{ $isStoreActive ? 'text-gray-500 font-medium' : 'text-amber-700 font-bold' }} mt-0.5">
                                 {{ $sellerRole }}
                             </p>
                         </div>
                     </div>
                 </div>
-
                 <!-- Below photo: Bio Quote -->
                 <p class="text-[14px] sm:text-[15px] text-gray-700 font-normal mt-3 mb-2.5">
                     &ldquo;{{ $sellerBio }}&rdquo;
@@ -316,7 +346,7 @@
                         <svg class="w-[17px] h-[17px] text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        <span class="font-semibold text-gray-800 whitespace-nowrap text-[13px] sm:text-[14px]">
+                        <span class="font-semibold text-gray-800 whitespace-nowrap text-[13px] sm:text-[14px]" x-text="followersCount + ' Pengikut'">
                             {{ is_numeric($sellerFollowerCount) && $sellerFollowerCount == 0 ? '0' : $sellerFollowerCount }} Pengikut
                         </span>
                     </div>
@@ -370,7 +400,7 @@
                         <svg class="w-5 h-5 text-[#4F26A6] stroke-current fill-none mb-1" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        <span class="text-[19px] font-black text-[#111827] leading-none">
+                        <span class="text-[19px] font-black text-[#111827] leading-none" x-text="followersCount">
                             {{ is_numeric($sellerFollowerCount) && $sellerFollowerCount == 0 ? '0' : $sellerFollowerCount }}
                         </span>
                         <span class="text-[12px] text-gray-400 font-normal mt-1.5 whitespace-nowrap">Pengikut</span>
@@ -392,8 +422,9 @@
                     @else
                         <button
                             type="button"
-                            @click="isFollowing = !isFollowing"
-                            class="w-full sm:w-auto px-7 h-11 sm:h-11.5 rounded-xl text-xs sm:text-[14px] font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                            @click="toggleFollow()"
+                            :disabled="isFollowLoading"
+                            class="w-full sm:w-auto px-7 h-11 sm:h-11.5 rounded-xl text-xs sm:text-[14px] font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs disabled:opacity-75"
                             :class="isFollowing ? 'bg-gray-100 text-gray-800 hover:bg-gray-200' : 'bg-[#4F26A6] text-white hover:bg-[#3E1D85] shadow-[0_4px_16px_rgba(79,38,166,0.22)]'"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -405,6 +436,7 @@
                     @endif
                 </div>
             </div>
+
 
             <!-- 4. Tabs Navigation: on mobile/tablet justified evenly across width; on desktop left-aligned with pl-4 -->
             <div class="flex items-center justify-around sm:justify-around lg:justify-start gap-2 sm:gap-6 lg:gap-14 text-[15px] sm:text-[16px] md:text-[17px] font-bold mt-8 px-2 sm:px-4 lg:px-0 lg:pl-4 w-full border-b border-gray-200/80">
@@ -1067,7 +1099,9 @@
     function registerSellerProfile() {
         Alpine.data('sellerProfile', () => ({
             activeTab: 'produk',
-            isFollowing: false,
+            isFollowing: {{ !empty($isFollowing) ? 'true' : 'false' }},
+            followersCount: '{{ $sellerFollowerCount }}',
+            isFollowLoading: false,
             isShareCopied: false,
             isBioExpanded: false,
             shareModalOpen: false,
@@ -1104,6 +1138,39 @@
                 }
             },
 
+
+            async toggleFollow() {
+                @if(!auth()->check())
+                    window.location.href = '{{ route('login') }}';
+                    return;
+                @endif
+                if (this.isFollowLoading) return;
+                this.isFollowLoading = true;
+                try {
+                    const res = await fetch('{{ route('seller.toggle-follow', $seller->id ?? $sellerHandle) }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const data = await res.json();
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else if (data.success) {
+                        this.isFollowing = data.is_following;
+                        if (data.formatted_followers_count !== undefined) {
+                            this.followersCount = data.formatted_followers_count;
+                        }
+                    } else if (data.message) {
+                        alert(data.message);
+                    }
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    this.isFollowLoading = false;
+                }
+            },
             async toggleWishlist(product) {
                 @if(!auth()->check())
                     window.location.href = '{{ route('login') }}';

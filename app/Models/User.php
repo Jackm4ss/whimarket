@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -68,6 +69,23 @@ class User extends Authenticatable implements FilamentUser
     public function wishlists(): HasMany
     {
         return $this->hasMany(Wishlist::class);
+    }
+
+    public function followedSellers(): BelongsToMany
+    {
+        return $this->belongsToMany(Seller::class, 'seller_followers', 'user_id', 'seller_id')->withTimestamps();
+    }
+
+    public function sellerFollowers(): HasMany
+    {
+        return $this->hasMany(SellerFollower::class);
+    }
+
+    public function isFollowing(Seller|int $seller): bool
+    {
+        $sellerId = $seller instanceof Seller ? $seller->id : $seller;
+
+        return $this->followedSellers()->where('sellers.id', $sellerId)->exists();
     }
 
     public function cart(): HasOne

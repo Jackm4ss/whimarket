@@ -39,6 +39,7 @@ class SearchController extends Controller
                     'seller.user:id,avatar',
                 ])
                 ->where('status', ProductStatus::ACTIVE)
+                ->whereHas('seller', fn ($sq) => $sq->where('status', SellerStatus::VERIFIED))
                 ->where(function ($q) use ($escaped) {
                     $q->where('name', 'like', "%{$escaped}%")
                         ->orWhereHas('seller', fn ($sq) => $sq->where('store_name', 'like', "%{$escaped}%"));

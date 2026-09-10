@@ -1,158 +1,264 @@
-<laravel-boost-guidelines>
-=== foundation rules ===
+# Repository Guidelines
 
-# Laravel Boost Guidelines
+## Project Overview
 
-The Laravel Boost guidelines are specifically curated by Laravel maintainers for this application. These guidelines should be followed closely to ensure the best experience when building Laravel applications.
+**WhiMarket** is a curated C2C marketplace platform tailored for authentic pre-loved fashion, apparel, and exclusive creator merchandise from Indonesian public figures, content creators, and verified sellers.
 
-## Foundational Context
+The application operates with three distinct user roles:
+- **Buyer**: Discovery, search suggestions, wishlist, shopping cart, checkout with dynamic shipping and platform fees, manual bank transfer payment proof uploads, order tracking, and 48-hour delivery inspection with dispute mediation.
+- **Seller (Creator)**: Invite-only onboarding using VIP Seller Access Codes, store profile (`/seller/@username`), product/variant catalog CRUD, order fulfillment (resi and packing proof), delivery claim requests, and dispute responses.
+- **Admin**: Full operational control via Filament v5 at `/admin`—managing payments, orders, products, sellers, payouts, disputes, shipping rate zones, and dynamic platform fees.
 
-This application is a Laravel application running on PHP 8.4. You are an expert with the Laravel ecosystem. Always use the APIs that match the installed major version of each package — do not assume a version.
+---
 
-Before relying on a package's API, confirm its installed version:
-- PHP packages: run `composer show --direct` to list direct dependencies with versions, or `composer show <vendor/package>` for a single package.
-- JS packages: check `package.json` for the installed versions.
+## Architecture & Data Flow
 
-## Skills Activation
+WhiMarket is structured as a **Modular Monolith** on **Laravel 13** and **PHP 8.3/8.4**, with an administrative dashboard powered by **Filament v5** and **Livewire 4**, and a customer-facing storefront built using **Blade**, **Tailwind CSS v4** (CSS-first `@theme`), and **Alpine.js v3**.
 
-This project has domain-specific skills available in `**/skills/**`. You MUST activate the relevant skill whenever you work in that domain—don't wait until you're stuck.
+### Core Data Flow & Pipelines
 
-## Conventions
+```
+[Buyer: Cart] -> [CheckoutController::process] (pessimistic lock on variants)
+                     |
+                     v
+             [Order Created] (Status: PendingPayment)
+             - address_snapshot (JSON)
+             - order_items (price_snapshot)
+             - EscrowBalance created (held funds)
+                     |
+                     v
+             [Payment Upload] (Status: PaymentVerification)
+                     |
+                     v
+             [Admin Verifies Payment in Filament] -> (Status: Paid)
+                     |
+                     v
+             [Seller Prepares & Fulfills Package] -> (Status: Shipped)
+             - courier_name, tracking_number (resi)
+             - pre_shipment_photo, receipt_photo
+                     |
+                     v
+             [Delivery Confirmation] -> (Status: Delivered)
+             - Fast Path: Buyer clicks "Barang Sudah Diterima"
+             - Failsafe Path: Seller submits claim -> Admin verifies via tracking link
+             - 48-hour inspection timer starts (inspection_deadline_at)
+                     |
+                     +---------------------------------------+
+                     |                                       |
+                     v (No Dispute / Confirmed)              v (Dispute Filed)
+             [Order Completed]                       [Dispute Raised]
+             - EscrowBalance released                - Escrow timer frozen
+             - Payout generated (Status: PENDING)    - Admin mediates refund vs release
+                     |
+                     v
+             [Admin Executes Bank Payout in Filament] -> (Status: Paid)
+```
 
-- You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, and naming.
-- Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.
-- Check for existing components to reuse before writing a new one.
+### Key Architectural Patterns
 
-## Verification Scripts
+1. **State Machine Transitions (`spatie/laravel-model-states`)**:
+   - `Order::$status` uses `OrderStatusState` (`PendingPayment` $\rightarrow$ `PaymentVerification` $\rightarrow$ `Paid` $\rightarrow$ `Processing` $\rightarrow$ `Shipped` $\rightarrow$ `Delivered` $\rightarrow$ `Completed`, or `Cancelled`/`Disputed`).
+   - `Dispute::$status` uses `DisputeStatusState` (`OpenDispute` $\rightarrow$ `UnderAdminReview` $\rightarrow$ `ResolvedRefund` / `ResolvedRejected`).
+   - State classes live in `app/States/Order/` and `app/States/Dispute/`. Never update status via raw strings; invoke `$order->status->transitionTo(Paid::class)`.
+2. **Escrow Protection & Ledger**:
+   - Held funds are tracked in `escrow_balances`. The held amount represents seller funds (`total_amount`), excluding shipping and admin fees.
+   - Payout records (`payouts`) capture immutable snapshots of seller bank details (`bank_name`, `account_number`, `account_name`) upon completion.
+3. **Pessimistic Inventory Locking**:
+   - During checkout (`CheckoutController::process()`), variant IDs are sorted ascending before applying `ProductVariant::whereIn('id', $variantIds)->orderBy('id', 'asc')->lockForUpdate()` within `DB::transaction()` to prevent overselling and database deadlocks.
+4. **Historical Immutability (Snapshots)**:
+   - Orders preserve point-in-time facts: `address_snapshot` (JSON), `product_name_snapshot`, `variant_name_snapshot`, and `price_snapshot` in `order_items`. Never join live user addresses or current product prices for historical orders.
+5. **Scheduled Escrow Automation**:
+   - `AutoCompleteOrdersCommand` (`php artisan orders:auto-complete`) runs every 30 minutes in `routes/console.php` to transition orders past their 48-hour inspection deadline to `Completed` and generate pending payouts.
 
-- Do not create verification scripts or tinker when tests cover that functionality and prove they work. Unit and feature tests are more important.
+---
 
-## Application Structure & Architecture
+## Key Directories
 
-- Stick to existing directory structure; don't create new base folders without approval.
-- Do not change the application's dependencies without approval.
+```
+app/
+├── Console/Commands/        # Scheduled tasks (AutoCompleteOrdersCommand.php)
+├── Enums/                   # Backed PHP enums (UserRole, PaymentStatus, PayoutStatus, etc.)
+├── Filament/                # Admin panel configuration
+│   ├── Pages/               # Admin pages (Dashboard, Login)
+│   ├── Resources/           # Filament resources (Orders, Payments, Products, Sellers,
+│   │                        #  Payouts, Disputes, ShippingZones, PlatformSettings, AccessCodes)
+│   └── Widgets/             # Dashboard metrics and operational widgets
+├── Http/Controllers/
+│   ├── Api/                 # JSON API endpoints (RegionController)
+│   ├── Auth/                # Authentication, Google OAuth (Socialite), PasswordController
+│   ├── Buyer/               # Storefront: Catalog, Search, Cart, Checkout, Orders, Disputes
+│   └── Seller/              # Merchant portal: Dashboard, Products CRUD, Fulfillment, Resi
+├── Models/                  # Eloquent models with typed casts and relationship definitions
+├── Policies/                # Authorization policies (OrderPolicy, ProductPolicy, DisputePolicy)
+├── Providers/               # Service providers (AdminPanelProvider, AppServiceProvider)
+├── Services/                # Domain services (ShippingRateService, PlatformFeeService)
+├── States/                  # Spatie model states for Order and Dispute lifecycles
+└── Support/                 # Static data fallbacks (MarketData.php)
 
-## Frontend Bundling
+resources/
+├── css/app.css              # Tailwind CSS v4 CSS-first theme tokens & custom utilities
+├── js/app.js                # Frontend bootstrapping (Alpine.js)
+└── views/
+    ├── components/          # Reusable Blade UI components (cards, badges, modals, selectors)
+    ├── layouts/             # App layouts (app.blade.php, navbar.blade.php, footer.blade.php)
+    ├── checkout/            # Checkout form (index.blade.php) and payment instructions (payment.blade.php)
+    ├── orders/              # Buyer order listing and detail views
+    ├── seller/              # Seller dashboard, catalog management, and order fulfillment
+    └── filament/modals/     # Custom admin modals (order-details.blade.php, payment-details.blade.php)
 
-- If the user doesn't see a frontend change reflected in the UI, it could mean they need to run `bun run build`, `bun run dev`, or `composer run dev`. Ask them.
+database/
+├── factories/               # Model factories with custom roles/states
+├── migrations/              # Database schema migrations
+└── seeders/                 # Seeders (DatabaseSeeder, ShippingZoneSeeder, PlatformSettingSeeder)
 
-## Documentation Files
+tests/
+├── Feature/                 # Concurrency, full order lifecycle, auth, dispute, fee tests
+└── TestCase.php             # Base test configuration (whimarket_test connection, CSRF disabled)
+```
 
-- You must only create documentation files if explicitly requested by the user.
+---
 
-## Replies
+## Development Commands
 
-- Be concise in your explanations - focus on what's important rather than explaining obvious details.
+### Running Locally
+```bash
+# Start PHP development server (default port 8000)
+php artisan serve
 
-=== boost rules ===
+# Start Vite dev server for hot reloading (using Bun)
+bun run dev
 
-# Laravel Boost
+# Run queue worker (if running background jobs)
+php artisan queue:work
 
-## Tools
+# Run scheduled commands manually
+php artisan orders:auto-complete
+```
 
-- Laravel Boost is an MCP server with tools designed specifically for this application. Prefer Boost tools over manual alternatives like shell commands or file reads.
-- Use `database-query` to run read-only queries against the database instead of writing raw SQL in tinker.
-- Use `database-schema` to inspect table structure before writing migrations or models.
-- Use `get-absolute-url` to resolve the correct scheme, domain, and port for project URLs. Always use this before sharing a URL with the user.
-- Use `browser-logs` to read browser logs, errors, and exceptions. Only recent logs are useful, ignore old entries.
+### Build & Asset Compilation
+```bash
+# Build frontend assets for production
+bun run build
 
-## Searching Documentation (IMPORTANT)
+# Optimize and compress asset images via Sharp
+bun run compress
+```
 
-- Use `search-docs` before changes that depend on Laravel ecosystem APIs, behavior, configuration, or version-specific syntax. Skip it for copy-only edits and other changes where package documentation is irrelevant. Reuse sufficient results already in context instead of searching again.
-- Pass a `packages` array to scope results when you know which packages are relevant.
-- Use multiple broad, topic-based queries: `['rate limiting', 'routing rate limiting', 'routing']`. Expect the most relevant results first.
-- Do not add package names to queries because package info is already shared. Use `test resource table`, not `filament 4 test resource table`.
+### Testing & Code Style
+```bash
+# Run full PHPUnit test suite (compact mode)
+php artisan test --compact
 
-### Search Syntax
+# Run a specific test file or filter by method name
+php artisan test tests/Feature/OrderLifecycleTest.php
+php artisan test --filter=test_zero_overselling_under_concurrent_stock_reduction
 
-1. Use words for auto-stemmed AND logic: `rate limit` matches both "rate" AND "limit".
-2. Use `"quoted phrases"` for exact position matching: `"infinite scroll"` requires adjacent words in order.
-3. Combine words and phrases for mixed queries: `middleware "rate limit"`.
-4. Use multiple queries for OR logic: `queries=["authentication", "middleware"]`.
+# Format modified PHP files according to project Pint rules
+php vendor/bin/pint --dirty --format agent
 
-## Project Rules
+# Format all project files
+php vendor/bin/pint --format agent
+```
 
-- This project contains committed, area-grouped rules in `.ai/rules` when that directory exists (settled decisions, non-obvious traps, standing constraints). Framework and package guidelines that only apply to specific paths (testing, frontend, components) also live there, under `.ai/rules/boost` — this is not just recorded decisions, it is load-bearing guidance you have not seen inline. Before you enter plan mode or create/edit any file, you MUST first: open @.ai/rules/index.md (it maps file globs to rule files), read every rule file whose globs cover the path(s) in scope, and run `grep -rin 'keyword' .ai/rules` to catch what a path match alone misses. Do not write code until you have read and are following every matching rule. If `.ai/rules` does not exist, continue without it.
-- Record durable rules with `record-rule` so the next agent or teammate inherits them instead of working them out again. Pass a `glob` (e.g. `app/Http/Controllers/**`), a short `title`, and a few-line `note`. Always use `record-rule`, never your native memory or notes tool — native memory is personal and session-scoped; only `.ai/rules` is shared with the team and persists in the repo.
+### Database & Seeding
+```bash
+# Run migrations
+php artisan migrate
 
-## Artisan
+# Seed fresh database with demo accounts and reference data
+php artisan db:seed
 
-- Run Artisan commands directly via the command line (e.g., `php artisan route:list`). Use `php artisan list` to discover available commands and `php artisan [command] --help` to check parameters.
-- Inspect routes with `php artisan route:list`. Filter with: `--method=GET`, `--name=users`, `--path=api`, `--except-vendor`, `--only-vendor`.
-- Read configuration values using dot notation: `php artisan config:show app.name`, `php artisan config:show database.default`. Or read config files directly from the `config/` directory.
+# Inspect routes or database config
+php artisan route:list --path=admin
+php artisan config:show database.default
+```
 
-## Tinker
+---
 
-- Execute PHP in app context for debugging and testing code. Do not create models without user approval, prefer tests with factories instead. Prefer existing Artisan commands over custom tinker code.
-- Always use single quotes to prevent shell expansion: `php artisan tinker --execute 'Your::code();'`
-  - Double quotes for PHP strings inside: `php artisan tinker --execute 'User::where("active", true)->count();'`
+## Code Conventions & Common Patterns
 
-=== php rules ===
+### Formatting & PHP Standards
+- **PHP 8 Constructor Promotion**: Use `public function __construct(public GitHub $github) {}`. Avoid empty parameterless constructors.
+- **Strict Typing & Return Types**: Declare explicit return types and method parameter hints on all controller methods, service methods, and models:
+  ```php
+  public function calculate(string|int|null $provinceNameOrCode): array
+  ```
+- **Control Structures**: Always use curly braces for control structures, even for single-line bodies.
+- **Enums**: Use PascalCase / TitleCase for enum cases: `UserRole::ADMIN`, `PaymentStatus::PENDING_REVIEW`.
 
-# PHP
+### Controller & Validation Conventions
+- **Inline Validation**: Controllers use inline `$request->validate([...])` with Indonesian validation messages. FormRequest classes are not used in this project.
+- **Authorization**: Enforce user authorization using Laravel policies: `Gate::authorize('view', $order)` or `$this->authorize(...)`.
+- **Image Upload Security**: Enforce binary image verification using `@getimagesize()` on transfer proof and receipt uploads to confirm valid image headers (JPEG, PNG, WEBP) rather than trusting mime extensions alone.
 
-- Always use curly braces for control structures, even for single-line bodies.
-- Use PHP 8 constructor property promotion: `public function __construct(public GitHub $github) { }`. Do not leave empty zero-parameter `__construct()` methods unless the constructor is private.
-- Use explicit return type declarations and type hints for all method parameters: `function isAccessible(User $user, ?string $path = null): bool`
-- Use TitleCase for Enum keys: `FavoritePerson`, `BestLake`, `Monthly`.
-- Prefer PHPDoc blocks over inline comments. Only add inline comments for exceptionally complex logic.
-- Use array shape type definitions in PHPDoc blocks.
+### Database, Transactions & Caching
+- **Transaction Safety**: All multi-table updates (checkout, order fulfillment, dispute resolution, payment approval) must be wrapped inside `DB::transaction(function () { ... })`.
+- **Deadlock Prevention**: Always sort model IDs in ascending order before applying `->lockForUpdate()`.
+- **Caching Strategy**:
+  - Semi-static data (e.g. `ShippingZone`, `PlatformSetting`, `RegionController` lookups) must be cached with 24-hour expiration (`now()->addHours(24)`).
+  - Always register cache invalidation in Eloquent model lifecycle hooks:
+    ```php
+    protected static function booted(): void
+    {
+        static::saved(fn ($setting) => Cache::forget("platform_setting_{$setting->key}"));
+        static::deleted(fn ($setting) => Cache::forget("platform_setting_{$setting->key}"));
+    }
+    ```
+- **Default Table Sorting**: All Filament resource tables must specify `->defaultSort('created_at', 'desc')` to display the newest records first.
 
-=== deployments rules ===
+---
 
-# Deployment
+## Important Files
 
-- Laravel can be deployed using [Laravel Cloud](https://cloud.laravel.com/), which is the fastest way to deploy and scale production Laravel applications.
+| Path | Purpose |
+| :--- | :--- |
+| `routes/web.php` | Main web routes for Buyer, Seller, Authentication, and Regional APIs |
+| `routes/console.php` | Scheduled commands (including 30-minute auto-completion of orders) |
+| `app/Providers/Filament/AdminPanelProvider.php` | Filament panel bootstrap, navigation groups, theme colors, and custom CSS |
+| `app/Models/Order.php` | Master order model with Spatie state machine cast and snapshot fields |
+| `app/States/Order/OrderStatusState.php` | Finite state machine transitions for the complete order lifecycle |
+| `app/Http/Controllers/Buyer/CheckoutController.php` | Concurrency-locked cart checkout, shipping rate, and order creation |
+| `app/Services/ShippingRateService.php` | Indonesian 5-zone logistics calculation with 24-hour caching |
+| `app/Services/PlatformFeeService.php` | Dynamic platform admin fee calculation service |
+| `app/Models/PlatformSetting.php` | Dynamic key-value configuration model with auto-invalidating cache |
+| `resources/css/app.css` | Tailwind CSS v4 design tokens (`--color-primary-purple: #4F26A6`, etc.) |
+| `database/seeders/DatabaseSeeder.php` | Master database seeder for demo accounts, shipping zones, and admin fees |
 
-=== laravel/core rules ===
+---
 
-# Do Things the Laravel Way
+## Runtime & Tooling Preferences
 
-- Use `php artisan make:` commands to create new files (i.e. migrations, controllers, models, etc.). You can list available Artisan commands using `php artisan list` and check their parameters with `php artisan [command] --help`.
-- If you're creating a generic PHP class, use `php artisan make:class`.
-- Pass `--no-interaction` to all Artisan commands to ensure they work without user input. You should also pass the correct `--options` to ensure correct behavior.
+- **PHP Version**: Requires `^8.3` (tested and running on PHP 8.4).
+- **Node / JS Package Manager**: **Bun** is the primary package manager (`bun.lock`). Use `bun run build`, `bun run dev`, and `bun add`. Avoid committing `package-lock.json` or `pnpm-lock.yaml`.
+- **Database Engine**: Defaults to SQLite for local development (`database/database.sqlite`); utilizes MariaDB (`whimarket_test` on `127.0.0.1:3306`) for testing and production environments.
+- **Git Push Policy**: **NEVER** push commits to remote (`git push origin dev` or any remote) without explicit instruction from the user. Always keep commits local until specifically commanded.
+- **Local Dev Fast-Login**: Quick authentication bypass routes exist for local development:
+  - Admin: `/auth/dev-login/admin`
+  - Seller: `/auth/dev-login/seller`
+  - Buyer: `/auth/dev-login/buyer`
 
-### Model Creation
+---
 
-- When creating new models, create useful factories and seeders for them too. Ask the user if they need any other things, using `php artisan make:model --help` to check the available options.
+## Testing & QA
 
-## APIs & Eloquent Resources
+### Framework & Configuration
+- **Test Runner**: **PHPUnit 12+** (`phpunit.xml`) executed via `php artisan test`.
+- **Testing Database**: Configured to run against `whimarket_test` with `DatabaseMigrations` trait applied across feature tests.
+- **Drivers**: Array drivers are used during tests for `CACHE_STORE=array`, `SESSION_DRIVER=array`, `QUEUE_CONNECTION=sync`, and `BCRYPT_ROUNDS=4` for fast execution.
 
-- For APIs, default to using Eloquent API Resources and API versioning unless existing API routes do not, then you should follow existing application convention.
+### Key Test Suites
+- `tests/Feature/OrderLifecycleTest.php`: Complete end-to-end flow from checkout to payment verification, shipment, buyer confirmation, and payout release.
+- `tests/Feature/CheckoutConcurrencyTest.php`: Concurrency test proving zero-overselling under race conditions when variant stock is 1.
+- `tests/Feature/PlatformAdminFeeTest.php`: Dynamic fee calculations, payment parity, and disabled fee scenarios.
+- `tests/Feature/SellerAccessCodeTest.php`: VIP access code validation, quota locking, and admin resets.
+- `tests/Feature/DisputeResolutionTest.php`: Dispute submission with unboxing proof, counter-evidence, and mediation outcomes.
 
-## URL Generation
-
-- When generating links to other pages, prefer named routes and the `route()` function.
-
-## Testing
-
-- When creating models for tests, use the factories for the models. Check if the factory has custom states that can be used before manually setting up the model.
-- Faker: Use methods such as `$this->faker->word()` or `fake()->randomDigit()`. Follow existing conventions whether to use `$this->faker` or `fake()`.
-- When creating tests, make use of `php artisan make:test [options] {name}` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
-
-## Vite Error
-
-- If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `bun run build` or ask the user to run `bun run dev` or `composer run dev`.
-
-=== pint/core rules ===
-
-# Laravel Pint Code Formatter
-
-- If you have modified any PHP files, you must run `vendor/bin/pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
-- Do not run `vendor/bin/pint --test --format agent`, simply run `vendor/bin/pint --format agent` to fix any formatting issues.
-
-=== phpunit/core rules ===
-
-# PHPUnit
-
-- This project uses PHPUnit. Create tests with `php artisan make:test --phpunit {name}`.
-- Do not include the test suite directory in `{name}`. Use `SomeFeatureTest`, not `Feature/SomeFeatureTest`.
-- Read the `testing-best-practices` skill for guidance on coverage, naming, structure, dependency isolation, and review.
-
-## Running Tests
-
-- Run the narrowest set of tests that covers the change. Pass a file path or `--filter=testName` to `php artisan test --compact`.
-- Rerun a test after each change to it.
-- Run `vendor/bin/phpunit` to call the test runner directly. It accepts the same file path and `--filter=testName` arguments.
-
-</laravel-boost-guidelines>
+### Testing Rules for AI Agents
+1. **Always use Model Factories**: Leverage `User::factory()->buyer()`, `User::factory()->admin()`, `ProductVariant::factory()`, etc.
+2. **Assign Spatie Roles in Setup**: Ensure Spatie roles are created and assigned:
+   ```php
+   Role::firstOrCreate(['name' => 'buyer', 'guard_name' => 'web']);
+   $user->assignRole('buyer');
+   ```
+3. **No Padding Tests**: Write tests that defend observable contracts, boundaries, and invariants. Do not write tests for trivial setters or framework wiring.
+4. **Always verify Pint and Tests**: Run `vendor/bin/pint --dirty --format agent` and `php artisan test` before completing any code changes.

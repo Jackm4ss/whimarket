@@ -34,17 +34,57 @@
                 >
                     &larr; Dashboard
                 </a>
-                <a
-                    href="{{ route('seller.products.create') }}"
-                    class="px-5 py-2.5 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#4F26A6]/20 transition-all flex items-center gap-2"
-                >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    <span>Tambah Produk Baru</span>
-                </a>
-            </div>
+                @if($seller->isVerified())
+                    <a
+                        href="{{ route('seller.products.create') }}"
+                        class="px-5 py-2.5 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#4F26A6]/20 transition-all flex items-center gap-2"
+                    >
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        <span>Tambah Produk Baru</span>
+                    </a>
+                @else
+                    <button
+                        type="button"
+                        onclick="alert('Toko Anda sedang dinonaktifkan oleh administrator. Anda belum dapat menambah produk baru.')"
+                        class="px-5 py-2.5 rounded-xl bg-gray-200 text-gray-500 font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-not-allowed opacity-80"
+                    >
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                        </svg>
+                        <span>Tambah Produk (Nonaktif)</span>
+                    </button>
+                @endif
         </div>
+        @if($seller->status !== \App\Enums\SellerStatus::VERIFIED)
+            <div class="mb-6 p-4.5 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-900 text-sm flex items-start gap-3.5 shadow-sm">
+                <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-bold text-amber-950 mb-0.5">Toko Anda Sedang Dinonaktifkan Sementara</h4>
+                    <p class="text-xs sm:text-sm text-amber-800 leading-relaxed">
+                        @if(!empty($seller->rejection_reason))
+                            <strong>Alasan:</strong> {{ $seller->rejection_reason }}
+                        @else
+                            Produk di katalog Anda saat ini dinonaktifkan dari pembelian di storefront. Penambahan atau perubahan produk dibatasi sampai toko diaktifkan kembali oleh admin.
+                        @endif
+                    </p>
+                </div>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-center gap-3">
+                <svg class="w-5 h-5 text-rose-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>{{ session('error') }}</span>
+            </div>
+        @endif
 
         @if(session('success'))
             <div class="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center gap-3">

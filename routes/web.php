@@ -8,6 +8,7 @@ use App\Http\Controllers\Buyer\CartController;
 use App\Http\Controllers\Buyer\CatalogController;
 use App\Http\Controllers\Buyer\CheckoutController;
 use App\Http\Controllers\Buyer\DisputeController;
+use App\Http\Controllers\Buyer\FollowController;
 use App\Http\Controllers\Buyer\OnboardingController;
 use App\Http\Controllers\Buyer\OrderController;
 use App\Http\Controllers\Buyer\ProfileController;
@@ -54,6 +55,9 @@ Route::prefix('api/regions')->name('regions.')->group(function () {
 Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
 Route::post('/wishlist/toggle/{productId}', [WishlistController::class, 'toggle'])->name('wishlist.toggle')->where('productId', '[A-Za-z0-9_.-]+');
 
+// Follow Store Routes
+Route::get('/toko-diikuti', [FollowController::class, 'index'])->name('followed-sellers.index');
+Route::post('/seller/toggle-follow/{sellerId}', [FollowController::class, 'toggle'])->name('seller.toggle-follow')->where('sellerId', '[A-Za-z0-9_.-]+');
 // Cart Routes
 Route::get('/keranjang', [CartController::class, 'index'])->name('cart.index');
 Route::post('/keranjang/add', [CartController::class, 'add'])->name('cart.add');

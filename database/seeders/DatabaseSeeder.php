@@ -154,6 +154,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Celloszx',
                 'password' => Hash::make('password'),
                 'role' => UserRole::SELLER,
+                'phone' => '081398765432',
                 'avatar' => '/assets/avatars/avatar-cellos.png',
             ]
         );

@@ -428,6 +428,7 @@
                             @php
                                 $cartCountVal = auth()->check() && auth()->user()->cart ? auth()->user()->cart->items()->count() : ($cartCount ?? 0);
                                 $wishCountVal = auth()->check() ? auth()->user()->wishlists()->count() : ($wishlistCount ?? 0);
+                                $followedCountVal = auth()->check() ? auth()->user()->followedSellers()->count() : 0;
                             @endphp
 
                             @if(auth()->check() && auth()->user()->isSeller())
@@ -489,6 +490,17 @@
                                         {{ $wishCountVal }}
                                     </span>
                                 </a>
+                                <a href="{{ route('followed-sellers.index') }}" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
+                                    <div class="flex items-center gap-3">
+                                        <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                        </svg>
+                                        <span>Toko yang Diikuti</span>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full {{ $followedCountVal > 0 ? 'bg-[#4F26A6] text-white' : 'bg-gray-100 text-gray-400' }} text-[10.5px] font-extrabold">
+                                        {{ $followedCountVal }}
+                                    </span>
+                                </a>
                                 <a href="{{ route('cart.index') }}" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
                                     <div class="flex items-center gap-3">
                                         <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -522,6 +534,17 @@
                                     </div>
                                     <span class="px-2 py-0.5 rounded-full {{ $wishCountVal > 0 ? 'bg-[#4F26A6] text-white' : 'bg-gray-100 text-gray-400' }} text-[10.5px] font-extrabold">
                                         {{ $wishCountVal }}
+                                    </span>
+                                </a>
+                                <a href="{{ route('followed-sellers.index') }}" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
+                                    <div class="flex items-center gap-3">
+                                        <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                        </svg>
+                                        <span>Toko yang Diikuti</span>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full {{ $followedCountVal > 0 ? 'bg-[#4F26A6] text-white' : 'bg-gray-100 text-gray-400' }} text-[10.5px] font-extrabold">
+                                        {{ $followedCountVal }}
                                     </span>
                                 </a>
                                 <a href="{{ route('cart.index') }}" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
@@ -839,6 +862,9 @@
                 @endif
                 <a href="{{ route('orders.index') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-gray-700 border border-gray-200 hover:bg-gray-50 transition-all text-xs">
                     Pesanan Saya
+                </a>
+                <a href="{{ route('followed-sellers.index') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-gray-700 border border-gray-200 hover:bg-gray-50 transition-all text-xs">
+                    Toko yang Diikuti
                 </a>
                 <form method="POST" action="{{ route('logout') }}" class="w-full">
                     @csrf

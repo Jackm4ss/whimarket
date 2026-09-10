@@ -12,6 +12,53 @@
             }
         }"
     >
+        {{-- Inactive / Suspended Store Notice --}}
+        @if($seller->status !== \App\Enums\SellerStatus::VERIFIED)
+            <div class="mb-6 rounded-2xl bg-amber-50 border-2 border-amber-300 p-5 sm:p-6 shadow-sm">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                            <h2 class="text-base sm:text-lg font-black text-amber-900">
+                                @if($seller->status === \App\Enums\SellerStatus::SUSPENDED)
+                                    Toko Anda Sedang Dinonaktifkan oleh Administrator
+                                @elseif($seller->status === \App\Enums\SellerStatus::PENDING)
+                                    Toko Anda Sedang Menunggu Moderasi Administrator
+                                @elseif($seller->status === \App\Enums\SellerStatus::REJECTED)
+                                    Pendaftaran Toko Anda Ditolak
+                                @else
+                                    Status Toko: {{ $seller->status->label() }}
+                                @endif
+                            </h2>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-200 text-amber-900 border border-amber-300">
+                                {{ $seller->status->label() }}
+                            </span>
+                        </div>
+                        <p class="text-sm text-amber-800 leading-relaxed mb-3">
+                            @if(!empty($seller->rejection_reason))
+                                <strong>Catatan Admin:</strong> &ldquo;{{ $seller->rejection_reason }}&rdquo;
+                            @else
+                                Saat ini toko Anda sedang dinonaktifkan sementara. Selama periode nonaktif, seluruh produk Anda tidak dapat dibeli oleh pembeli di storefront dan Anda tidak dapat menambah atau menerbitkan produk baru.
+                            @endif
+                        </p>
+                        <div class="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-amber-900 font-semibold pt-2 border-t border-amber-200/80">
+                            <div class="flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <span>Pesanan yang sedang berlangsung tetap dapat Anda proses dan selesaikan.</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <span>Hubungi tim bantuan jika membutuhkan evaluasi pembukaan kembali toko.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
         <!-- 1. Standalone Hero Banner matching Image #2 -->
         <div class="relative w-full h-[180px] sm:h-[240px] md:h-[280px] lg:h-[300px] xl:h-[320px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xs">
             <img
@@ -68,14 +115,19 @@
                             <h1 class="text-[25px] xl:text-[28px] font-black text-[#111827] tracking-tight leading-tight">
                                 {{ $seller->store_name }}
                             </h1>
-                            <x-verified-badge size="md" class="w-5.5 h-5.5 shrink-0" />
+                            @if($seller->isVerified())
+                                <x-verified-badge size="md" class="w-5.5 h-5.5 shrink-0" />
+                            @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                    {{ $seller->status->label() }}
+                                </span>
+                            @endif
                         </div>
 
                         <!-- Subtitle / Role -->
-                        <p class="text-[14px] text-gray-500 font-medium mb-1">
-                            Verified Creator
+                        <p class="text-[14px] {{ $seller->isVerified() ? 'text-gray-500 font-medium' : 'text-amber-700 font-bold' }} mb-1">
+                            {{ $seller->isVerified() ? 'Verified Creator' : 'Toko Dinonaktifkan Sementara' }}
                         </p>
-
                         <!-- Bio quote -->
                         @if(!empty($seller->bio))
                             <p class="text-[14.5px] text-gray-700 font-normal mb-3">
@@ -150,16 +202,26 @@
                         <span>Lihat Toko Publik</span>
                     </a>
 
-                    <a
-                        href="{{ route('seller.products.create') }}"
-                        class="px-6 h-11 sm:h-11.5 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-xs sm:text-[14px] shadow-[0_4px_16px_rgba(79,38,166,0.22)] transition-all flex items-center gap-2 cursor-pointer active:scale-98"
-                    >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                        <span>Tambah Produk</span>
-                    </a>
+                    @if($seller->isVerified())
+                        <a
+                            href="{{ route('seller.products.create') }}"
+                            class="px-6 h-11 sm:h-11.5 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-xs sm:text-[14px] shadow-[0_4px_16px_rgba(79,38,166,0.22)] transition-all flex items-center gap-2 cursor-pointer active:scale-98"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                            <span>Tambah Produk</span>
+                        </a>
+                    @else
+                        <button
+                            type="button"
+                            onclick="alert('Toko Anda sedang dinonaktifkan oleh administrator. Anda belum dapat menambah produk baru.')"
+                            class="px-5 h-11 sm:h-11.5 rounded-xl bg-gray-200 text-gray-500 font-bold text-xs sm:text-[14px] transition-all flex items-center gap-2 cursor-not-allowed opacity-80"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                            <span>Tambah Produk (Nonaktif)</span>
+                        </button>
+                    @endif
                 </div>
             </div>
-
             <!-- Mobile Only (< 768px): 100% exact to Image #2 -->
             <!-- Mobile Only (< 768px): Polished Spacing & Clean Alignment -->
             <div class="flex flex-col md:hidden w-full">
@@ -183,18 +245,24 @@
                                 <h1 class="text-[18px] sm:text-[22px] font-black text-[#111827] tracking-tight leading-tight">
                                     {{ $seller->store_name }}
                                 </h1>
-                                <x-verified-badge size="md" class="w-4.5 h-4.5 text-[#4F26A6] shrink-0" />
+                                @if($seller->isVerified())
+                                    <x-verified-badge size="md" class="w-4.5 h-4.5 text-[#4F26A6] shrink-0" />
+                                @else
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                        {{ $seller->status->label() }}
+                                    </span>
+                                @endif
                             </div>
                             <div class="flex items-center gap-1.5 mt-0.5 text-xs text-gray-500 font-medium">
-                                <span class="text-[#4F26A6] font-bold">Verified Creator</span>
+                                <span class="{{ $seller->isVerified() ? 'text-[#4F26A6] font-bold' : 'text-amber-700 font-bold' }}">
+                                    {{ $seller->isVerified() ? 'Verified Creator' : 'Toko Dinonaktifkan' }}
+                                </span>
                                 <span class="text-gray-300">•</span>
                                 <span class="text-gray-500 truncate">{{ '@' . $seller->username }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Below photo: Bio Quote -->
                 @if(!empty($seller->bio))
                     <p class="text-[13.5px] text-gray-700 font-normal mt-2.5 mb-3 leading-relaxed">
                         &ldquo;{{ $seller->bio }}&rdquo;
@@ -253,17 +321,27 @@
                         </svg>
                         <span>Lihat Toko</span>
                     </a>
-                    <a
-                        href="{{ route('seller.products.create') }}"
-                        class="h-11 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-[#4F26A6]/20 active:scale-98 transition-all"
-                    >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                        <span>+ Produk</span>
-                    </a>
+                    @if($seller->isVerified())
+                        <a
+                            href="{{ route('seller.products.create') }}"
+                            class="h-11 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-[#4F26A6]/20 active:scale-98 transition-all"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                            <span>+ Produk</span>
+                        </a>
+                    @else
+                        <button
+                            type="button"
+                            onclick="alert('Toko Anda sedang dinonaktifkan oleh administrator. Anda belum dapat menambah produk baru.')"
+                            class="h-11 rounded-xl bg-gray-200 text-gray-500 font-bold text-xs flex items-center justify-center gap-1.5 opacity-80 cursor-not-allowed"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                            <span>+ Produk (Terkunci)</span>
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>
-
         <!-- Metric Overview Cards (4 Pillars of Store Health) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
             <!-- Metric 1: Pending Orders -->

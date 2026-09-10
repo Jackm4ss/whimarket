@@ -119,38 +119,61 @@
                             <!-- Item Rows -->
                             <div class="divide-y divide-gray-100 p-6 sm:p-7 space-y-6">
                                 @foreach($sellerItems as $item)
+                                    @php
+                                        $isItemActive = $item->variant?->product?->status === \App\Enums\ProductStatus::ACTIVE
+                                            && ($item->variant?->product?->seller?->status === \App\Enums\SellerStatus::VERIFIED);
+                                        $isSellerInactive = $item->variant?->product?->seller && $item->variant->product->seller->status !== \App\Enums\SellerStatus::VERIFIED;
+                                    @endphp
                                     <div
-                                        class="pt-6 first:pt-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5"
+                                        class="pt-6 first:pt-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 {{ ! $isItemActive ? 'opacity-70 bg-gray-50/80 p-3.5 rounded-2xl border border-dashed border-gray-200' : '' }}"
                                         x-data="cartRow({{ $item->quantity }}, {{ $item->is_selected ? 'true' : 'false' }}, {{ (float) $item->variant->price }}, {{ (int) $item->variant->stock }}, {{ $item->id }})"
                                     >
                                         <!-- Checkbox & Product Info -->
                                         <div class="flex items-center gap-3.5 sm:gap-4 flex-1 min-w-0">
-                                            <!-- Custom Brand Purple Checkbox (Zero Blue) -->
-                                            <button
-                                                type="button"
-                                                @click="toggle()"
-                                                class="w-5 h-5 rounded-md flex items-center justify-center transition-all cursor-pointer shrink-0 border"
-                                                :class="selected ? 'bg-[#4F26A6] border-[#4F26A6] text-white shadow-2xs' : 'bg-white border-gray-300 hover:border-[#4F26A6]'"
-                                                title="Pilih Barang"
-                                            >
-                                                <svg x-show="selected" class="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                                                </svg>
-                                            </button>
+                                            @if($isItemActive)
+                                                <!-- Custom Brand Purple Checkbox (Zero Blue) -->
+                                                <button
+                                                    type="button"
+                                                    @click="toggle()"
+                                                    class="w-5 h-5 rounded-md flex items-center justify-center transition-all cursor-pointer shrink-0 border"
+                                                    :class="selected ? 'bg-[#4F26A6] border-[#4F26A6] text-white shadow-2xs' : 'bg-white border-gray-300 hover:border-[#4F26A6]'"
+                                                    title="Pilih Barang"
+                                                >
+                                                    <svg x-show="selected" class="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                                    </svg>
+                                                </button>
+                                            @else
+                                                <div class="w-5 h-5 rounded-md bg-gray-200 border border-gray-300 flex items-center justify-center shrink-0 cursor-not-allowed" title="Produk tidak aktif dan tidak dapat dipilih">
+                                                    <span class="text-gray-500 font-bold text-xs">-</span>
+                                                </div>
+                                            @endif
                                             <!-- Thumbnail -->
-                                            <a href="{{ route('product.detail', $item->variant->product->slug) }}" class="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden bg-gray-100 shrink-0 block border border-gray-100">
+                                            <a href="{{ route('product.detail', $item->variant->product->slug) }}" class="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden bg-gray-100 shrink-0 block border border-gray-100 relative">
                                                 <img
                                                     src="{{ $item->variant->product->primary_image_url }}"
                                                     alt="{{ $item->variant->product->name }}"
                                                     class="w-full h-full object-cover"
                                                 />
+                                                @if(! $isItemActive)
+                                                    <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                                        <span class="text-[10px] font-bold text-white uppercase tracking-wider px-1.5 py-0.5 bg-black/60 rounded">Nonaktif</span>
+                                                    </div>
+                                                @endif
                                             </a>
 
                                             <!-- Text Details -->
                                             <div class="flex flex-col min-w-0">
-                                                <a href="{{ route('product.detail', $item->variant->product->slug) }}" class="text-sm sm:text-[15px] font-bold text-gray-900 hover:text-[#4F26A6] transition-colors truncate">
-                                                    {{ $item->variant->product->name }}
-                                                </a>
+                                                <div class="flex items-center gap-2 flex-wrap">
+                                                    <a href="{{ route('product.detail', $item->variant->product->slug) }}" class="text-sm sm:text-[15px] font-bold text-gray-900 hover:text-[#4F26A6] transition-colors truncate">
+                                                        {{ $item->variant->product->name }}
+                                                    </a>
+                                                    @if(! $isItemActive)
+                                                        <span class="px-2 py-0.5 rounded-md bg-rose-50 border border-rose-200 text-rose-600 text-[10.5px] font-bold">
+                                                            {{ $isSellerInactive ? 'Toko Nonaktif' : 'Produk Tidak Aktif' }}
+                                                        </span>
+                                                    @endif
+                                                </div>
                                                 <span class="text-xs text-gray-500 mt-0.5 font-medium">
                                                     Varian: <strong class="text-gray-700">{{ $item->variant->name }}</strong>
                                                 </span>
@@ -167,31 +190,34 @@
                                                 <span class="text-sm sm:text-[15px] font-extrabold text-[#4F26A6] block" x-text="formatRupiah(price * qty)"></span>
                                             </div>
 
-                                            <!-- Quantity Stepper -->
-                                            <div class="inline-flex items-center border border-gray-200 rounded-xl bg-white overflow-hidden shadow-2xs">
-                                                <button
-                                                    type="button"
-                                                    @click="dec()"
-                                                    :disabled="qty <= 1"
-                                                    class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
-                                                >
-                                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"/>
-                                                    </svg>
-                                                </button>
-                                                <span class="w-8 text-center text-xs font-bold text-gray-900 select-none" x-text="qty"></span>
-                                                <button
-                                                    type="button"
-                                                    @click="inc()"
-                                                    :disabled="qty >= max"
-                                                    class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
-                                                >
-                                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-
+                                            @if($isItemActive)
+                                                <!-- Quantity Stepper -->
+                                                <div class="inline-flex items-center border border-gray-200 rounded-xl bg-white overflow-hidden shadow-2xs">
+                                                    <button
+                                                        type="button"
+                                                        @click="dec()"
+                                                        :disabled="qty <= 1"
+                                                        class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                                                    >
+                                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"/>
+                                                        </svg>
+                                                    </button>
+                                                    <span class="w-8 text-center text-xs font-bold text-gray-900 select-none" x-text="qty"></span>
+                                                    <button
+                                                        type="button"
+                                                        @click="inc()"
+                                                        :disabled="qty >= max"
+                                                        class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                                                    >
+                                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            @else
+                                                <span class="text-xs font-semibold text-rose-500 italic">Tidak dapat dibeli</span>
+                                            @endif
                                             <!-- Delete Button Triggering Custom Modal -->
                                             <button
                                                 type="button"
@@ -431,8 +457,10 @@
                     if (data.success) {
                         this.selectedSubtotal = data.selected_subtotal;
                         this.selectedCount = data.selected_count;
+                    } else {
+                        alert(data.message || 'Gagal mengubah status pilihan barang.');
+                        window.location.reload();
                     }
-                } catch (e) {
                     console.error(e);
                 }
             },

@@ -27,7 +27,7 @@ class SellerPortalController extends Controller
     public function showRegister(): View|RedirectResponse
     {
         $user = Auth::user();
-        if ($user && $user->seller && $user->seller->isVerified()) {
+        if ($user && $user->seller) {
             return redirect()->route('seller.dashboard');
         }
 
@@ -123,8 +123,7 @@ class SellerPortalController extends Controller
     {
         $user = Auth::user();
         $seller = $user->seller;
-
-        if (! $seller || ! $seller->isVerified()) {
+        if (! $seller) {
             return redirect()->route('seller.register')
                 ->with('info', 'Silakan aktifkan toko Anda dengan kode akses resmi terlebih dahulu.');
         }
@@ -292,8 +291,7 @@ class SellerPortalController extends Controller
     {
         $user = Auth::user();
         $seller = $user->seller;
-
-        if (! $seller || ! $seller->isVerified()) {
+        if (! $seller) {
             return redirect()->route('seller.register')
                 ->with('info', 'Silakan aktifkan toko Anda dengan kode akses resmi terlebih dahulu.');
         }
@@ -311,8 +309,8 @@ class SellerPortalController extends Controller
         $user = Auth::user();
         $seller = $user->seller;
 
-        if (! $seller || ! $seller->isVerified()) {
-            abort(403, 'Akses toko belum diverifikasi.');
+        if (! $seller) {
+            abort(403, 'Akses toko belum terdaftar.');
         }
 
         $validated = $request->validate([

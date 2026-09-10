@@ -162,8 +162,9 @@
                         <!-- Button Ikuti Toko directly beside seller info -->
                         <button
                             type="button"
-                            @click="isFollowing = !isFollowing"
-                            class="shrink-0 px-3 sm:px-3.5 h-8 rounded-lg text-[12px] sm:text-[12.5px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95"
+                            @click="toggleFollow()"
+                            :disabled="isFollowLoading"
+                            class="shrink-0 px-3 sm:px-3.5 h-8 rounded-lg text-[12px] sm:text-[12.5px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95 disabled:opacity-75"
                             :class="isFollowing ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' : 'bg-[#4F26A6] text-white hover:bg-[#3E1D85] shadow-[0_2px_8px_rgba(79,38,166,0.2)]'"
                         >
                             <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -305,8 +306,37 @@
                     </div>
                 </div>
 
+                <!-- Notice If Product Is Inactive -->
+                @if(!($isActive ?? true))
+                    <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200/80 mb-6 flex items-start gap-3">
+                        <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <div>
+                            @if(!($isSellerActive ?? true))
+                                <h4 class="text-sm font-bold text-amber-900">Toko Penjual Sedang Dinonaktifkan</h4>
+                                <p class="text-xs text-amber-700 mt-0.5 leading-relaxed">
+                                    Toko penjual produk ini sedang dalam status nonaktif oleh administrator WhiMarket, sehingga saat ini produk tidak tersedia untuk dibeli.
+                                </p>
+                            @else
+                                <h4 class="text-sm font-bold text-amber-900">Produk Sedang Dinonaktifkan</h4>
+                                <p class="text-xs text-amber-700 mt-0.5 leading-relaxed">
+                                    Produk ini sedang diarsipkan atau dinonaktifkan oleh toko / admin WhiMarket, sehingga saat ini tidak tersedia untuk dibeli.
+                                </p>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Purchase Buttons / Own Product Action -->
-                @if(!empty($isOwnProduct))
+                @if(!($isActive ?? true))
+                    <div class="w-full py-3.5 px-4 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center gap-2 text-gray-500 font-bold text-sm select-none">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                        </svg>
+                        <span>{{ !($isSellerActive ?? true) ? 'Toko Penjual Dinonaktifkan (Tidak Dapat Dibeli)' : 'Produk Sedang Dinonaktifkan (Tidak Dapat Dibeli)' }}</span>
+                    </div>
+                @elseif(!empty($isOwnProduct))
                     <div class="p-4 rounded-2xl bg-[#F3EEFF] border border-[#4F26A6]/20 space-y-3">
                         <div class="flex items-center gap-2.5 text-[#4F26A6]">
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -721,7 +751,8 @@
             wishlisted: {{ !empty($isWishlisted) ? 'true' : 'false' }},
             lightboxOpen: false,
             isZoomed: false,
-            isFollowing: false,
+            isFollowing: {{ !empty($isFollowingSeller) ? 'true' : 'false' }},
+            isFollowLoading: false,
             addedToCart: false,
             zoomX: 50,
             zoomY: 50,
@@ -805,6 +836,10 @@
             },
 
             async addToCart(buyNow = false) {
+                @if(!($isActive ?? true))
+                    alert('Maaf, produk ini sedang dinonaktifkan dan tidak dapat dibeli.');
+                    return;
+                @endif
                 @if(!auth()->check())
                     window.location.href = '{{ route('login') }}';
                     return;
@@ -872,7 +907,36 @@
                 } catch (e) {
                     this.wishlisted = !this.wishlisted;
                 }
-            }
+            },
+            async toggleFollow() {
+                @if(!auth()->check())
+                    window.location.href = '{{ route('login') }}';
+                    return;
+                @endif
+                if (this.isFollowLoading) return;
+                this.isFollowLoading = true;
+                try {
+                    const res = await fetch('{{ route('seller.toggle-follow', $productModel->seller?->id ?? ($product['seller']['username'] ?? 'creator')) }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const data = await res.json();
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else if (data.success) {
+                        this.isFollowing = data.is_following;
+                    } else if (data.message) {
+                        alert(data.message);
+                    }
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    this.isFollowLoading = false;
+                }
+            },
         }));
     }
     if (window.Alpine) {

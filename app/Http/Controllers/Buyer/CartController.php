@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Buyer;
 
+use App\Enums\ProductStatus;
+use App\Enums\SellerStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Models\CartItem;
@@ -28,6 +30,15 @@ class CartController extends Controller
         }
 
         $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
+
+        // Auto-unselect any cart items whose product or seller is inactive
+        $cart->items()
+            ->where(function ($q) {
+                $q->whereHas('variant.product', fn ($pq) => $pq->where('status', '!=', ProductStatus::ACTIVE))
+                    ->orWhereHas('variant.product.seller', fn ($sq) => $sq->where('status', '!=', SellerStatus::VERIFIED));
+            })
+            ->where('is_selected', true)
+            ->update(['is_selected' => false]);
         $items = $cart->items()
             ->with(['variant.product.images', 'variant.product.seller.user'])
             ->get();
@@ -64,8 +75,22 @@ class CartController extends Controller
         ]);
 
         $variant = ProductVariant::with('product.seller')->findOrFail($validated['product_variant_id']);
-        $sellerUserId = $variant->product?->seller?->user_id;
 
+        $isProductActive = $variant->product && $variant->product->status === ProductStatus::ACTIVE;
+        $isSellerActive = $variant->product?->seller && $variant->product->seller->status === SellerStatus::VERIFIED;
+
+        if (! $isProductActive || ! $isSellerActive) {
+            $msg = (! $isSellerActive)
+                ? 'Maaf, toko penjual produk ini sedang dinonaktifkan sehingga produk tidak dapat dibeli.'
+                : 'Maaf, produk ini sedang tidak aktif dan tidak dapat dibeli.';
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $msg], 422);
+            }
+
+            return redirect()->back()->with('error', $msg);
+        }
+
+        $sellerUserId = $variant->product?->seller?->user_id;
         if ($sellerUserId && Auth::id() === $sellerUserId) {
             $msg = 'Anda tidak dapat membeli produk dari toko Anda sendiri.';
             if ($request->wantsJson()) {
@@ -137,7 +162,7 @@ class CartController extends Controller
     public function updateItem(Request $request, int $id): JsonResponse
     {
         $item = CartItem::whereHas('cart', fn ($q) => $q->where('user_id', Auth::id()))
-            ->with('variant')
+            ->with(['variant.product.seller'])
             ->findOrFail($id);
 
         if ($request->has('quantity')) {
@@ -146,7 +171,21 @@ class CartController extends Controller
         }
 
         if ($request->has('is_selected')) {
-            $item->update(['is_selected' => $request->boolean('is_selected')]);
+            $isSelected = $request->boolean('is_selected');
+            $isProductActive = $item->variant?->product && $item->variant->product->status === ProductStatus::ACTIVE;
+            $isSellerActive = $item->variant?->product?->seller && $item->variant->product->seller->status === SellerStatus::VERIFIED;
+
+            if ($isSelected && (! $isProductActive || ! $isSellerActive)) {
+                $msg = (! $isSellerActive)
+                    ? 'Toko penjual sedang dinonaktifkan sehingga barang ini tidak dapat dipilih untuk checkout.'
+                    : 'Produk ini sedang tidak aktif dan tidak dapat dipilih untuk checkout.';
+
+                return response()->json([
+                    'success' => false,
+                    'message' => $msg,
+                ], 422);
+            }
+            $item->update(['is_selected' => $isSelected]);
         }
 
         $cart = $item->cart;
