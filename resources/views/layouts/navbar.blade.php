@@ -333,22 +333,23 @@
                     </span>
                 </a>
 
-                <!-- Cart Icon (Desktop always; Mobile/Tablet only when GUEST) -->
-                <a
-                    href="{{ route('cart.index') }}"
-                    class="{{ $currentUser ? 'hidden lg:flex' : 'flex' }} relative p-2 text-gray-700 hover:text-[#4F26A6] transition-colors rounded-xl hover:bg-gray-50"
-                    title="Keranjang Belanja"
-                >
-                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <circle cx="9" cy="21" r="1" />
-                        <circle cx="20" cy="21" r="1" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" />
-                    </svg>
-                    <span class="absolute top-0.5 right-0.5 w-4 h-4 sm:w-[18px] sm:h-[18px] rounded-full bg-[#4F26A6] text-white text-[9.5px] sm:text-[10px] font-extrabold flex items-center justify-center shadow-xs">
-                        {{ auth()->check() && auth()->user()->cart ? auth()->user()->cart->items()->count() : ($cartCount ?? 0) }}
-                    </span>
-                </a>
-
+                <!-- Cart Icon (Desktop always; Mobile/Tablet only when GUEST; Hidden for ADMIN) -->
+                @if(!auth()->check() || !auth()->user()->isAdmin())
+                    <a
+                        href="{{ route('cart.index') }}"
+                        class="{{ $currentUser ? 'hidden lg:flex' : 'flex' }} relative p-2 text-gray-700 hover:text-[#4F26A6] transition-colors rounded-xl hover:bg-gray-50"
+                        title="Keranjang Belanja"
+                    >
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <circle cx="9" cy="21" r="1" />
+                            <circle cx="20" cy="21" r="1" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" />
+                        </svg>
+                        <span class="absolute top-0.5 right-0.5 w-4 h-4 sm:w-[18px] sm:h-[18px] rounded-full bg-[#4F26A6] text-white text-[9.5px] sm:text-[10px] font-extrabold flex items-center justify-center shadow-xs">
+                            {{ auth()->check() && auth()->user()->cart ? auth()->user()->cart->items()->count() : ($cartCount ?? 0) }}
+                        </span>
+                    </a>
+                @endif
                 <div class="hidden lg:block h-6 w-[1px] bg-gray-200 mx-1"></div>
 
                 <!-- Profile Menu Dropdown / Guest buttons -->
@@ -401,30 +402,76 @@
                             x-transition:leave-end="opacity-0 translate-y-1"
                             class="absolute right-0 top-full mt-2 w-64 sm:w-72 bg-white rounded-2xl sm:rounded-3xl shadow-[0_16px_40px_rgba(0,0,0,0.12)] border border-gray-100 p-2 sm:p-2.5 z-50 text-left space-y-0.5"
                         >
-                            <!-- User Card Header -->
-                            <a href="{{ route('profile.settings') }}" class="px-3 py-2.5 bg-[#FAF9FC] hover:bg-[#F3EEFF]/50 rounded-xl sm:rounded-2xl border border-gray-100/90 mb-1.5 flex items-center gap-3 transition-colors group/header block">
-                                @if(!empty($currentUserAvatar))
-                                    <img
-                                        src="{{ $currentUserAvatar }}"
-                                        alt="{{ $currentUserName }}"
-                                        class="w-9 h-9 rounded-full object-cover ring-2 ring-purple-100 shrink-0"
-                                    />
-                                @else
-                                    <div class="w-9 h-9 rounded-full bg-[#F3EEFF] text-[#4F26A6] font-black text-sm flex items-center justify-center ring-2 ring-purple-100 shrink-0">
-                                        {{ $userInitial }}
-                                    </div>
-                                @endif
-                                <div class="min-w-0 flex-1">
-                                    <p class="text-xs sm:text-[13px] font-extrabold text-gray-950 group-hover/header:text-[#4F26A6] transition-colors truncate">{{ $currentUserName }}</p>
-                                    <div class="flex items-center gap-1.5 mt-0.5">
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#F3EEFF] text-[#4F26A6]">
-                                            {{ auth()->check() ? ucfirst(auth()->user()->role?->value ?? 'Buyer') : 'Buyer' }}
-                                        </span>
-                                        <span class="text-[10px] text-gray-400 font-medium group-hover/header:text-[#4F26A6]">Lihat Profil &rarr;</span>
+                            @if(auth()->check() && auth()->user()->isAdmin())
+                                <!-- Admin User Card Header -->
+                                <div class="px-3 py-2.5 bg-gradient-to-r from-amber-50/90 to-orange-50/70 rounded-xl sm:rounded-2xl border border-amber-200/80 mb-2 flex items-center gap-3">
+                                    @if(!empty($currentUserAvatar))
+                                        <img
+                                            src="{{ $currentUserAvatar }}"
+                                            alt="{{ $currentUserName }}"
+                                            class="w-9 h-9 rounded-full object-cover ring-2 ring-amber-300 shrink-0"
+                                        />
+                                    @else
+                                        <div class="w-9 h-9 rounded-full bg-amber-100 text-amber-900 font-black text-sm flex items-center justify-center ring-2 ring-amber-300 shrink-0">
+                                            {{ $userInitial }}
+                                        </div>
+                                    @endif
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-xs sm:text-[13px] font-extrabold text-gray-950 truncate">{{ $currentUserName }}</p>
+                                        <div class="flex items-center gap-1.5 mt-0.5">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-200 text-amber-950 shadow-2xs">
+                                                Administrator
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </a>
 
+                                <!-- Admin Menu: ONLY Admin Panel & Logout -->
+                                <div class="py-0.5">
+                                    <span class="px-3 pt-1 pb-1 text-[10px] font-extrabold uppercase tracking-wider text-amber-800/80 block">Panel Kontrol</span>
+                                </div>
+                                <a href="/admin" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs sm:text-[13px] font-bold text-amber-950 bg-amber-100/70 hover:bg-amber-100 transition-colors group border border-amber-200/60 shadow-2xs">
+                                    <svg class="w-4 h-4 text-amber-700 group-hover:scale-110 transition-transform shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    </svg>
+                                    <span>Admin Panel</span>
+                                </a>
+
+                                <div class="border-t border-gray-100 my-1.5 pt-1"></div>
+
+                                <form method="POST" action="{{ route('logout') }}" class="w-full">
+                                    @csrf
+                                    <button type="submit" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left group">
+                                        <svg class="w-4 h-4 text-red-500 group-hover:text-red-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                        </svg>
+                                        <span>Keluar</span>
+                                    </button>
+                                </form>
+                            @else
+                                <!-- User Card Header for Buyer & Seller -->
+                                <a href="{{ route('profile.settings') }}" class="px-3 py-2.5 bg-[#FAF9FC] hover:bg-[#F3EEFF]/50 rounded-xl sm:rounded-2xl border border-gray-100/90 mb-1.5 flex items-center gap-3 transition-colors group/header block">
+                                    @if(!empty($currentUserAvatar))
+                                        <img
+                                            src="{{ $currentUserAvatar }}"
+                                            alt="{{ $currentUserName }}"
+                                            class="w-9 h-9 rounded-full object-cover ring-2 ring-purple-100 shrink-0"
+                                        />
+                                    @else
+                                        <div class="w-9 h-9 rounded-full bg-[#F3EEFF] text-[#4F26A6] font-black text-sm flex items-center justify-center ring-2 ring-purple-100 shrink-0">
+                                            {{ $userInitial }}
+                                        </div>
+                                    @endif
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-xs sm:text-[13px] font-extrabold text-gray-950 group-hover/header:text-[#4F26A6] transition-colors truncate">{{ $currentUserName }}</p>
+                                        <div class="flex items-center gap-1.5 mt-0.5">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#F3EEFF] text-[#4F26A6]">
+                                                {{ auth()->check() ? ucfirst(auth()->user()->role?->value ?? 'Buyer') : 'Buyer' }}
+                                            </span>
+                                            <span class="text-[10px] text-gray-400 font-medium group-hover/header:text-[#4F26A6]">Lihat Profil &rarr;</span>
+                                        </div>
+                                    </div>
+                                </a>
                             @php
                                 $cartCountVal = auth()->check() && auth()->user()->cart ? auth()->user()->cart->items()->count() : ($cartCount ?? 0);
                                 $wishCountVal = auth()->check() ? auth()->user()->wishlists()->count() : ($wishlistCount ?? 0);
@@ -442,6 +489,18 @@
                                         <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>
                                     </svg>
                                     <span>Dashboard Toko</span>
+                                </a>
+                                <a href="{{ route('seller.followers.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
+                                    <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    <span>Pengikut Toko</span>
+                                </a>
+                                <a href="{{ route('seller.wishlists.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
+                                    <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                    </svg>
+                                    <span>Peminat Wishlist</span>
                                 </a>
                                 <a href="{{ route('seller.settings') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
                                     <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -608,18 +667,7 @@
                                 </div>
                             @endif
 
-                            <!-- Section 4: Administrator (khusus admin) -->
-                            @if(auth()->check() && auth()->user()->isAdmin())
-                                <div class="border-t border-gray-100 my-1 pt-1"></div>
-                                <a href="/admin" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-amber-800 hover:bg-amber-50 transition-colors group">
-                                    <svg class="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                    </svg>
-                                    <span>Admin Panel</span>
-                                </a>
-                            @endif
-
-                            <!-- Section 5: Logout -->
+                            <!-- Section: Logout (for Buyer and Seller) -->
                             <div class="border-t border-gray-100 my-1 pt-1"></div>
                             <form method="POST" action="{{ route('logout') }}" class="w-full">
                                 @csrf
@@ -630,6 +678,7 @@
                                     <span>Keluar</span>
                                 </button>
                             </form>
+                        @endif
                         </div>
                     </div>
                 @else
@@ -837,41 +886,66 @@
 
         <div class="pt-4 border-t border-gray-200 flex flex-col gap-2.5">
             @if(auth()->check())
-                <div class="px-2 py-1.5 bg-[#F3EEFF] rounded-xl text-xs font-bold text-[#4F26A6]">
-                    Login: {{ auth()->user()->name }} ({{ ucfirst(auth()->user()->role?->value ?? 'Buyer') }})
-                </div>
-                @if(auth()->user()->isSeller())
-                    <a href="{{ route('seller.dashboard') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-white bg-[#4F26A6] hover:bg-[#3E1D85] transition-all text-xs">
-                        Dashboard Seller
-                    </a>
-                    <a href="{{ route('seller.settings') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-[#4F26A6] bg-[#F3EEFF] hover:bg-[#EADDFE] transition-all text-xs">
-                        Pengaturan Toko &amp; Banner
-                    </a>
-                @else
-                    <a href="{{ route('seller.register') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-white bg-[#4F26A6] hover:bg-[#3E1D85] shadow-sm transition-all text-xs flex items-center justify-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                        </svg>
-                        <span>Aktivasi Toko Seller WhiMarket</span>
-                    </a>
-                @endif
                 @if(auth()->user()->isAdmin())
-                    <a href="/admin" class="w-full py-2.5 rounded-xl text-center font-bold text-white bg-amber-600 hover:bg-amber-700 transition-all text-xs">
-                        Admin Panel
+                    <div class="px-3 py-2 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200 text-xs font-extrabold text-amber-950 flex items-center justify-between">
+                        <div class="truncate">
+                            <span class="text-amber-700 font-semibold block text-[10px] uppercase tracking-wider">Login Administrator</span>
+                            <span class="truncate">{{ auth()->user()->name }}</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-md bg-amber-200 text-amber-950 text-[10px] font-extrabold shrink-0">Admin</span>
+                    </div>
+                    <a href="/admin" class="w-full py-2.5 rounded-xl text-center font-bold text-amber-950 bg-amber-100 hover:bg-amber-200 transition-all text-xs flex items-center justify-center gap-2 border border-amber-300/60 shadow-2xs">
+                        <svg class="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        <span>Admin Panel</span>
                     </a>
+                    <form method="POST" action="{{ route('logout') }}" class="w-full">
+                        @csrf
+                        <button type="submit" class="w-full py-2.5 rounded-xl text-center font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-all text-xs cursor-pointer">
+                            Keluar
+                        </button>
+                    </form>
+                @else
+                    <div class="px-2 py-1.5 bg-[#F3EEFF] rounded-xl text-xs font-bold text-[#4F26A6]">
+                        Login: {{ auth()->user()->name }} ({{ ucfirst(auth()->user()->role?->value ?? 'Buyer') }})
+                    </div>
+                    @if(auth()->user()->isSeller())
+                        <a href="{{ route('seller.dashboard') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-white bg-[#4F26A6] hover:bg-[#3E1D85] transition-all text-xs">
+                            Dashboard Seller
+                        </a>
+                        <a href="{{ route('seller.followers.index') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-gray-700 border border-gray-200 hover:bg-gray-50 transition-all text-xs flex items-center justify-center gap-1.5">
+                            <svg class="w-4 h-4 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            <span>Pengikut Toko</span>
+                        </a>
+                        <a href="{{ route('seller.wishlists.index') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-gray-700 border border-gray-200 hover:bg-gray-50 transition-all text-xs flex items-center justify-center gap-1.5">
+                            <svg class="w-4 h-4 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                            <span>Peminat Wishlist</span>
+                        </a>
+                        <a href="{{ route('seller.settings') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-[#4F26A6] bg-[#F3EEFF] hover:bg-[#EADDFE] transition-all text-xs">
+                            Pengaturan Toko &amp; Banner
+                        </a>
+                    @else
+                        <a href="{{ route('seller.register') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-white bg-[#4F26A6] hover:bg-[#3E1D85] shadow-sm transition-all text-xs flex items-center justify-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                            <span>Aktivasi Toko Seller WhiMarket</span>
+                        </a>
+                    @endif
+                    <a href="{{ route('orders.index') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-gray-700 border border-gray-200 hover:bg-gray-50 transition-all text-xs">
+                        Pesanan Saya
+                    </a>
+                    <a href="{{ route('followed-sellers.index') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-gray-700 border border-gray-200 hover:bg-gray-50 transition-all text-xs">
+                        Toko yang Diikuti
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}" class="w-full">
+                        @csrf
+                        <button type="submit" class="w-full py-2.5 rounded-xl text-center font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-all text-xs cursor-pointer">
+                            Keluar
+                        </button>
+                    </form>
                 @endif
-                <a href="{{ route('orders.index') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-gray-700 border border-gray-200 hover:bg-gray-50 transition-all text-xs">
-                    Pesanan Saya
-                </a>
-                <a href="{{ route('followed-sellers.index') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-gray-700 border border-gray-200 hover:bg-gray-50 transition-all text-xs">
-                    Toko yang Diikuti
-                </a>
-                <form method="POST" action="{{ route('logout') }}" class="w-full">
-                    @csrf
-                    <button type="submit" class="w-full py-2.5 rounded-xl text-center font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-all text-xs cursor-pointer">
-                        Keluar
-                    </button>
-                </form>
             @else
                 <a href="{{ route('register') }}" class="w-full py-3 rounded-xl text-center font-bold text-white bg-[#4F26A6] hover:bg-[#3E1D85] shadow-md shadow-[#4F26A6]/20 transition-all text-sm">
                     Daftar Sekarang

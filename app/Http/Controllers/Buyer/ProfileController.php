@@ -69,9 +69,23 @@ class ProfileController extends Controller
             $user->avatar = $avatarPath;
         }
 
+        $rawPhone = $validated['phone'] ?? null;
+        $normalizedPhone = null;
+
+        if (! empty($rawPhone)) {
+            $digits = preg_replace('/[^0-9]/', '', $rawPhone);
+            if (str_starts_with($digits, '62')) {
+                $normalizedPhone = '+'.$digits;
+            } elseif (str_starts_with($digits, '0')) {
+                $normalizedPhone = '+62'.substr($digits, 1);
+            } elseif ($digits !== '') {
+                $normalizedPhone = '+62'.$digits;
+            }
+        }
+
         $user->name = $validated['name'];
         $user->email = $validated['email'];
-        $user->phone = $validated['phone'] ?? null;
+        $user->phone = $normalizedPhone;
         $user->save();
 
         return redirect('/akun/pengaturan?tab=biodata')->with('success', 'Profil akun Anda berhasil diperbarui!');

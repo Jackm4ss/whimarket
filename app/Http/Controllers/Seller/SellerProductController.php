@@ -21,11 +21,21 @@ class SellerProductController extends Controller
 {
     private function getSeller(): ?Seller
     {
-        return Auth::user()?->seller;
+        $user = Auth::user();
+        if ($user && $user->isAdmin()) {
+            return null;
+        }
+
+        return $user?->seller;
     }
 
     public function index(Request $request): View|RedirectResponse
     {
+        $user = Auth::user();
+        if ($user && $user->isAdmin()) {
+            return redirect('/admin/products')->with('info', 'Kelola seluruh katalog produk di Admin Panel.');
+        }
+
         $seller = $this->getSeller();
         if (! $seller) {
             return redirect()->route('seller.register')
@@ -52,6 +62,11 @@ class SellerProductController extends Controller
 
     public function create(): View|RedirectResponse
     {
+        $user = Auth::user();
+        if ($user && $user->isAdmin()) {
+            return redirect('/admin/products')->with('info', 'Kelola seluruh katalog produk di Admin Panel.');
+        }
+
         $seller = $this->getSeller();
         if (! $seller) {
             return redirect()->route('seller.register')

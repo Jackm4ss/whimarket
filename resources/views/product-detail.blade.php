@@ -158,7 +158,7 @@
                         </div>
                     </div>
 
-                    @if(empty($isOwnProduct))
+                    @if(empty($isOwnProduct) && (!auth()->check() || !auth()->user()->isAdmin()))
                         <!-- Button Ikuti Toko directly beside seller info -->
                         <button
                             type="button"
@@ -352,6 +352,29 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             <span>Kelola / Edit Produk di Seller Portal</span>
                         </a>
+                    </div>
+                @elseif(auth()->check() && auth()->user()->isAdmin())
+                    <div class="p-4 rounded-2xl bg-amber-50/90 border border-amber-200/90 space-y-2.5">
+                        <div class="flex items-center gap-2 text-amber-950 font-bold text-xs sm:text-[13.5px]">
+                            <svg class="w-5 h-5 text-amber-700 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            <span>Akun Administrator (Mode Pratinjau)</span>
+                        </div>
+                        <p class="text-xs text-amber-900/80 leading-relaxed">
+                            Sebagai Administrator, Anda tidak dapat melakukan transaksi pembelian produk. Anda tetap dapat menambahkan produk ini ke Wishlist atau mengelolanya melalui Admin Panel.
+                        </p>
+                        @if(isset($productModel))
+                            <a
+                                href="/admin/products/{{ $productModel->id }}/edit"
+                                class="w-full h-11 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                <span>Kelola Produk di Admin Panel</span>
+                            </a>
+                        @endif
                     </div>
                 @else
                     <template x-if="maxStock > 0">

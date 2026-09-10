@@ -30,6 +30,9 @@ class CheckoutController extends Controller
     public function index(): View|RedirectResponse
     {
         $user = Auth::user();
+        if ($user->isAdmin()) {
+            return redirect()->route('home')->with('error', 'Akun Administrator tidak dapat melakukan transaksi checkout.');
+        }
         $cart = Cart::where('user_id', $user->id)->first();
         $items = $cart ? $cart->items()
             ->where('is_selected', true)
@@ -102,6 +105,9 @@ class CheckoutController extends Controller
     public function process(Request $request): RedirectResponse
     {
         $user = Auth::user();
+        if ($user->isAdmin()) {
+            return redirect()->route('home')->with('error', 'Akun Administrator tidak dapat melakukan transaksi checkout.');
+        }
         $cart = Cart::where('user_id', $user->id)->firstOrFail();
         $items = $cart->items()->where('is_selected', true)->with('variant.product.seller')->get();
 

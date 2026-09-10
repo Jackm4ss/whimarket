@@ -16,8 +16,12 @@ use Illuminate\View\View;
 
 class CartController extends Controller
 {
-    public function index(): View
+    public function index(): View|RedirectResponse
     {
+        if (Auth::check() && Auth::user()->isAdmin()) {
+            return redirect()->route('home')->with('error', 'Akun Administrator tidak dapat menggunakan keranjang belanja.');
+        }
+
         if (! Auth::check()) {
             return view('cart', [
                 'cart' => null,
@@ -66,6 +70,15 @@ class CartController extends Controller
             }
 
             return redirect()->route('login');
+        }
+
+        if (Auth::user()->isAdmin()) {
+            $msg = 'Akun Administrator tidak dapat melakukan transaksi pembelian.';
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $msg], 403);
+            }
+
+            return redirect()->back()->with('error', $msg);
         }
 
         $validated = $request->validate([
@@ -161,6 +174,10 @@ class CartController extends Controller
 
     public function updateItem(Request $request, int $id): JsonResponse
     {
+        if (Auth::user()->isAdmin()) {
+            return response()->json(['success' => false, 'message' => 'Akun Administrator tidak dapat menggunakan keranjang belanja.'], 403);
+        }
+
         $item = CartItem::whereHas('cart', fn ($q) => $q->where('user_id', Auth::id()))
             ->with(['variant.product.seller'])
             ->findOrFail($id);
@@ -204,6 +221,13 @@ class CartController extends Controller
 
     public function removeItem(int $id): JsonResponse|RedirectResponse
     {
+        if (Auth::user()->isAdmin()) {
+            if (request()->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Akun Administrator tidak dapat menggunakan keranjang belanja.'], 403);
+            }
+
+            return redirect()->route('home')->with('error', 'Akun Administrator tidak dapat menggunakan keranjang belanja.');
+        }
         $item = CartItem::whereHas('cart', fn ($q) => $q->where('user_id', Auth::id()))
             ->findOrFail($id);
 

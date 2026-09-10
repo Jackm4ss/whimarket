@@ -14,8 +14,10 @@ use App\Http\Controllers\Buyer\OrderController;
 use App\Http\Controllers\Buyer\ProfileController;
 use App\Http\Controllers\Buyer\SearchController;
 use App\Http\Controllers\Buyer\WishlistController;
+use App\Http\Controllers\Seller\SellerFollowerController;
 use App\Http\Controllers\Seller\SellerPortalController;
 use App\Http\Controllers\Seller\SellerProductController;
+use App\Http\Controllers\Seller\SellerWishlistController;
 use Illuminate\Support\Facades\Route;
 
 // Authentication Routes
@@ -109,6 +111,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/seller/disputes/{id}/respond', [SellerPortalController::class, 'disputeRespond'])->name('seller.disputes.respond');
 
         // Seller Product CRUD
+        // Seller Engagement: Followers & Wishlist Insights
+        Route::get('/seller/followers', [SellerFollowerController::class, 'index'])->name('seller.followers.index');
+        Route::get('/seller/wishlists', [SellerWishlistController::class, 'index'])->name('seller.wishlists.index');
+
         Route::get('/seller/products', [SellerProductController::class, 'index'])->name('seller.products.index');
         Route::get('/seller/products/create', [SellerProductController::class, 'create'])->name('seller.products.create');
         Route::post('/seller/products', [SellerProductController::class, 'store'])->name('seller.products.store');

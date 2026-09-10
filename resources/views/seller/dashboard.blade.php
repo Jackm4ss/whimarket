@@ -164,14 +164,15 @@
                             <span class="text-gray-200 font-light">|</span>
 
                             <!-- Pengikut -->
-                            <div class="inline-flex items-center gap-1.5 shrink-0">
-                                <svg class="w-[18px] h-[18px] text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <!-- Pengikut (Clickable to Followers Page) -->
+                            <a href="{{ route('seller.followers.index') }}" class="inline-flex items-center gap-1.5 shrink-0 hover:text-[#4F26A6] transition-colors group/follower cursor-pointer" title="Lihat daftar pembeli yang mengikuti toko">
+                                <svg class="w-[18px] h-[18px] text-gray-400 group-hover/follower:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
-                                <span class="font-semibold text-gray-800 whitespace-nowrap text-[13.5px]">
-                                    {{ !empty($stats['follower_count']) ? $stats['follower_count'] : '0' }} Pengikut
+                                <span class="font-semibold text-gray-800 group-hover/follower:text-[#4F26A6] transition-colors whitespace-nowrap text-[13.5px]">
+                                    {{ !empty($stats['follower_count']) ? $stats['follower_count'] : '0' }} Pengikut &rarr;
                                 </span>
-                            </div>
+                            </a>
 
                             <span class="text-gray-200 font-light">|</span>
 
@@ -298,15 +299,15 @@
                         <span class="text-[11px] text-gray-400 font-normal mt-1 whitespace-nowrap">Barang</span>
                     </div>
 
-                    <div class="flex flex-col items-center justify-center px-1">
+                    <a href="{{ route('seller.followers.index') }}" class="flex flex-col items-center justify-center px-1 group/mf cursor-pointer" title="Lihat daftar pengikut toko">
                         <svg class="w-4 h-4 text-[#4F26A6] stroke-current fill-none mb-1" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        <span class="text-[14px] font-black text-gray-900 leading-none">
+                        <span class="text-[14px] font-black text-gray-900 group-hover/mf:text-[#4F26A6] leading-none">
                             {{ !empty($stats['follower_count']) ? $stats['follower_count'] : '0' }}
                         </span>
-                        <span class="text-[11px] text-gray-400 font-normal mt-1 whitespace-nowrap">Pengikut</span>
-                    </div>
+                        <span class="text-[11px] text-[#4F26A6] font-bold mt-1 whitespace-nowrap">Pengikut &rarr;</span>
+                    </a>
                 </div>
 
                 <!-- Mobile Action Buttons -->
@@ -419,6 +420,18 @@
             <a href="{{ route('seller.products.index') }}" class="pb-3 text-sm font-semibold text-gray-500 hover:text-gray-900 px-3 whitespace-nowrap flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                 <span>Katalog Produk ({{ $metrics['total_products'] }})</span>
+            </a>
+            <a href="{{ route('seller.followers.index') }}" class="pb-3 text-sm font-semibold text-gray-500 hover:text-gray-900 px-3 whitespace-nowrap flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>Pengikut Toko</span>
+            </a>
+            <a href="{{ route('seller.wishlists.index') }}" class="pb-3 text-sm font-semibold text-gray-500 hover:text-gray-900 px-3 whitespace-nowrap flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                <span>Peminat Wishlist</span>
             </a>
             <a href="{{ route('seller.settings') }}" class="pb-3 text-sm font-semibold text-gray-500 hover:text-gray-900 px-3 whitespace-nowrap flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>

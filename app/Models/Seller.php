@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -78,6 +79,11 @@ class Seller extends Model
     public function sellerFollowers(): HasMany
     {
         return $this->hasMany(SellerFollower::class);
+    }
+
+    public function productWishlists(): HasManyThrough
+    {
+        return $this->hasManyThrough(Wishlist::class, Product::class, 'seller_id', 'product_id');
     }
 
     public function getFollowersCountFormattedAttribute(): string

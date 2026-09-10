@@ -19,9 +19,12 @@ use Spatie\ModelStates\State;
 
 class OrderController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
         $user = Auth::user();
+        if ($user && $user->isAdmin()) {
+            return redirect('/admin/orders')->with('info', 'Kelola seluruh pesanan pelanggan di Admin Panel.');
+        }
         $status = (string) $request->query('status', 'all');
         $search = trim((string) $request->query('search', ''));
 

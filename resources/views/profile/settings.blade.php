@@ -264,21 +264,108 @@
                                 />
                             </div>
 
-                            <div>
-                                <label for="phone" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                            @php
+                                $rawUserPhone = old('phone', $user->phone ?? '');
+                                $initialPhoneDigits = '';
+                                if (!empty($rawUserPhone)) {
+                                    $digits = preg_replace('/[^0-9]/', '', $rawUserPhone);
+                                    if (str_starts_with($digits, '62')) {
+                                        $initialPhoneDigits = substr($digits, 2);
+                                    } elseif (str_starts_with($digits, '0')) {
+                                        $initialPhoneDigits = substr($digits, 1);
+                                    } else {
+                                        $initialPhoneDigits = $digits;
+                                    }
+                                }
+                            @endphp
+
+                            <div
+                                x-data="{
+                                    phoneDisplay: '{{ $initialPhoneDigits }}',
+                                    get fullPhone() {
+                                        const cleaned = (this.phoneDisplay || '').replace(/[^0-9]/g, '');
+                                        return cleaned.length > 0 ? '+62' + cleaned : '';
+                                    },
+                                    handleInput(e) {
+                                        let val = e.target.value.replace(/[^0-9+]/g, '');
+                                        if (val.startsWith('+62')) {
+                                            val = val.substring(3);
+                                        } else if (val.startsWith('62')) {
+                                            val = val.substring(2);
+                                        } else if (val.startsWith('0')) {
+                                            val = val.substring(1);
+                                        }
+                                        val = val.replace(/[^0-9]/g, '');
+                                        this.phoneDisplay = val;
+                                        e.target.value = val;
+                                    },
+                                    clearPhone() {
+                                        this.phoneDisplay = '';
+                                        this.$refs.phoneInput.focus();
+                                    }
+                                }"
+                            >
+                                <label for="phone_input" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
                                     Nomor Handphone / WhatsApp
                                 </label>
+
+                                <!-- Hidden input for form submission with full normalized E.164 phone -->
                                 <input
-                                    type="tel"
+                                    type="hidden"
                                     id="phone"
                                     name="phone"
-                                    value="{{ old('phone', $user->phone) }}"
-                                    placeholder="Contoh: 081234567890"
-                                    class="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:border-[#4F26A6] focus:ring-2 focus:ring-[#4F26A6]/20 transition-all outline-none"
+                                    :value="fullPhone"
+                                    value="{{ !empty($rawUserPhone) ? ($initialPhoneDigits ? '+62' . $initialPhoneDigits : '') : '' }}"
                                 />
-                                <p class="text-[11px] text-gray-400 mt-1">
-                                    Digunakan kurir ekspedisi untuk konfirmasi pengantaran paket barangmu.
-                                </p>
+
+                                <!-- E-commerce style +62 Prefix Input Container -->
+                                <div class="relative flex items-stretch rounded-2xl border border-gray-200 bg-white transition-all overflow-hidden focus-within:border-[#4F26A6] focus-within:ring-2 focus-within:ring-[#4F26A6]/20">
+                                    <!-- Country Code Badge (+62) -->
+                                    <div class="flex items-center gap-2 px-3.5 sm:px-4 py-3 bg-gray-50 border-r border-gray-200 text-gray-700 select-none shrink-0">
+                                        <!-- Indonesia Flag Icon -->
+                                        <div class="w-5 h-3.5 rounded-xs overflow-hidden shadow-2xs border border-gray-300 flex flex-col shrink-0" title="Indonesia">
+                                            <div class="h-1/2 w-full bg-[#E70011]"></div>
+                                            <div class="h-1/2 w-full bg-white"></div>
+                                        </div>
+                                        <span class="text-sm font-extrabold text-gray-900 tracking-tight">+62</span>
+                                    </div>
+
+                                    <!-- Phone Number Input -->
+                                    <input
+                                        type="tel"
+                                        id="phone_input"
+                                        x-ref="phoneInput"
+                                        x-model="phoneDisplay"
+                                        value="{{ $initialPhoneDigits }}"
+                                        @input="handleInput($event)"
+                                        @paste="setTimeout(() => handleInput({ target: $refs.phoneInput }), 0)"
+                                        oninput="if(this.value.startsWith('+62')) this.value=this.value.slice(3); else if(this.value.startsWith('62')) this.value=this.value.slice(2); else if(this.value.startsWith('0')) this.value=this.value.slice(1); this.value=this.value.replace(/[^0-9]/g,''); var h=document.getElementById('phone'); if(h) h.value = this.value ? '+62' + this.value : ''; var p=document.getElementById('saved_phone_preview'); if(p) p.textContent = this.value ? '+62' + this.value : '';"
+                                        placeholder="812-3456-7890"
+                                        maxlength="15"
+                                        class="w-full bg-transparent px-4 py-3 text-sm text-gray-900 font-medium placeholder:text-gray-400 focus:outline-none tracking-wide"
+                                        autocomplete="tel-national"
+                                    />
+
+                                    <!-- Clear Button (when input has value) -->
+                                    <div class="flex items-center pr-3" x-show="phoneDisplay" x-cloak>
+                                        <button
+                                            type="button"
+                                            @click="clearPhone()"
+                                            class="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-colors text-xs font-bold"
+                                            title="Hapus nomor"
+                                        >
+                                            &times;
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Helper Text with Live Saved Preview -->
+                                <div class="mt-1.5 flex items-center justify-between text-[11.5px] text-gray-400">
+                                    <span>Digunakan kurir ekspedisi untuk konfirmasi pengantaran & notifikasi WhatsApp.</span>
+                                    <span class="font-mono text-gray-500 font-bold tracking-tight hidden sm:inline" :class="phoneDisplay ? '' : 'opacity-0'">
+                                        Format tersimpan: <span id="saved_phone_preview" class="text-[#4F26A6]" x-text="fullPhone">{{ !empty($initialPhoneDigits) ? '+62' . $initialPhoneDigits : '' }}</span>
+                                    </span>
+                                </div>
                             </div>
 
                             <!-- Account Info Badges -->

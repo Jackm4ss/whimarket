@@ -17,9 +17,12 @@ class FollowController extends Controller
     /**
      * Display a list of stores followed by the authenticated user.
      */
-    public function index(): View
+    public function index(): View|RedirectResponse
     {
         $user = Auth::user();
+        if ($user && $user->isAdmin()) {
+            return redirect()->route('home')->with('error', 'Halaman Toko yang Diikuti khusus untuk pembeli.');
+        }
 
         $followedSellers = $user ? $user->followedSellers()
             ->with([
@@ -53,8 +56,19 @@ class FollowController extends Controller
 
             return redirect()->guest(route('login'))->with('error', 'Silakan login terlebih dahulu untuk mengikuti toko.');
         }
-
         $user = Auth::user();
+        if ($user->isAdmin()) {
+            $msg = 'Akun Administrator tidak dapat mengikuti toko.';
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'error' => 'AdminFollowForbidden',
+                    'message' => $msg,
+                ], 403);
+            }
+
+            return back()->with('error', $msg);
+        }
+
         $cleanId = is_string($sellerId) ? ltrim($sellerId, '@') : $sellerId;
 
         $seller = Seller::where('id', $cleanId)

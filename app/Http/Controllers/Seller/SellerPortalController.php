@@ -27,6 +27,9 @@ class SellerPortalController extends Controller
     public function showRegister(): View|RedirectResponse
     {
         $user = Auth::user();
+        if ($user && $user->isAdmin()) {
+            return redirect('/admin')->with('error', 'Akun Administrator tidak dapat mendaftar sebagai seller.');
+        }
         if ($user && $user->seller) {
             return redirect()->route('seller.dashboard');
         }
@@ -40,7 +43,9 @@ class SellerPortalController extends Controller
     public function register(Request $request): RedirectResponse
     {
         $user = Auth::user();
-
+        if ($user && $user->isAdmin()) {
+            return redirect('/admin')->with('error', 'Akun Administrator tidak dapat mendaftar sebagai seller.');
+        }
         $validated = $request->validate([
             'code' => 'required|string',
             'store_name' => 'required|string|max:100',
@@ -122,6 +127,9 @@ class SellerPortalController extends Controller
     public function dashboard(): View|RedirectResponse
     {
         $user = Auth::user();
+        if ($user && $user->isAdmin()) {
+            return redirect('/admin')->with('info', 'Silakan kelola operasional marketplace melalui Admin Panel.');
+        }
         $seller = $user->seller;
         if (! $seller) {
             return redirect()->route('seller.register')
@@ -170,12 +178,17 @@ class SellerPortalController extends Controller
         ]);
     }
 
-    public function orders(Request $request): View
+    public function orders(Request $request): View|RedirectResponse
     {
-        $seller = Auth::user()->seller;
+        $user = Auth::user();
+        if ($user && $user->isAdmin()) {
+            return redirect('/admin/orders')->with('info', 'Kelola seluruh pesanan di Admin Panel.');
+        }
+        $seller = $user->seller;
+        if (! $seller) {
+            return redirect()->route('seller.register');
+        }
         $tab = $request->query('status', 'all');
-
-        $query = $seller->orders()->with(['items.variant.product.images', 'buyer', 'payment', 'shipment']);
 
         if ($tab !== 'all') {
             $query->where('status', $tab);
@@ -290,6 +303,9 @@ class SellerPortalController extends Controller
     public function settings(): View|RedirectResponse
     {
         $user = Auth::user();
+        if ($user && $user->isAdmin()) {
+            return redirect('/admin')->with('info', 'Silakan kelola operasional marketplace melalui Admin Panel.');
+        }
         $seller = $user->seller;
         if (! $seller) {
             return redirect()->route('seller.register')

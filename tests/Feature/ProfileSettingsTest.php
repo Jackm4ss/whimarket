@@ -51,7 +51,7 @@ class ProfileSettingsTest extends TestCase
             'id' => $user->id,
             'name' => 'Updated Budi Name',
             'email' => 'updated.budi@whimarket.com',
-            'phone' => '081299999999',
+            'phone' => '+6281299999999',
         ]);
     }
 
@@ -147,5 +147,62 @@ class ProfileSettingsTest extends TestCase
 
         $response->assertRedirect('/akun/pengaturan?tab=alamat');
         $this->assertDatabaseMissing('addresses', ['id' => $address->id]);
+    }
+
+    public function test_user_phone_is_normalized_to_e164_with_plus_62_from_different_inputs(): void
+    {
+        $user = User::factory()->create();
+
+        // 1. Raw digits without prefix: 81234567890
+        $this->actingAs($user)->put(route('profile.settings.update'), [
+            'name' => 'User Test',
+            'email' => $user->email,
+            'phone' => '81234567890',
+        ]);
+        $this->assertEquals('+6281234567890', $user->fresh()->phone);
+
+        // 2. Already formatted +62: +628987654321
+        $this->actingAs($user)->put(route('profile.settings.update'), [
+            'name' => 'User Test',
+            'email' => $user->email,
+            'phone' => '+628987654321',
+        ]);
+        $this->assertEquals('+628987654321', $user->fresh()->phone);
+
+        // 3. With 62 without plus: 62811223344
+        $this->actingAs($user)->put(route('profile.settings.update'), [
+            'name' => 'User Test',
+            'email' => $user->email,
+            'phone' => '62811223344',
+        ]);
+        $this->assertEquals('+62811223344', $user->fresh()->phone);
+    }
+
+    public function test_user_can_clear_phone_number_to_null(): void
+    {
+        $user = User::factory()->create(['phone' => '+6281234567890']);
+
+        $this->actingAs($user)->put(route('profile.settings.update'), [
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => '',
+        ]);
+
+        $this->assertNull($user->fresh()->phone);
+    }
+
+    public function test_biodata_page_renders_plus_62_prefix_and_initial_phone(): void
+    {
+        $user1 = User::factory()->create(['phone' => '081234567890']);
+        $response1 = $this->actingAs($user1)->get(route('profile.settings', ['tab' => 'biodata']));
+        $response1->assertStatus(200);
+        $response1->assertSee('+62');
+        $response1->assertSee("phoneDisplay: '81234567890'", false);
+
+        $user2 = User::factory()->create(['phone' => '+628999888777']);
+        $response2 = $this->actingAs($user2)->get(route('profile.settings', ['tab' => 'biodata']));
+        $response2->assertStatus(200);
+        $response2->assertSee('+62');
+        $response2->assertSee("phoneDisplay: '8999888777'", false);
     }
 }
