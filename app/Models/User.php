@@ -98,6 +98,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Dispute::class, 'buyer_id');
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
     public function isSeller(): bool
     {
         return $this->role === UserRole::SELLER || $this->hasRole('seller');
@@ -115,7 +120,8 @@ class User extends Authenticatable implements FilamentUser
         }
 
         $initial = strtoupper(substr($this->name ?: 'U', 0, 1));
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><rect width="128" height="128" rx="64" fill="#F3EEFF"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="52" fill="#4F26A6">'.$initial.'</text></svg>';
 
-        return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><rect width="128" height="128" rx="64" fill="%23F3EEFF"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="52" fill="%234F26A6">'.$initial.'</text></svg>';
+        return 'data:image/svg+xml;base64,'.base64_encode($svg);
     }
 }

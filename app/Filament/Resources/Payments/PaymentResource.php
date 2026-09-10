@@ -5,9 +5,12 @@ namespace App\Filament\Resources\Payments;
 use App\Enums\PaymentStatus;
 use App\Filament\Resources\Payments\Pages\ManagePayments;
 use App\Models\Payment;
+use App\States\Order\Cancelled;
 use App\States\Order\Paid;
+use App\States\Order\PendingPayment;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -51,7 +54,12 @@ class PaymentResource extends Resource
                     ->icon('heroicon-o-shopping-bag')
                     ->copyable()
                     ->copyMessage('Nomor pesanan disalin!')
-                    ->description(fn (Payment $record) => $record->order?->buyer?->name ?? 'Pembeli'),
+                    ->description(function (Payment $record) {
+                        $buyerName = $record->order?->buyer?->name ?? 'Pembeli';
+                        $phone = $record->order?->address_snapshot['phone'] ?? $record->order?->buyer?->phone;
+
+                        return $phone ? "{$buyerName} • {$phone}" : $buyerName;
+                    }),
 
                 TextColumn::make('order_product')
                     ->label('Produk Dipesan')
@@ -69,6 +77,16 @@ class PaymentResource extends Resource
                     ->url(fn (Payment $record) => $record->order?->seller ? route('filament.admin.resources.sellers.index', ['tableSearch' => $record->order->seller->store_name]) : null)
                     ->openUrlInNewTab()
                     ->tooltip('Buka Toko Seller')
+                    ->description(function (Payment $record) {
+                        $sellerUser = $record->order?->seller?->user;
+                        $email = $sellerUser?->email;
+                        $phone = $sellerUser?->phone;
+                        if ($email && $phone) {
+                            return "{$email} • {$phone}";
+                        }
+
+                        return $email ?: ($phone ?: null);
+                    })
                     ->placeholder('-'),
 
                 TextColumn::make('amount')
@@ -115,7 +133,7 @@ class PaymentResource extends Resource
                     ->modalContent(fn (Payment $record) => view('filament.modals.payment-details', [
                         'payment' => $record->loadMissing([
                             'order.buyer',
-                            'order.seller',
+                            'order.seller.user.addresses',
                             'order.items.variant.product.category',
                             'order.items.variant.product.images',
                         ]),
@@ -156,17 +174,61 @@ class PaymentResource extends Resource
                                     ->label('Alasan Penolakan Bukti')
                                     ->placeholder('Contoh: Mutasi rekening tidak ditemukan atau nominal transfer kurang.')
                                     ->required(),
+                                Radio::make('order_action')
+                                    ->label('Tindakan Pesanan & Stok')
+                                    ->options([
+                                        'cancel_and_restore' => 'Tolak Bukti & Batalkan Pesanan (Stok Dikembalikan Otomatis)',
+                                        'request_reupload' => 'Minta Pembeli Unggah Ulang Bukti (Stok Tetap Ditahan)',
+                                    ])
+                                    ->descriptions([
+                                        'cancel_and_restore' => 'Pesanan dibatalkan otomatis dan seluruh stok barang dikembalikan ke etalase toko.',
+                                        'request_reupload' => 'Pesanan kembali ke Menunggu Pembayaran agar pembeli dapat mengunggah bukti transfer yang benar.',
+                                    ])
+                                    ->default('cancel_and_restore')
+                                    ->required(),
                             ])
                             ->action(function (Payment $record, array $data) {
                                 $record->update([
                                     'status' => PaymentStatus::REJECTED,
                                     'rejection_reason' => $data['rejection_reason'],
+                                    'verified_by' => Auth::id(),
+                                    'verified_at' => now(),
                                 ]);
 
-                                Notification::make()
-                                    ->title('Bukti Pembayaran Ditolak')
-                                    ->danger()
-                                    ->send();
+                                $order = $record->order;
+                                if ($order) {
+                                    if (($data['order_action'] ?? 'cancel_and_restore') === 'cancel_and_restore') {
+                                        if ($order->status->canTransitionTo(Cancelled::class)) {
+                                            $order->status->transitionTo(Cancelled::class);
+                                        } else {
+                                            $order->forceFill(['status' => Cancelled::class])->save();
+                                        }
+                                        $order->restoreStock();
+
+                                        Notification::make()
+                                            ->title('Bukti Pembayaran Ditolak & Pesanan Dibatalkan')
+                                            ->body('Stok produk telah dikembalikan ke etalase dan pembeli dapat melihat alasan penolakan.')
+                                            ->danger()
+                                            ->send();
+                                    } else {
+                                        if ($order->status->canTransitionTo(PendingPayment::class)) {
+                                            $order->status->transitionTo(PendingPayment::class);
+                                        } else {
+                                            $order->forceFill(['status' => PendingPayment::class])->save();
+                                        }
+
+                                        Notification::make()
+                                            ->title('Bukti Pembayaran Ditolak')
+                                            ->body('Status pesanan dikembalikan ke Menunggu Pembayaran agar pembeli dapat mengunggah ulang.')
+                                            ->warning()
+                                            ->send();
+                                    }
+                                } else {
+                                    Notification::make()
+                                        ->title('Bukti Pembayaran Ditolak')
+                                        ->danger()
+                                        ->send();
+                                }
                             }),
                     ]),
             ]);

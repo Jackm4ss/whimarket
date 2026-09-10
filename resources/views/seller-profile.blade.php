@@ -30,6 +30,7 @@
             'image' => $p->primary_image_url,
             'category' => $p->category?->slug ?? 'fashion',
             'href' => route('product.detail', $p->slug),
+            'is_out_of_stock' => (bool) $p->is_out_of_stock,
         ];
     })->values()->all() : [];
 @endphp
@@ -620,10 +621,22 @@
                                     </svg>
                                 </button>
 
-                                <a :href="product.href" class="w-full h-full block">
-                                    <img :src="product.image" :alt="product.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                <a :href="product.href" class="w-full h-full block relative">
+                                    <img
+                                        :src="product.image"
+                                        :alt="product.title"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 z-0"
+                                        :class="product.is_out_of_stock ? 'grayscale opacity-60' : ''"
+                                    />
+                                    <template x-if="product.is_out_of_stock">
+                                        <div class="absolute inset-0 bg-black/40 backdrop-blur-[1px] z-10 flex items-center justify-center pointer-events-none">
+                                            <span class="px-3 py-1.5 rounded-xl bg-rose-600 text-white text-[11px] sm:text-xs font-black tracking-wider uppercase shadow-md">
+                                                Stok Habis
+                                            </span>
+                                        </div>
+                                    </template>
                                 </a>
-                                <template x-if="product.condition">
+                                <template x-if="product.condition && !product.is_out_of_stock">
                                     <div class="absolute bottom-2.5 left-2.5 z-20 pointer-events-none">
                                         <span class="px-2.5 sm:px-3 py-1 rounded-lg sm:rounded-xl bg-white text-gray-900 text-[11px] sm:text-[12px] font-bold shadow-md border border-black/5" x-text="product.condition"></span>
                                     </div>
@@ -793,10 +806,10 @@
                                     <!-- Author info & Rating -->
                                     <div class="flex items-start justify-between gap-4">
                                         <div class="flex items-center gap-3">
-                                            <img :src="rev.avatar" :alt="rev.author" class="w-11 h-11 rounded-full object-cover ring-2 ring-purple-100 shrink-0" />
+                                            <img :src="rev.avatar || rev.user_avatar || '/assets/avatars/avatar-default.png'" :alt="rev.author || rev.user_name || 'Pembeli'" class="w-11 h-11 rounded-full object-cover ring-2 ring-purple-100 shrink-0" x-on:error="$event.target.src = '/assets/avatars/avatar-default.png'" />
                                             <div>
                                                 <div class="flex items-center gap-1.5">
-                                                    <h4 class="text-sm sm:text-base font-extrabold text-gray-900" x-text="rev.author"></h4>
+                                                    <h4 class="text-sm sm:text-base font-extrabold text-gray-900" x-text="rev.author || rev.user_name || 'Pembeli'"></h4>
                                                     <template x-if="rev.verified">
                                                         <span class="px-1.5 py-0.5 rounded-md bg-purple-50 text-[#4F26A6] text-[10px] font-bold">Terverifikasi</span>
                                                     </template>
@@ -825,23 +838,30 @@
                                                     @click="openReviewMedia(rev, idx)"
                                                     class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border border-gray-100 hover:opacity-90 hover:scale-102 transition-all cursor-pointer bg-gray-50 shrink-0"
                                                 >
-                                                    <img :src="img" :alt="'Foto ulasan ' + rev.author" class="w-full h-full object-cover" />
+                                                    <img :src="img" :alt="'Foto ulasan ' + (rev.author || rev.user_name || 'Pembeli')" class="w-full h-full object-cover" />
                                                 </button>
                                             </template>
                                         </div>
                                     </template>
 
+                                    <!-- Review Video -->
+                                    <template x-if="rev.video">
+                                        <div class="pt-1">
+                                            <video controls :src="rev.video" class="w-full max-w-sm rounded-2xl bg-black shadow-xs max-h-56"></video>
+                                        </div>
+                                    </template>
+
                                     <!-- Product Attached Card -->
                                     <template x-if="rev.product">
-                                        <div class="p-3 rounded-2xl bg-[#FAF9FC] border border-gray-100 flex items-center justify-between gap-3">
-                                            <div class="flex items-center gap-3 min-w-0">
-                                                <img :src="rev.product.image" :alt="rev.product.title" class="w-11 h-11 rounded-xl object-cover border border-gray-200/80 shrink-0 bg-white" />
+                                        <div class="p-3 rounded-2xl bg-[#FAF9FC] border border-gray-100 flex items-center justify-between gap-3 hover:bg-[#F6F4FB] transition-colors">
+                                            <a :href="rev.product.url" class="flex items-center gap-3 min-w-0 flex-1 group">
+                                                <img :src="rev.product.image || '/assets/products/prod-hoodie.png'" :alt="rev.product.title" class="w-11 h-11 rounded-xl object-cover border border-gray-200/80 shrink-0 bg-white group-hover:scale-105 transition-transform" x-on:error="$event.target.src = '/assets/products/prod-hoodie.png'" />
                                                 <div class="min-w-0">
-                                                    <h5 class="text-xs font-bold text-gray-900 truncate" x-text="rev.product.title"></h5>
+                                                    <h5 class="text-xs font-bold text-gray-900 truncate group-hover:text-[#4F26A6] transition-colors" x-text="rev.product.title"></h5>
                                                     <p class="text-xs font-extrabold text-[#4F26A6] mt-0.5" x-text="rev.product.priceText"></p>
                                                 </div>
-                                            </div>
-                                            <a :href="rev.product.url" class="text-xs font-bold text-[#4F26A6] hover:underline shrink-0 flex items-center gap-1">
+                                            </a>
+                                            <a :href="rev.product.url" class="text-xs font-bold text-[#4F26A6] hover:underline shrink-0 flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-purple-50 transition-colors">
                                                 <span>Lihat</span>
                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                                             </a>

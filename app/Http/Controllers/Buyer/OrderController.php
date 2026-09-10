@@ -2,13 +2,20 @@
 
 namespace App\Http\Controllers\Buyer;
 
+use App\Enums\PaymentStatus;
 use App\Enums\PayoutStatus;
+use App\Enums\ProductStatus;
+use App\Enums\SellerStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Cart;
 use App\Models\EscrowBalance;
 use App\Models\Order;
 use App\Models\Payout;
+use App\States\Order\Cancelled;
 use App\States\Order\Completed;
 use App\States\Order\Delivered;
+use App\States\Order\PaymentVerification;
+use App\States\Order\PendingPayment;
 use App\States\Order\Shipped;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,6 +38,7 @@ class OrderController extends Controller
         $query = $user->orders()
             ->with([
                 'items.variant.product.images',
+                'items.review',
                 'seller.user',
                 'payment',
                 'shipment',
@@ -40,7 +48,10 @@ class OrderController extends Controller
         if ($status === 'unpaid') {
             $query->where('status', 'pending_payment');
         } elseif ($status === 'processing') {
-            $query->whereIn('status', ['payment_verification', 'paid', 'processing']);
+            $query->whereIn('status', ['payment_verification', 'paid', 'processing'])
+                ->whereDoesntHave('payment', function ($pq) {
+                    $pq->where('status', PaymentStatus::REJECTED);
+                });
         } elseif ($status === 'shipped') {
             $query->where('status', 'shipped');
         } elseif ($status === 'delivered') {
@@ -48,7 +59,12 @@ class OrderController extends Controller
         } elseif ($status === 'completed') {
             $query->where('status', 'completed');
         } elseif ($status === 'cancelled') {
-            $query->whereIn('status', ['cancelled', 'disputed']);
+            $query->where(function ($q) {
+                $q->whereIn('status', ['cancelled', 'disputed'])
+                    ->orWhereHas('payment', function ($pq) {
+                        $pq->where('status', PaymentStatus::REJECTED);
+                    });
+            });
         }
 
         // Filter search keyword
@@ -67,20 +83,35 @@ class OrderController extends Controller
         $orders = $query->latest()->paginate(10)->withQueryString();
 
         // Calculate count for each status tab
-        $allUserStatuses = $user->orders()->pluck('status')->map(function ($s) {
-            return $s instanceof State ? $s::$name : (string) $s;
-        });
-        $byStatus = $allUserStatuses->countBy();
-
+        $allUserOrders = $user->orders()->with('payment')->get();
         $counts = [
-            'all' => $allUserStatuses->count(),
-            'unpaid' => $byStatus->get('pending_payment', 0),
-            'processing' => $byStatus->get('payment_verification', 0) + $byStatus->get('paid', 0) + $byStatus->get('processing', 0),
-            'shipped' => $byStatus->get('shipped', 0),
-            'delivered' => $byStatus->get('delivered', 0),
-            'completed' => $byStatus->get('completed', 0),
-            'cancelled' => $byStatus->get('cancelled', 0) + $byStatus->get('disputed', 0),
+            'all' => $allUserOrders->count(),
+            'unpaid' => 0,
+            'processing' => 0,
+            'shipped' => 0,
+            'delivered' => 0,
+            'completed' => 0,
+            'cancelled' => 0,
         ];
+
+        foreach ($allUserOrders as $uo) {
+            $name = $uo->status instanceof State ? $uo->status::$name : (string) $uo->status;
+            $isRejected = ($uo->payment?->status === PaymentStatus::REJECTED || ! empty($uo->payment?->rejection_reason));
+
+            if ($name === 'pending_payment') {
+                $counts['unpaid']++;
+            } elseif ($isRejected || in_array($name, ['cancelled', 'disputed'], true)) {
+                $counts['cancelled']++;
+            } elseif (in_array($name, ['payment_verification', 'paid', 'processing'], true)) {
+                $counts['processing']++;
+            } elseif ($name === 'shipped') {
+                $counts['shipped']++;
+            } elseif ($name === 'delivered') {
+                $counts['delivered']++;
+            } elseif ($name === 'completed') {
+                $counts['completed']++;
+            }
+        }
 
         return view('orders.index', [
             'orders' => $orders,
@@ -94,7 +125,7 @@ class OrderController extends Controller
 
     public function show(string $orderNumber): View
     {
-        $order = Order::with(['items.variant.product.images', 'seller.user', 'payment', 'shipment', 'dispute'])
+        $order = Order::with(['items.variant.product.images', 'items.review', 'seller.user', 'payment', 'shipment', 'dispute'])
             ->where('order_number', $orderNumber)
             ->firstOrFail();
 
@@ -163,5 +194,67 @@ class OrderController extends Controller
         }
 
         return redirect()->back()->with('success', 'Pesanan selesai! Terima kasih telah berbelanja di WhiMarket.');
+    }
+
+    public function cancel(string $orderNumber): RedirectResponse
+    {
+        $order = Order::with('items.variant')->where('order_number', $orderNumber)->firstOrFail();
+        Gate::authorize('view', $order);
+
+        if (! $order->status->equals(PendingPayment::class) && ! $order->status->equals(PaymentVerification::class)) {
+            return redirect()->back()->with('error', 'Pesanan ini saat ini tidak dapat dibatalkan.');
+        }
+
+        if ($order->status->canTransitionTo(Cancelled::class)) {
+            $order->status->transitionTo(Cancelled::class);
+        }
+        $order->restoreStock();
+
+        return redirect()->route('orders.show', $order->order_number)
+            ->with('success', 'Pesanan berhasil dibatalkan dan stok produk telah dikembalikan ke etalase.');
+    }
+
+    public function reorder(string $orderNumber): RedirectResponse
+    {
+        $order = Order::with(['items.variant.product.seller'])->where('order_number', $orderNumber)->firstOrFail();
+        Gate::authorize('view', $order);
+
+        $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
+        $addedCount = 0;
+
+        foreach ($order->items as $item) {
+            $variant = $item->variant;
+            if (! $variant || $variant->stock <= 0) {
+                continue;
+            }
+
+            $isProductActive = $variant->product && $variant->product->status === ProductStatus::ACTIVE;
+            $isSellerActive = $variant->product?->seller && $variant->product->seller->status === SellerStatus::VERIFIED;
+            if (! $isProductActive || ! $isSellerActive) {
+                continue;
+            }
+
+            $qtyToAdd = min($item->quantity, $variant->stock);
+            $cartItem = $cart->items()->where('product_variant_id', $variant->id)->first();
+            if ($cartItem) {
+                $newQty = min($cartItem->quantity + $qtyToAdd, $variant->stock);
+                $cartItem->update(['quantity' => $newQty, 'is_selected' => true]);
+            } else {
+                $cart->items()->create([
+                    'product_variant_id' => $variant->id,
+                    'quantity' => $qtyToAdd,
+                    'is_selected' => true,
+                ]);
+            }
+            $addedCount++;
+        }
+
+        if ($addedCount > 0) {
+            return redirect()->route('cart.index')
+                ->with('success', 'Barang dari pesanan berhasil dimasukkan kembali ke keranjang belanja Anda.');
+        }
+
+        return redirect()->back()
+            ->with('error', 'Maaf, stok barang dari pesanan ini saat ini sedang habis atau tidak aktif.');
     }
 }

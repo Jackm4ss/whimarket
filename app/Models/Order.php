@@ -24,6 +24,7 @@ class Order extends Model
         'admin_fee',
         'grand_total',
         'status',
+        'is_stock_restored',
         'inspection_deadline_at',
         'completed_at',
     ];
@@ -32,6 +33,7 @@ class Order extends Model
     {
         return [
             'status' => OrderStatusState::class,
+            'is_stock_restored' => 'boolean',
             'address_snapshot' => 'array',
             'total_amount' => 'decimal:2',
             'shipping_cost' => 'decimal:2',
@@ -80,5 +82,27 @@ class Order extends Model
     public function payout(): HasOne
     {
         return $this->hasOne(Payout::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
+    public function restoreStock(): bool
+    {
+        if ($this->is_stock_restored) {
+            return false;
+        }
+
+        foreach ($this->items as $item) {
+            if ($item->variant) {
+                $item->variant->increment('stock', $item->quantity);
+            }
+        }
+
+        $this->update(['is_stock_restored' => true]);
+
+        return true;
     }
 }

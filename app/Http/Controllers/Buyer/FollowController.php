@@ -29,7 +29,8 @@ class FollowController extends Controller
                 'user',
                 'products' => fn ($q) => $q->where('status', ProductStatus::ACTIVE)->with('images')->latest('id')->limit(4),
             ])
-            ->withCount(['followers', 'products'])
+            ->withCount(['followers', 'products', 'reviews'])
+            ->withAvg('reviews', 'rating')
             ->latest('seller_followers.created_at')
             ->get() : collect();
 

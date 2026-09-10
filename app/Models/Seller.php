@@ -86,6 +86,21 @@ class Seller extends Model
         return $this->hasManyThrough(Wishlist::class, Product::class, 'seller_id', 'product_id');
     }
 
+    public function reviews(): HasManyThrough
+    {
+        return $this->hasManyThrough(ProductReview::class, Product::class, 'seller_id', 'product_id');
+    }
+
+    public function getAverageRatingAttribute(): float
+    {
+        return (float) ($this->reviews()->avg('rating') ?: 0.0);
+    }
+
+    public function getReviewsCountAttribute(): int
+    {
+        return $this->reviews()->count();
+    }
+
     public function getFollowersCountFormattedAttribute(): string
     {
         $isDemo = in_array(strtolower($this->username), ['rachelvennya', 'celloszx', 'raisa6690', 'fuji_an', 'windahbasudara', 'bramastavrl']);
@@ -120,7 +135,8 @@ class Seller extends Model
         }
 
         $initial = strtoupper(substr($this->store_name ?: 'W', 0, 1));
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><rect width="128" height="128" rx="64" fill="#F3EEFF"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="52" fill="#4F26A6">'.$initial.'</text></svg>';
 
-        return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><rect width="128" height="128" rx="64" fill="%23F3EEFF"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="52" fill="%234F26A6">'.$initial.'</text></svg>';
+        return 'data:image/svg+xml;base64,'.base64_encode($svg);
     }
 }

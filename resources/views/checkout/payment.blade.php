@@ -90,6 +90,22 @@
                             Pastikan foto struk atau screenshot mutasi terlihat jelas dan memuat nomor rekening pengirim serta nominal transfer.
                         </p>
                     </div>
+                    @if($order->payment?->status === \App\Enums\PaymentStatus::REJECTED || $order->payment?->rejection_reason)
+                        <div class="p-4 sm:p-5 rounded-2xl bg-amber-50 border border-amber-200/90 text-amber-900 text-xs sm:text-sm space-y-1.5 shadow-2xs">
+                            <div class="font-bold flex items-center gap-2 text-amber-800">
+                                <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                                <span>Bukti Transfer Sebelumnya Ditolak Admin</span>
+                            </div>
+                            <p class="text-amber-800/90 leading-relaxed">
+                                Catatan Alasan: <span class="font-bold">"{{ $order->payment->rejection_reason ?: 'Bukti transfer tidak valid atau mutasi tidak ditemukan.' }}"</span>
+                            </p>
+                            <p class="text-[11px] text-amber-700 leading-normal">
+                                Pastikan transfer telah berhasil dilakukan ke rekening kami dengan nominal tepat, lalu unggah foto struk atau screenshot mutasi baru di bawah ini.
+                            </p>
+                        </div>
+                    @endif
 
                     @if($errors->any())
                         <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm space-y-1">

@@ -483,7 +483,7 @@
 
         <!-- Section Ulasan Produk -->
         @if(!empty($product['reviews']))
-            <section class="mt-4 mb-14" x-data="{ reviewFilter: 'all', reviewSort: 'terbaru', sortDropdownOpen: false }">
+            <section id="ulasan" class="mt-4 mb-14" x-data="{ reviewFilter: 'all', reviewSort: 'terbaru', sortDropdownOpen: false }">
                 <div class="flex flex-col lg:flex-row items-start gap-8">
                     <!-- Left Column: Rating Keseluruhan Sidebar Card -->
                     <div class="w-full lg:w-[310px] xl:w-[330px] shrink-0 space-y-4">
@@ -613,7 +613,7 @@
                         <!-- Review Items List -->
                         <div class="divide-y divide-gray-100">
                             @foreach($product['reviews'] as $rev)
-                                <div class="py-6 first:pt-0 last:pb-0">
+                                <div class="py-6 first:pt-0 last:pb-0 transition-opacity duration-150" x-show="reviewFilter === 'all' || String(reviewFilter) === '{{ $rev['rating'] }}'">
                                     <div class="flex items-center gap-3 mb-2.5">
                                         <img src="{{ $rev['user_avatar'] }}" alt="{{ $rev['user_name'] }}" class="w-10 h-10 rounded-full object-cover ring-1 ring-gray-100 shrink-0" />
                                         <div>
@@ -638,6 +638,11 @@
                                             @foreach($rev['photos'] as $pImg)
                                                 <img src="{{ $pImg }}" alt="Review photo" class="w-20 h-20 sm:w-22 sm:h-22 rounded-xl object-cover border border-gray-100 hover:scale-105 transition-transform cursor-pointer shadow-2xs" />
                                             @endforeach
+                                        </div>
+                                    @endif
+                                    @if(!empty($rev['video']))
+                                        <div class="mb-3">
+                                            <video controls src="{{ $rev['video'] }}" class="w-full max-w-sm rounded-2xl bg-black shadow-xs max-h-56"></video>
                                         </div>
                                     @endif
                                 </div>

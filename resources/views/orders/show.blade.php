@@ -37,25 +37,65 @@
                     </svg>
                     <span>Kembali ke Pesanan Saya</span>
                 </a>
-                <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
-                    <h1 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-gray-950 tracking-tight">
-                        Pesanan <span class="font-mono text-gray-800">#{{ $order->order_number }}</span>
+                @php
+                    $isRejectedPayment = ($order->payment?->status === \App\Enums\PaymentStatus::REJECTED || !empty($order->payment?->rejection_reason));
+                    if ($order->status::$name === 'pending_payment' && $isRejectedPayment) {
+                        $statusBadgeClass = 'bg-amber-50 text-amber-800 border border-amber-200/80';
+                        $statusBadgeLabel = 'Bukti Perlu Diunggah Ulang';
+                    } elseif ($isRejectedPayment) {
+                        $statusBadgeClass = 'bg-rose-50 text-rose-700 border border-rose-200/80';
+                        $statusBadgeLabel = 'Pembayaran Ditolak';
+                    } else {
+                        $statusBadgeLabel = $order->status->label();
+                        $statusBadgeClass = match ($order->status::$name) {
+                            'pending_payment' => 'bg-amber-50 text-amber-800 border border-amber-200/70',
+                            'payment_verification', 'processing', 'paid' => 'bg-purple-50 text-[#4F26A6] border border-purple-200/70',
+                            'shipped' => 'bg-amber-50 text-amber-800 border border-amber-200/70',
+                            'delivered', 'completed' => 'bg-emerald-50 text-emerald-700 border border-emerald-200/70',
+                            'disputed' => 'bg-rose-50 text-rose-700 border border-rose-200/70',
+                            default => 'bg-gray-100 text-gray-700 border border-gray-200',
+                        };
+                    }
+                @endphp
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <h1 class="text-lg sm:text-2xl lg:text-3xl font-extrabold text-gray-950 tracking-tight flex flex-wrap items-center gap-1.5">
+                        <span>Pesanan</span>
+                        <span class="font-mono text-gray-800 break-all">#{{ $order->order_number }}</span>
                     </h1>
-                    <span class="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-bold
-                        {{ $order->status::$name === 'pending_payment' ? 'bg-amber-50 text-amber-800 border border-amber-200/70' : '' }}
-                        {{ $order->status::$name === 'payment_verification' || $order->status::$name === 'processing' ? 'bg-purple-50 text-[#4F26A6] border border-purple-200/70' : '' }}
-                        {{ $order->status::$name === 'paid' ? 'bg-purple-50 text-[#4F26A6] border border-purple-200/70' : '' }}
-                        {{ $order->status::$name === 'shipped' ? 'bg-amber-50 text-amber-800 border border-amber-200/70' : '' }}
-                        {{ $order->status::$name === 'delivered' || $order->status::$name === 'completed' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/70' : '' }}
-                        {{ $order->status::$name === 'disputed' ? 'bg-rose-50 text-rose-700 border border-rose-200/70' : '' }}
-                        {{ $order->status::$name === 'cancelled' ? 'bg-gray-100 text-gray-700 border border-gray-200' : '' }}
-                    ">
-                        {{ $order->status->label() }}
+                    <span class="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-bold {{ $statusBadgeClass }}">
+                        {{ $statusBadgeLabel }}
                     </span>
                 </div>
-                <p class="text-xs sm:text-sm text-gray-500">
-                    Dipesan pada {{ $order->created_at->format('d F Y, H:i') }} • Penjual: <a href="{{ url('/seller/@'.$order->seller->username) }}" class="font-bold text-gray-900 hover:text-[#4F26A6] transition-colors">{{ $order->seller->store_name }}</a>
-                </p>
+                @php
+                    $seller = $order->seller;
+                    $sellerAvatar = $seller?->avatar_url ?? 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><rect width="128" height="128" rx="64" fill="%23F3EEFF"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="52" fill="%234F26A6">W</text></svg>';
+                @endphp
+                <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-500">
+                    <span>Dipesan pada {{ $order->created_at->format('d F Y, H:i') }}</span>
+                    <span class="hidden sm:inline text-gray-300">•</span>
+                    <div class="inline-flex items-center gap-1.5">
+                        <span>Penjual:</span>
+                        @if($seller)
+                            <a
+                                href="{{ url('/seller/@'.$seller->username) }}"
+                                 class="inline-flex items-center gap-1.5 font-bold text-gray-900 hover:text-[#4F26A6] transition-colors group"
+                                title="Kunjungi Toko {{ $seller->store_name }}"
+                            >
+                                <div class="w-5 h-5 sm:w-6 sm:h-6 rounded-full overflow-hidden bg-[#F3EEFF] border border-gray-200/80 ring-1 ring-[#4F26A6]/10 shrink-0">
+                                    <img
+                                        src="{{ $sellerAvatar }}"
+                                        alt="{{ $seller->store_name }}"
+                                        class="w-full h-full object-cover"
+                                    />
+                                </div>
+                                <span class="group-hover:underline underline-offset-2">{{ $seller->store_name }}</span>
+                                <x-verified-badge size="sm" class="w-3.5 h-3.5 text-[#4F26A6]" />
+                            </a>
+                        @else
+                            <span class="font-bold text-gray-900">Seller WhiMarket</span>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -74,8 +114,100 @@
             });
         @endphp
 
+        {{-- Cancelled / Rejected Order Banner --}}
+        @if($order->status::$name === 'cancelled' || ($isRejectedPayment && $order->status::$name !== 'pending_payment'))
+            <div class="mb-8 p-6 sm:p-7 rounded-3xl bg-rose-50/90 border border-rose-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div class="space-y-2">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 text-rose-800 text-xs font-bold">
+                        <svg class="w-3.5 h-3.5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        <span>
+                            @if($order->payment?->status === \App\Enums\PaymentStatus::REJECTED || $order->payment?->rejection_reason)
+                                Pembayaran Ditolak &bull; Pesanan Dibatalkan
+                            @else
+                                Pesanan Dibatalkan
+                            @endif
+                        </span>
+                    </div>
+                    <h3 class="text-xl font-extrabold text-gray-900 tracking-tight">
+                        @if($order->payment?->status === \App\Enums\PaymentStatus::REJECTED || $order->payment?->rejection_reason)
+                            Bukti Transfer Pembayaran Ditolak oleh Admin
+                        @else
+                            Pesanan Telah Dibatalkan
+                        @endif
+                    </h3>
+                    @if($order->payment?->rejection_reason)
+                        <div class="p-3.5 rounded-2xl bg-white border border-rose-200 text-xs text-rose-900 max-w-2xl shadow-2xs">
+                            <span class="font-bold text-rose-800 block mb-0.5">Alasan Penolakan dari Admin:</span>
+                            <p class="font-medium leading-relaxed">"{{ $order->payment->rejection_reason }}"</p>
+                        </div>
+                    @endif
+                    <p class="text-xs sm:text-sm text-gray-600 leading-relaxed max-w-2xl">
+                        Pesanan ini telah dibatalkan secara permanen dan stok produk telah otomatis dikembalikan ke etalase toko. Jika kamu masih ingin membeli produk ini, silakan klik tombol pesan ulang.
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-3 shrink-0 flex-wrap">
+                    <form action="{{ route('orders.reorder', $order->order_number) }}" method="POST">
+                        @csrf
+                        <button
+                            type="submit"
+                            class="px-6 py-3 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#4F26A6]/20 transition-all active:scale-[0.98] cursor-pointer flex items-center gap-2"
+                        >
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            <span>Pesan Ulang / Beli Lagi</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        @endif
+
         @if($isPendingPayment)
-            @if($hasOutOfStockItem)
+            @if($order->payment?->status === \App\Enums\PaymentStatus::REJECTED || $order->payment?->rejection_reason)
+                <div class="mb-8 p-6 sm:p-7 rounded-3xl bg-amber-50/90 border border-amber-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div class="space-y-2">
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold">
+                            <svg class="w-3.5 h-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            <span>Bukti Pembayaran Perlu Diunggah Ulang</span>
+                        </div>
+                        <h3 class="text-xl font-extrabold text-gray-900 tracking-tight">
+                            Bukti Transfer Sebelumnya Ditolak oleh Admin
+                        </h3>
+                        @if($order->payment?->rejection_reason)
+                            <div class="p-3.5 rounded-2xl bg-white border border-amber-200 text-xs text-amber-900 max-w-2xl shadow-2xs">
+                                <span class="font-bold text-amber-800 block mb-0.5">Catatan Alasan Penolakan:</span>
+                                <p class="font-medium leading-relaxed">"{{ $order->payment->rejection_reason }}"</p>
+                            </div>
+                        @endif
+                        <p class="text-xs sm:text-sm text-gray-600 leading-relaxed max-w-2xl">
+                            Stok produk kamu masih kami tahan sementara. Silakan segera unggah bukti transfer yang valid dan jelas agar pesanan dapat segera diproses penjual.
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-3 shrink-0 flex-wrap">
+                        <a
+                            href="{{ route('payment.show', $order->order_number) }}"
+                            class="px-6 py-3 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-xs sm:text-sm shadow-md transition-all cursor-pointer whitespace-nowrap text-center"
+                        >
+                            Unggah Ulang Bukti Transfer &rarr;
+                        </a>
+                        <form action="{{ route('orders.cancel', $order->order_number) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pesanan ini? Stok barang akan dikembalikan ke etalase.');">
+                            @csrf
+                            <button
+                                type="submit"
+                                class="px-5 py-3 rounded-xl border border-gray-200 hover:border-rose-300 hover:bg-rose-50 text-gray-500 hover:text-rose-700 font-bold text-xs transition-all cursor-pointer text-center"
+                            >
+                                Batalkan Pesanan
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @elseif($hasOutOfStockItem)
                 <div class="mb-8 p-6 sm:p-7 rounded-3xl bg-rose-50 border border-rose-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="space-y-1">
                         <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 text-rose-800 text-xs font-bold mb-1">
@@ -101,12 +233,23 @@
                             Silakan lakukan transfer pembayaran sebelum batas waktu berakhir.
                         </p>
                     </div>
-                    <a
-                        href="{{ route('payment.show', $order->order_number) }}"
-                        class="px-6 py-3 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-xs sm:text-sm shadow-md transition-all cursor-pointer whitespace-nowrap text-center"
-                    >
-                        Bayar Sekarang &rarr;
-                    </a>
+                    <div class="flex items-center gap-3 shrink-0 flex-wrap">
+                        <a
+                            href="{{ route('payment.show', $order->order_number) }}"
+                            class="px-6 py-3 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-xs sm:text-sm shadow-md transition-all cursor-pointer whitespace-nowrap text-center"
+                        >
+                            Bayar Sekarang &rarr;
+                        </a>
+                        <form action="{{ route('orders.cancel', $order->order_number) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pesanan ini? Stok barang akan dikembalikan ke etalase.');">
+                            @csrf
+                            <button
+                                type="submit"
+                                class="px-4 py-3 rounded-xl border border-gray-200 hover:border-rose-300 hover:bg-rose-50 text-gray-500 hover:text-rose-700 font-bold text-xs transition-all cursor-pointer text-center"
+                            >
+                                Batalkan
+                            </button>
+                        </form>
+                    </div>
                 </div>
             @endif
         @endif
@@ -147,6 +290,58 @@
             </div>
         @endif
 
+        <!-- Completed Order Review Banner -->
+        @if($order->status::$name === 'completed')
+            @php
+                $unreviewedCount = $order->items->where('review', null)->count();
+            @endphp
+            <div class="mb-8 p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-purple-50 via-[#F3EEFF]/60 to-amber-50/70 border border-purple-200/70 shadow-[0_8px_30px_rgba(79,38,166,0.06)] flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div class="space-y-1.5">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
+                        <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>Transaksi Berhasil Diselesaikan</span>
+                    </div>
+                    <h3 class="text-xl font-extrabold text-gray-900 tracking-tight">
+                        Bagaimana Pengalaman Belanja Kamu?
+                    </h3>
+                    <p class="text-xs sm:text-sm text-gray-600 max-w-2xl leading-relaxed">
+                        @if($unreviewedCount > 0)
+                            Bantu pembeli lain dengan memberikan penilaian kualitas barang dan pelayanan toko <strong>{{ $order->seller->store_name }}</strong>.
+                        @else
+                            Terima kasih telah memberikan ulasan untuk seluruh barang pesanan ini!
+                        @endif
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-3 shrink-0 flex-wrap">
+                    @if($unreviewedCount > 0)
+                        <a
+                            href="{{ route('reviews.create', $order->order_number) }}"
+                            style="background-color: #4F26A6; color: #ffffff;"
+                            class="px-6 py-3.5 rounded-xl hover:opacity-95 text-white font-bold text-xs shadow-md shadow-[#4F26A6]/20 transition-all active:scale-[0.98] cursor-pointer inline-flex items-center gap-2"
+                        >
+                            <svg class="w-4 h-4 text-[#F59E0B] fill-current" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                            <span>Beri Ulasan Produk ({{ $unreviewedCount }}) &rarr;</span>
+                        </a>
+                    @else
+                        <a
+                            href="{{ route('reviews.create', $order->order_number) }}"
+                            class="px-5 py-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-bold text-xs transition-all inline-flex items-center gap-2"
+                        >
+                            <svg class="w-4 h-4 text-[#F59E0B] fill-current" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                            <span>Lihat Ulasan Saya</span>
+                        </a>
+                    @endif
+                </div>
+            </div>
+        @endif
+
         <!-- Fast Path: Shipped state confirmation button -->
         @if($order->status::$name === 'shipped')
             <div class="mb-8 p-6 rounded-3xl bg-purple-50/80 border border-purple-200/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -172,11 +367,49 @@
             <!-- Left Column: Items & Shipment Details (8 cols) -->
             <div class="lg:col-span-8 space-y-6">
                 <!-- Items Card -->
-                <div class="bg-white rounded-3xl border border-gray-100/90 shadow-[0_4px_24px_rgba(0,0,0,0.03)] p-5 sm:p-8 space-y-5">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-extrabold text-gray-900 tracking-tight">Daftar Barang</h3>
-                        <span class="text-xs text-gray-400 font-semibold">{{ $order->items->count() }} Produk</span>
-                    </div>
+                <div class="bg-white rounded-3xl border border-gray-100/90 shadow-[0_4px_24px_rgba(0,0,0,0.03)] overflow-hidden">
+                    <!-- Seller Store Header Bar -->
+                    @if($seller)
+                        <div class="px-5 sm:px-8 py-4 bg-[#FAF9FC] border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <a href="{{ url('/seller/@'.$seller->username) }}" class="relative shrink-0 group">
+                                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden bg-[#F3EEFF] border border-gray-200/80 ring-2 ring-[#4F26A6]/10 shadow-xs group-hover:scale-105 transition-transform">
+                                        <img
+                                            src="{{ $sellerAvatar }}"
+                                            alt="{{ $seller->store_name }}"
+                                            class="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                </a>
+                                <div>
+                                    <div class="flex items-center gap-1.5">
+                                        <a href="{{ url('/seller/@'.$seller->username) }}" class="text-sm sm:text-base font-extrabold text-gray-950 hover:text-[#4F26A6] transition-colors inline-flex items-center gap-1.5">
+                                            <span>{{ $seller->store_name }}</span>
+                                            <x-verified-badge size="sm" class="w-4 h-4 text-[#4F26A6]" />
+                                        </a>
+                                    </div>
+                                    <span class="text-[11px] text-gray-500 font-medium">@ {{ $seller->username }}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a
+                                    href="{{ url('/seller/@'.$seller->username) }}"
+                                    class="inline-flex items-center gap-1 text-xs font-bold text-[#4F26A6] hover:text-[#3E1D85] px-3.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100/80 transition-colors"
+                                >
+                                    <span>Kunjungi Toko</span>
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="p-5 sm:p-8 space-y-5">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-extrabold text-gray-900 tracking-tight">Daftar Barang</h3>
+                            <span class="text-xs text-gray-400 font-semibold">{{ $order->items->count() }} Produk</span>
+                        </div>
 
                     <div class="divide-y divide-gray-100 space-y-4">
                         @foreach($order->items as $item)
@@ -204,6 +437,34 @@
                                                 Stok habis dari penjual
                                             </span>
                                         @endif
+                                        @if($order->status::$name === 'completed')
+                                            @if($item->review)
+                                                <div class="mt-2.5 flex items-center gap-2 flex-wrap">
+                                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-xs font-bold">
+                                                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                        </svg>
+                                                        <span>Sudah Diulas ({{ $item->review->rating }}/5 ★)</span>
+                                                    </span>
+                                                    <a href="{{ route('reviews.create', ['orderNumber' => $order->order_number, 'item_id' => $item->id]) }}" class="text-xs font-bold text-[#4F26A6] hover:underline">
+                                                        Lihat Ulasan &rarr;
+                                                    </a>
+                                                </div>
+                                            @else
+                                                <div class="mt-2.5 flex items-center gap-2 flex-wrap">
+                                                    <a
+                                                        href="{{ route('reviews.create', ['orderNumber' => $order->order_number, 'item_id' => $item->id]) }}"
+                                                        style="background-color: #F59E0B; color: #ffffff;"
+                                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:opacity-90 text-white text-xs font-bold shadow-xs transition-all active:scale-95 cursor-pointer"
+                                                    >
+                                                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
+                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                                        </svg>
+                                                        <span>Beri Ulasan</span>
+                                                    </a>
+                                                </div>
+                                            @endif
+                                        @endif
                                     </div>
                                 </div>
                                 <div class="hidden sm:block text-right shrink-0">
@@ -215,6 +476,7 @@
                         @endforeach
                     </div>
                 </div>
+            </div>
 
                 <!-- Shipment & Tracking Info Card -->
                 @if($order->shipment)
@@ -360,7 +622,26 @@
                             <span>Metode Bayar</span>
                             <span class="font-semibold text-gray-900">Transfer Manual BCA</span>
                         </div>
+                        @if($order->payment)
+                            <div class="flex items-center justify-between pt-1">
+                                <span>Status Bukti Transfer</span>
+                                <span class="font-bold text-xs
+                                    {{ $order->payment->status === \App\Enums\PaymentStatus::VERIFIED ? 'text-emerald-600' : '' }}
+                                    {{ $order->payment->status === \App\Enums\PaymentStatus::PENDING_REVIEW ? 'text-amber-600' : '' }}
+                                    {{ $order->payment->status === \App\Enums\PaymentStatus::REJECTED ? 'text-rose-600' : '' }}
+                                    {{ $order->payment->status === \App\Enums\PaymentStatus::UNPAID ? 'text-gray-500' : '' }}
+                                ">
+                                    {{ $order->payment->status->label() }}
+                                </span>
+                            </div>
+                        @endif
                     </div>
+                    @if($order->payment?->rejection_reason)
+                        <div class="p-3 rounded-xl bg-rose-50 border border-rose-200/80 text-xs text-rose-800 space-y-1">
+                            <span class="font-bold text-rose-900 block">Alasan Penolakan:</span>
+                            <p class="leading-relaxed">"{{ $order->payment->rejection_reason }}"</p>
+                        </div>
+                    @endif
 
                     <div class="flex items-center justify-between pt-1 text-sm font-extrabold">
                         <span class="text-gray-700">Total Transaksi:</span>

@@ -12,9 +12,11 @@ use App\Http\Controllers\Buyer\FollowController;
 use App\Http\Controllers\Buyer\OnboardingController;
 use App\Http\Controllers\Buyer\OrderController;
 use App\Http\Controllers\Buyer\ProfileController;
+use App\Http\Controllers\Buyer\ReviewController;
 use App\Http\Controllers\Buyer\SearchController;
 use App\Http\Controllers\Buyer\WishlistController;
 use App\Http\Controllers\Seller\SellerFollowerController;
+use App\Http\Controllers\Seller\SellerPayoutAccountController;
 use App\Http\Controllers\Seller\SellerPortalController;
 use App\Http\Controllers\Seller\SellerProductController;
 use App\Http\Controllers\Seller\SellerWishlistController;
@@ -78,10 +80,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/pesanan/{orderNumber}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/pesanan/{orderNumber}/terima', [OrderController::class, 'confirmDelivered'])->name('orders.confirm_delivered');
     Route::post('/pesanan/{orderNumber}/selesai', [OrderController::class, 'completeOrder'])->name('orders.complete');
-
+    Route::post('/pesanan/{orderNumber}/batal', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::post('/pesanan/{orderNumber}/beli-lagi', [OrderController::class, 'reorder'])->name('orders.reorder');
     // Buyer Dispute
     Route::get('/pesanan/{orderNumber}/komplain', [DisputeController::class, 'create'])->name('dispute.create');
     Route::post('/pesanan/{orderNumber}/komplain', [DisputeController::class, 'store'])->name('dispute.store');
+
+    // Buyer Product Reviews
+    Route::get('/pesanan/{orderNumber}/ulasan', [ReviewController::class, 'create'])->name('reviews.create');
+    Route::post('/pesanan/{orderNumber}/ulasan', [ReviewController::class, 'store'])->name('reviews.store');
 
     // Password & Account Security
     Route::get('/akun/password', [PasswordController::class, 'edit'])->name('password.edit');
@@ -114,6 +121,10 @@ Route::middleware('auth')->group(function () {
         // Seller Engagement: Followers & Wishlist Insights
         Route::get('/seller/followers', [SellerFollowerController::class, 'index'])->name('seller.followers.index');
         Route::get('/seller/wishlists', [SellerWishlistController::class, 'index'])->name('seller.wishlists.index');
+
+        // Seller Payout Bank Account
+        Route::get('/seller/payout-account', [SellerPayoutAccountController::class, 'index'])->name('seller.payout-account.index');
+        Route::put('/seller/payout-account', [SellerPayoutAccountController::class, 'update'])->name('seller.payout-account.update');
 
         Route::get('/seller/products', [SellerProductController::class, 'index'])->name('seller.products.index');
         Route::get('/seller/products/create', [SellerProductController::class, 'create'])->name('seller.products.create');

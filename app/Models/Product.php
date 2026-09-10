@@ -76,6 +76,29 @@ class Product extends Model implements HasMedia
         return $this->hasMany(Wishlist::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class)->latest();
+    }
+
+    public function getAverageRatingAttribute(): float
+    {
+        if ($this->relationLoaded('reviews')) {
+            return (float) ($this->reviews->avg('rating') ?: 0.0);
+        }
+
+        return (float) ($this->reviews()->avg('rating') ?: 0.0);
+    }
+
+    public function getReviewsCountAttribute(): int
+    {
+        if ($this->relationLoaded('reviews')) {
+            return $this->reviews->count();
+        }
+
+        return $this->reviews()->count();
+    }
+
     public function getTotalStockAttribute(): int
     {
         if ($this->relationLoaded('variants')) {

@@ -173,6 +173,7 @@
                         $hasOutOfStockItem = $isPendingPayment && $order->items->contains(function ($item) {
                             return ($item->variant?->stock ?? 0) <= 0 || ($item->variant?->product?->total_stock ?? 0) <= 0;
                         });
+                        $isPaymentRejected = ($order->payment?->status === \App\Enums\PaymentStatus::REJECTED || !empty($order->payment?->rejection_reason));
                     @endphp
 
                     <!-- Single Order Card (Tokopedia / Shopee Standard) -->
@@ -237,7 +238,17 @@
 
                             <!-- Status Badge -->
                             <div>
-                                @if($hasOutOfStockItem)
+                                @if($isPaymentRejected && $isPendingPayment)
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200/80">
+                                        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                        <span>Bukti Perlu Diunggah Ulang</span>
+                                    </span>
+                                @elseif($isPaymentRejected)
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200/80">
+                                        <svg class="w-3.5 h-3.5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        <span>Pembayaran Ditolak</span>
+                                    </span>
+                                @elseif($hasOutOfStockItem)
                                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200/80">
                                         <svg class="w-3.5 h-3.5 text-rose-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
@@ -263,6 +274,8 @@
                                             <svg class="w-3.5 h-3.5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/></svg>
                                         @elseif($order->status::$name === 'delivered' || $order->status::$name === 'completed')
                                             <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                        @elseif($order->status::$name === 'cancelled')
+                                            <svg class="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                         @endif
                                         <span>{{ $order->status->label() }}</span>
                                     </span>
@@ -329,7 +342,33 @@
                         <div class="px-5 sm:px-6 py-3.5 bg-[#FAF9FC] border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <!-- Left: Helpful Status Note / Courier Tracking -->
                             <div class="flex items-center gap-2 text-xs">
-                                @if($isPendingPayment)
+                                @if($isPaymentRejected && $isPendingPayment)
+                                    <div class="space-y-1">
+                                        <div class="flex items-center gap-1.5 text-amber-800 font-bold text-xs">
+                                            <svg class="w-4 h-4 shrink-0 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                            </svg>
+                                            <span>Bukti Transfer Ditolak Admin</span>
+                                        </div>
+                                        <p class="text-xs text-amber-700 leading-relaxed">
+                                            Alasan: <span class="font-semibold text-amber-900">"{{ $order->payment->rejection_reason ?: 'Bukti transfer tidak valid atau mutasi tidak ditemukan.' }}"</span>
+                                            <span class="text-gray-500 block sm:inline mt-0.5 sm:mt-0">&bull; Silakan unggah bukti transfer yang benar.</span>
+                                        </p>
+                                    </div>
+                                @elseif($isPaymentRejected)
+                                    <div class="space-y-1">
+                                        <div class="flex items-center gap-1.5 text-rose-700 font-bold text-xs">
+                                            <svg class="w-4 h-4 shrink-0 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                            <span>Bukti Pembayaran Ditolak Admin</span>
+                                        </div>
+                                        <p class="text-xs text-rose-600/90 leading-relaxed">
+                                            Alasan: <span class="font-semibold text-rose-800">"{{ $order->payment->rejection_reason ?: 'Bukti transfer tidak valid atau mutasi tidak ditemukan.' }}"</span>
+                                            <span class="text-gray-500 block sm:inline mt-0.5 sm:mt-0">&bull; Stok barang telah dikembalikan ke etalase.</span>
+                                        </p>
+                                    </div>
+                                @elseif($isPendingPayment)
                                     <div class="flex items-center gap-2 text-amber-700 font-medium">
                                         <svg class="w-4 h-4 shrink-0 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -388,11 +427,10 @@
                                         <svg class="w-4 h-4 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                         </svg>
-                                        <span>Pesanan ini telah dibatalkan.</span>
+                                        <span>Pesanan ini telah dibatalkan &amp; stok produk dikembalikan.</span>
                                     </div>
                                 @endif
                             </div>
-
                             <!-- Right: Action Buttons -->
                             <div class="flex items-center gap-2 sm:gap-2.5 shrink-0 justify-end flex-wrap">
                                 <!-- Secondary Action: View Details -->
@@ -404,8 +442,29 @@
                                 </a>
 
                                 <!-- Primary Contextual Actions -->
-                                @if($isPendingPayment)
-                                    @if($hasOutOfStockItem)
+                                @if($order->status::$name === 'cancelled' || ($isPaymentRejected && !$isPendingPayment))
+                                    <form action="{{ route('orders.reorder', $order->order_number) }}" method="POST">
+                                        @csrf
+                                        <button
+                                            type="submit"
+                                            class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-xs transition-all shadow-xs active:scale-[0.98] cursor-pointer"
+                                            title="Beli produk ini kembali"
+                                        >
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                            <span>Beli Lagi</span>
+                                        </button>
+                                    </form>
+                                @elseif($isPendingPayment)
+                                    @if($order->payment?->status === \App\Enums\PaymentStatus::REJECTED || $order->payment?->rejection_reason)
+                                        <a
+                                            href="{{ route('payment.show', $order->order_number) }}"
+                                            class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-all active:scale-[0.98]"
+                                        >
+                                            <span>Upload Ulang Bukti</span>
+                                        </a>
+                                    @elseif($hasOutOfStockItem)
                                         <span class="px-4 py-2 rounded-xl bg-gray-100 text-gray-400 font-bold text-xs border border-gray-200 cursor-not-allowed select-none" title="Stok barang telah habis">
                                             Stok Habis
                                         </span>
@@ -420,6 +479,16 @@
                                             </svg>
                                         </a>
                                     @endif
+                                    <form action="{{ route('orders.cancel', $order->order_number) }}" method="POST" onsubmit="return confirm('Batalkan pesanan ini? Stok produk akan dikembalikan.');">
+                                        @csrf
+                                        <button
+                                            type="submit"
+                                            class="inline-flex items-center justify-center px-3 py-2 rounded-xl border border-gray-200 hover:border-rose-300 hover:bg-rose-50 text-gray-500 hover:text-rose-700 font-bold text-xs transition-all cursor-pointer"
+                                            title="Batalkan pesanan"
+                                        >
+                                            <span>Batal</span>
+                                        </button>
+                                    </form>
                                 @elseif($order->status::$name === 'shipped')
                                     <form method="POST" action="{{ route('orders.confirm_delivered', $order->order_number) }}" onsubmit="return confirm('Konfirmasi bahwa pesanan ini telah kamu terima?')">
                                         @csrf
@@ -438,6 +507,32 @@
                                         Konfirmasi Selesai
                                     </a>
                                 @elseif($order->status::$name === 'completed')
+                                    @php
+                                        $unreviewed = $order->items->where('review', null)->count();
+                                    @endphp
+                                    @if($unreviewed > 0)
+                                        <a
+                                            href="{{ route('reviews.create', $order->order_number) }}"
+                                            style="background-color: #F59E0B; color: #ffffff;"
+                                            class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl hover:opacity-90 text-white font-bold text-xs shadow-xs transition-all active:scale-[0.98]"
+                                        >
+                                            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                            </svg>
+                                            <span>Beri Ulasan</span>
+                                        </a>
+                                    @else
+                                        <a
+                                            href="{{ route('reviews.create', $order->order_number) }}"
+                                            class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 font-bold text-xs transition-all"
+                                        >
+                                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                            <span>Ulasan Saya</span>
+                                        </a>
+                                    @endif
+
                                     @if($order->items->first()?->variant?->product)
                                         <a
                                             href="{{ route('product.detail', $order->items->first()->variant->product->slug) }}"

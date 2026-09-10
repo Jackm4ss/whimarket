@@ -502,6 +502,12 @@
                                     </svg>
                                     <span>Peminat Wishlist</span>
                                 </a>
+                                <a href="{{ route('seller.payout-account.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
+                                    <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                    </svg>
+                                    <span>Rekening Pencairan (Payout)</span>
+                                </a>
                                 <a href="{{ route('seller.settings') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs sm:text-[13px] font-semibold text-gray-700 hover:text-[#4F26A6] hover:bg-[#F3EEFF] transition-colors group">
                                     <svg class="w-4 h-4 text-gray-400 group-hover:text-[#4F26A6] transition-colors shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -921,6 +927,10 @@
                         <a href="{{ route('seller.wishlists.index') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-gray-700 border border-gray-200 hover:bg-gray-50 transition-all text-xs flex items-center justify-center gap-1.5">
                             <svg class="w-4 h-4 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                             <span>Peminat Wishlist</span>
+                        </a>
+                        <a href="{{ route('seller.payout-account.index') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-gray-700 border border-gray-200 hover:bg-gray-50 transition-all text-xs flex items-center justify-center gap-1.5">
+                            <svg class="w-4 h-4 text-[#4F26A6]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                            <span>Rekening Pencairan (Payout)</span>
                         </a>
                         <a href="{{ route('seller.settings') }}" class="w-full py-2.5 rounded-xl text-center font-bold text-[#4F26A6] bg-[#F3EEFF] hover:bg-[#EADDFE] transition-all text-xs">
                             Pengaturan Toko &amp; Banner

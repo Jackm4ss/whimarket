@@ -98,6 +98,7 @@ class GoogleAuthController extends Controller
             'seller' => User::where('email', 'celloszx@whimarket.com')->first()
                 ?? User::where('role', UserRole::SELLER)->first(),
             'fresh' => User::where('email', 'rina.melati@example.com')->first(),
+            'member' => User::where('email', 'member@blacksky.test')->first(),
             default => User::where('email', 'buyer@whimarket.com')->first()
                 ?? User::where('role', UserRole::BUYER)->first(),
         };

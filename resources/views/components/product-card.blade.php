@@ -12,6 +12,7 @@
     $likesCount = $isModel ? ($product->wishlists_count ?? ($product->relationLoaded('wishlists') ? $product->wishlists->count() : 0)) : ($product['likes'] ?? 0);
     $productId = $isModel ? $product->id : ($product['model_id'] ?? $product['id'] ?? null);
     $href = $isModel ? route('product.detail', $product->slug) : ($product['href'] ?? '#');
+    $isOutOfStock = $isModel ? (bool) $product->is_out_of_stock : (!empty($product['is_out_of_stock']) || (isset($product['stock']) && $product['stock'] <= 0));
 
     if ($isLiked !== null) {
         $initialLiked = (bool) $isLiked;
@@ -53,17 +54,24 @@
             </svg>
         </button>
 
-        <a href="{{ $href }}" class="w-full h-full block">
+        <a href="{{ $href }}" class="w-full h-full block relative">
             <img
                 src="{{ $image }}"
                 alt="{{ $title }}"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 z-0"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 z-0 {{ $isOutOfStock ? 'grayscale opacity-60' : '' }}"
                 decoding="async"
             />
+            @if($isOutOfStock)
+                <div class="absolute inset-0 bg-black/40 backdrop-blur-[1px] z-10 flex items-center justify-center pointer-events-none">
+                    <span class="px-3 py-1.5 rounded-xl bg-rose-600 text-white text-[11px] sm:text-xs font-black tracking-wider uppercase shadow-md">
+                        Stok Habis
+                    </span>
+                </div>
+            @endif
         </a>
 
         <!-- Condition Tag Badge -->
-        @if(!empty($condition))
+        @if(!empty($condition) && !$isOutOfStock)
             <div class="absolute bottom-2.5 left-2.5 z-20 pointer-events-none">
                 <span class="px-2.5 sm:px-3 py-1 rounded-lg sm:rounded-xl bg-white text-gray-900 text-[11px] sm:text-[12px] font-bold shadow-md border border-black/5">
                     {{ $condition }}
@@ -122,16 +130,25 @@
 
         @if($showAddToCart)
             <div class="pt-3 border-t border-gray-100/80 mt-2">
-                <a
-                    href="{{ $href }}"
-                    class="w-full py-2 px-3 rounded-xl bg-[#F3EEFF] hover:bg-[#4F26A6] text-[#4F26A6] hover:text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] group/btn text-center"
-                >
-                    <svg class="w-3.5 h-3.5 transition-transform group-hover/btn:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                        <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
-                        <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" />
-                    </svg>
-                    <span>+ Keranjang</span>
-                </a>
+                @if($isOutOfStock)
+                    <span
+                        class="w-full py-2 px-3 rounded-xl bg-gray-100 text-gray-400 font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed select-none text-center"
+                        title="Stok barang telah habis"
+                    >
+                        <span>Stok Habis</span>
+                    </span>
+                @else
+                    <a
+                        href="{{ $href }}"
+                        class="w-full py-2 px-3 rounded-xl bg-[#F3EEFF] hover:bg-[#4F26A6] text-[#4F26A6] hover:text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] group/btn text-center"
+                    >
+                        <svg class="w-3.5 h-3.5 transition-transform group-hover/btn:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                            <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
+                            <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" />
+                        </svg>
+                        <span>+ Keranjang</span>
+                    </a>
+                @endif
             </div>
         @endif
     </div>

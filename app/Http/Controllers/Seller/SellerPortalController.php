@@ -159,10 +159,13 @@ class SellerPortalController extends Controller
 
         $isDemo = in_array(strtolower($seller->username), ['rachelvennya', 'celloszx', 'raisa6690', 'fuji_an', 'windahbasudara', 'bramastavrl']);
 
+        $realReviewsCount = $seller->reviews()->count();
+        $realRating = $realReviewsCount > 0 ? round($seller->reviews()->avg('rating'), 1) : null;
+
         $stats = [
-            'rating' => $isDemo ? '4.9' : null,
-            'review_count' => $isDemo ? '1.2rb' : 0,
-            'follower_count' => $isDemo ? '12.4rb' : 0,
+            'rating' => $realReviewsCount > 0 ? (string) $realRating : ($isDemo ? '4.9' : null),
+            'review_count' => $realReviewsCount > 0 ? (string) $realReviewsCount : ($isDemo ? '1.2rb' : 0),
+            'follower_count' => $seller->followers_count_formatted,
             'joined_date' => $seller->created_at ? $seller->created_at->translatedFormat('M Y') : 'Sep 2026',
         ];
 
@@ -190,10 +193,15 @@ class SellerPortalController extends Controller
         }
         $tab = $request->query('status', 'all');
 
-        if ($tab !== 'all') {
+        $query = $seller->orders()->with(['items.variant.product', 'buyer', 'shipment', 'dispute']);
+
+        if ($tab === 'processing') {
+            $query->whereIn('status', ['paid', 'processing']);
+        } elseif ($tab === 'delivered') {
+            $query->whereIn('status', ['delivered', 'completed']);
+        } elseif ($tab !== 'all') {
             $query->where('status', $tab);
         }
-
         $orders = $query->latest()->paginate(10)->withQueryString();
 
         return view('seller.orders.index', [

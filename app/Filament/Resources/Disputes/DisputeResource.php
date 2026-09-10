@@ -94,6 +94,7 @@ class DisputeResource extends Resource
 
                         if ($record->order && $record->order->status->canTransitionTo(Cancelled::class)) {
                             $record->order->status->transitionTo(Cancelled::class);
+                            $record->order->restoreStock();
                         }
 
                         Notification::make()

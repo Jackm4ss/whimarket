@@ -49,3 +49,12 @@
         Header set Cache-Control "max-age=31536000, public, immutable"
     </FilesMatch>
 </IfModule>
+
+# Upload & Memory Limits for PHP
+<IfModule mod_php.c>
+    php_value upload_max_filesize 64M
+    php_value post_max_size 100M
+    php_value memory_limit 512M
+    php_value max_execution_time 300
+    php_value max_input_time 300
+</IfModule>

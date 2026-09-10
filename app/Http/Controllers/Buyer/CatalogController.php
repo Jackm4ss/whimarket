@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
+use Spatie\ModelStates\State;
 
 class CatalogController extends Controller
 {
@@ -208,6 +209,91 @@ class CatalogController extends Controller
         }
 
         $defaultDetail = MarketData::productDetail();
+        $realReviews = $productModel->reviews()
+            ->with(['user', 'orderItem'])
+            ->latest()
+            ->get();
+
+        $realReviewsCount = $realReviews->count();
+        $isDemoHoodie = ($productModel->slug === 'prod-hoodie-dream-plan-do' || str_contains($productModel->slug, 'hoodie-dream-plan-do'));
+
+        if ($realReviewsCount > 0) {
+            $avgRating = round($realReviews->avg('rating'), 1);
+            $breakdown = [];
+            for ($star = 5; $star >= 1; $star--) {
+                $count = $realReviews->where('rating', $star)->count();
+                $pct = (int) round(($count / $realReviewsCount) * 100);
+                $breakdown[] = [
+                    'star' => $star,
+                    'count' => $count,
+                    'pct' => $pct,
+                ];
+            }
+            $formattedReviews = $realReviews->map(function ($rev) {
+                $user = $rev->user;
+                $authorName = $user?->name ?: 'Pembeli';
+                $userAvatar = $user?->avatar_url ?: '/assets/avatars/avatar-default.png';
+
+                return [
+                    'id' => $rev->id,
+                    'author' => $authorName,
+                    'user_name' => $authorName,
+                    'avatar' => $userAvatar,
+                    'user_avatar' => $userAvatar,
+                    'rating' => (int) $rev->rating,
+                    'date' => $rev->created_at->diffForHumans(),
+                    'comment' => $rev->comment,
+                    'photos' => $rev->photos ?? [],
+                    'images' => $rev->photos ?? [],
+                    'video' => $rev->video,
+                    'likes' => 0,
+                ];
+            })->all();
+
+            $rating = $avgRating;
+            $reviewCount = $realReviewsCount;
+            $ratingSummary = [
+                'rating' => $avgRating,
+                'total_reviews' => $realReviewsCount,
+                'breakdown' => $breakdown,
+            ];
+            $reviewsList = $formattedReviews;
+        } elseif ($isDemoHoodie) {
+            $rating = 4.8;
+            $reviewCount = 620;
+            $ratingSummary = MarketData::productDetail()['rating_summary'];
+            $reviewsList = MarketData::productDetail()['reviews'];
+        } else {
+            $rating = 0.0;
+            $reviewCount = 0;
+            $ratingSummary = [
+                'rating' => 0.0,
+                'total_reviews' => 0,
+                'breakdown' => [
+                    ['star' => 5, 'count' => 0, 'pct' => 0],
+                    ['star' => 4, 'count' => 0, 'pct' => 0],
+                    ['star' => 3, 'count' => 0, 'pct' => 0],
+                    ['star' => 2, 'count' => 0, 'pct' => 0],
+                    ['star' => 1, 'count' => 0, 'pct' => 0],
+                ],
+            ];
+            $reviewsList = [];
+        }
+
+        $realSoldCount = (int) $productModel->variants()->with('orderItems.order')->get()
+            ->flatMap->orderItems
+            ->filter(function ($item) {
+                $order = $item->order;
+                if (! $order) {
+                    return false;
+                }
+                $status = $order->status instanceof State ? $order->status::$name : (string) $order->status;
+
+                return in_array($status, ['paid', 'processing', 'shipped', 'delivered', 'completed'], true);
+            })
+            ->sum('quantity');
+        $soldCount = ($realSoldCount === 0 && $isDemoHoodie) ? '900+' : (string) $realSoldCount;
+
         $productData = array_merge($defaultDetail, [
             'id' => $productModel->slug,
             'model_id' => $productModel->id,
@@ -245,22 +331,12 @@ class CatalogController extends Controller
             'first_variant_id' => $variants->first()?->id,
             'first_variant_stock' => (int) ($variants->first()?->stock ?? 0),
 
-            // Real data: no review system yet, so all zeros/empty
-            'rating' => 0,
-            'review_count' => 0,
-            'sold_count' => 0,
-            'rating_summary' => [
-                'rating' => 0,
-                'total_reviews' => 0,
-                'breakdown' => [
-                    ['star' => 5, 'count' => 0, 'pct' => 0],
-                    ['star' => 4, 'count' => 0, 'pct' => 0],
-                    ['star' => 3, 'count' => 0, 'pct' => 0],
-                    ['star' => 2, 'count' => 0, 'pct' => 0],
-                    ['star' => 1, 'count' => 0, 'pct' => 0],
-                ],
-            ],
-            'reviews' => [],
+            // Real reviews and rating calculation
+            'rating' => $rating,
+            'review_count' => $reviewCount,
+            'sold_count' => $soldCount,
+            'rating_summary' => $ratingSummary,
+            'reviews' => $reviewsList,
         ]);
 
         $isOwnProduct = Auth::check() && $productModel->seller && Auth::id() === $productModel->seller->user_id;
@@ -285,24 +361,31 @@ class CatalogController extends Controller
     public function sellerDirectory(): View
     {
         $sellers = Seller::with(['user', 'products'])
+            ->withCount(['reviews', 'products'])
+            ->withAvg('reviews', 'rating')
             ->where('status', SellerStatus::VERIFIED)
             ->latest('id')
             ->paginate(12);
 
         $sellersList = $sellers->map(function ($s) {
             $isDemo = in_array(strtolower($s->username), ['rachelvennya', 'celloszx', 'raisa6690', 'fuji_an', 'windahbasudara', 'bramastavrl']);
+            $hasReviews = ($s->reviews_count ?? 0) > 0;
+            $rating = $hasReviews ? round((float) ($s->reviews_avg_rating ?? 0), 1) : ($isDemo ? 4.9 : 0.0);
+            $reviewCount = $hasReviews ? $s->reviews_count : ($isDemo ? '1.2rb' : 0);
 
             return [
                 'id' => $s->id,
                 'name' => $s->store_name,
+                'username' => $s->username,
                 'handle' => '@'.$s->username,
                 'role' => 'Verified Creator',
                 'category' => 'selebgram',
                 'verified' => $s->isVerified(),
                 'avatar' => $s->avatar_url,
                 'cardBg' => $s->banner_url,
-                'rating' => $isDemo ? 4.9 : 0.0,
-                'itemCount' => $s->products->count(),
+                'rating' => $rating,
+                'reviewCount' => $reviewCount,
+                'itemCount' => $s->products_count ?? $s->products->count(),
                 'followerCount' => $s->followers_count_formatted,
                 'profileUrl' => route('seller.profile', '@'.$s->username),
             ];
@@ -328,14 +411,64 @@ class CatalogController extends Controller
         $isFollowing = Auth::check() ? Auth::user()->isFollowing($seller) : false;
         $isDemo = in_array(strtolower($seller->username), ['rachelvennya', 'celloszx', 'raisa6690', 'fuji_an', 'windahbasudara', 'bramastavrl']);
 
+        $realSellerReviews = $seller->reviews()
+            ->with(['user', 'product.images', 'product.primaryImage', 'orderItem'])
+            ->latest()
+            ->get();
+        $realCount = $realSellerReviews->count();
+
+        if ($realCount > 0) {
+            $avgRating = round($realSellerReviews->avg('rating'), 1);
+            $statsRating = $avgRating;
+            $statsReviewCount = $realCount >= 1000 ? number_format($realCount / 1000, 1, ',', '.').'rb' : (string) $realCount;
+            $reviewsList = $realSellerReviews->map(function ($rev) {
+                $user = $rev->user;
+                $authorName = $user?->name ?: 'Pembeli';
+                $userAvatar = $user?->avatar_url ?: '/assets/avatars/avatar-default.png';
+
+                $product = $rev->product;
+                $productTitle = $product?->name ?? ($rev->orderItem?->product_name_snapshot ?? 'Produk');
+                $productImage = $product?->primary_image_url ?: '/assets/products/prod-hoodie.png';
+                $productUrl = $product?->slug ? route('product.detail', $product->slug) : '#';
+
+                return [
+                    'id' => $rev->id,
+                    'author' => $authorName,
+                    'user_name' => $authorName,
+                    'avatar' => $userAvatar,
+                    'user_avatar' => $userAvatar,
+                    'rating' => (int) $rev->rating,
+                    'date' => $rev->created_at->diffForHumans(),
+                    'comment' => $rev->comment,
+                    'photos' => $rev->photos ?? [],
+                    'images' => $rev->photos ?? [],
+                    'video' => $rev->video,
+                    'verified' => true,
+                    'product' => [
+                        'title' => $productTitle,
+                        'priceText' => 'Rp '.number_format((float) ($rev->orderItem?->subtotal ?? $rev->orderItem?->price_snapshot ?? 0), 0, ',', '.'),
+                        'variant' => $rev->orderItem?->variant_name_snapshot ?? '',
+                        'image' => $productImage,
+                        'url' => $productUrl,
+                    ],
+                ];
+            })->all();
+        } elseif ($isDemo) {
+            $statsRating = 4.9;
+            $statsReviewCount = '1.2rb';
+            $reviewsList = MarketData::sellerReviews();
+        } else {
+            $statsRating = null;
+            $statsReviewCount = 0;
+            $reviewsList = [];
+        }
+
         $stats = [
-            'rating' => $isDemo ? 4.9 : null,
-            'review_count' => $isDemo ? '1.2rb' : 0,
+            'rating' => $statsRating,
+            'review_count' => $statsReviewCount,
             'follower_count' => $seller->followers_count_formatted,
             'joined_date' => $seller->created_at ? $seller->created_at->translatedFormat('M Y') : 'Mar 2024',
         ];
-
-        $reviewsList = $isDemo ? MarketData::sellerReviews() : [];
 
         $products = $seller->products()
             ->with(['images', 'variants', 'category', 'wishlists'])
