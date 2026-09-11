@@ -131,27 +131,6 @@
                 </button>
             </form>
 
-            <!-- Dev Quick Access Shortcuts for Testing -->
-            @if(!app()->isProduction())
-                <div class="mt-6 pt-5 border-t border-dashed border-gray-200">
-                    <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-2 text-center">Akses Cepat (Dev Login):</span>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        <a href="{{ route('auth.dev-login', 'buyer') }}" class="px-2 py-1.5 rounded-lg bg-gray-50 hover:bg-[#F3EEFF] text-gray-700 hover:text-[#4F26A6] text-[11px] font-bold text-center transition-colors">
-                            Buyer Demo
-                        </a>
-                        <a href="{{ route('auth.dev-login', 'seller') }}" class="px-2 py-1.5 rounded-lg bg-gray-50 hover:bg-[#F3EEFF] text-gray-700 hover:text-[#4F26A6] text-[11px] font-bold text-center transition-colors">
-                            Celloszx
-                        </a>
-                        <a href="{{ route('auth.dev-login', 'bintang') }}" class="px-2 py-1.5 rounded-lg bg-[#F3EEFF] text-[#4F26A6] text-[11px] font-bold text-center transition-colors border border-[#4F26A6]/20">
-                            Bintang (E2E)
-                        </a>
-                        <a href="{{ route('auth.dev-login', 'admin') }}" class="px-2 py-1.5 rounded-lg bg-gray-50 hover:bg-[#F3EEFF] text-gray-700 hover:text-[#4F26A6] text-[11px] font-bold text-center transition-colors">
-                            Admin Demo
-                        </a>
-                    </div>
-                </div>
-            @endif
-
             <!-- Switch to Register Link -->
             <div class="pt-5 mt-5 border-t border-gray-100 text-center">
                 <p class="text-xs text-gray-500 font-medium">

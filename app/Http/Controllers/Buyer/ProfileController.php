@@ -43,6 +43,7 @@ class ProfileController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'phone' => ['nullable', 'string', 'max:25'],
+            'gender' => ['nullable', 'string', 'in:pria,wanita'],
             'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
             'remove_avatar' => ['nullable', 'boolean'],
         ], [
@@ -50,6 +51,7 @@ class ProfileController extends Controller
             'email.required' => 'Alamat email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Email ini sudah digunakan oleh akun lain.',
+            'gender.in' => 'Pilihan jenis kelamin harus Pria atau Wanita.',
             'avatar.image' => 'Foto profil harus berupa file gambar.',
             'avatar.max' => 'Ukuran foto profil maksimal 5MB.',
         ]);
@@ -86,6 +88,9 @@ class ProfileController extends Controller
         $user->name = $validated['name'];
         $user->email = $validated['email'];
         $user->phone = $normalizedPhone;
+        if (array_key_exists('gender', $validated)) {
+            $user->gender = $validated['gender'];
+        }
         $user->save();
 
         return redirect('/akun/pengaturan?tab=biodata')->with('success', 'Profil akun Anda berhasil diperbarui!');

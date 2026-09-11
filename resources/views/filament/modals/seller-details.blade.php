@@ -61,6 +61,10 @@
                 <span style="color: #64748B; font-size: 0.8125rem;">Email Pemilik:</span>
                 <span style="font-weight: 600; color: #1E293B;">{{ $seller->user?->email ?? '-' }}</span>
             </div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 0.5rem; border-bottom: 1px solid #F1F5F9;">
+                <span style="color: #64748B; font-size: 0.8125rem;">Jenis Kelamin Pemilik:</span>
+                <span style="font-weight: 600; color: #1E293B;">{{ $seller->user?->gender?->label() ?? '-' }}</span>
+            </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="color: #64748B; font-size: 0.8125rem;">Nomor Telepon / WhatsApp:</span>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\Gender;
 use App\Enums\UserRole;
 use App\Models\SellerAccessCode;
 use App\Models\User;
@@ -175,5 +176,31 @@ class SellerAccessCodeTest extends TestCase
             'bank_account_name' => 'Owner OneTime 2',
         ]);
         $response2->assertSessionHas('error');
+    }
+
+    public function test_seller_registration_updates_owner_gender(): void
+    {
+        $code = SellerAccessCode::create([
+            'code' => 'WHI-VIP-GENDER',
+            'max_uses' => 1,
+            'used_count' => 0,
+            'is_locked' => false,
+            'is_one_time' => true,
+        ]);
+
+        $user = User::factory()->create(['role' => UserRole::BUYER, 'gender' => null]);
+        $response = $this->actingAs($user)->post(route('seller.register.submit'), [
+            'code' => 'WHI-VIP-GENDER',
+            'store_name' => 'Toko Bintang Wanita',
+            'gender' => 'wanita',
+            'bank_name' => 'BCA',
+            'bank_account_number' => '1234567890',
+            'bank_account_name' => 'Bintang',
+        ]);
+
+        $response->assertRedirect(route('seller.dashboard'));
+        $user->refresh();
+        $this->assertEquals(Gender::WANITA, $user->gender);
+        $this->assertEquals('Wanita', $user->gender->label());
     }
 }

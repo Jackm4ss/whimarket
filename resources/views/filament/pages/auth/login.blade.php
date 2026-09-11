@@ -103,17 +103,31 @@
         <button
             type="submit"
             wire:loading.attr="disabled"
-            class="w-full py-3.5 rounded-2xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-sm sm:text-base shadow-md shadow-[#4F26A6]/20 transition-all flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
+            class="w-full py-3.5 rounded-2xl bg-[#4F26A6] hover:bg-[#3E1D85] text-white font-bold text-sm sm:text-base shadow-md shadow-[#4F26A6]/20 transition-all flex flex-row items-center justify-center gap-2 active:scale-[0.98] cursor-pointer select-none"
+            style="display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: center !important;"
         >
-            <span wire:loading.remove wire:target="authenticate" class="inline-flex items-center gap-2">
-                <span>Login</span>
-                <svg class="w-4 h-4 stroke-[2.2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span
+                wire:loading.remove
+                wire:target="authenticate"
+                class="inline-flex flex-row items-center justify-center gap-2 whitespace-nowrap"
+                style="display: inline-flex !important; flex-direction: row !important; align-items: center !important; justify-content: center !important; gap: 0.5rem !important;"
+            >
+                <span class="whitespace-nowrap" style="white-space: nowrap !important;">Login</span>
+                <svg class="w-4 h-4 shrink-0 stroke-[2.2]" style="display: inline-block !important; vertical-align: middle !important;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                 </svg>
             </span>
-            <span wire:loading wire:target="authenticate" class="inline-flex items-center gap-2">
-                <svg class="animate-spin w-4 h-4 text-white" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-                <span>Memproses...</span>
+            <span
+                wire:loading
+                wire:target="authenticate"
+                class="inline-flex flex-row items-center justify-center gap-2 whitespace-nowrap"
+                style="flex-direction: row !important; align-items: center !important; justify-content: center !important; gap: 0.5rem !important;"
+            >
+                <svg class="animate-spin w-4 h-4 text-white shrink-0" style="display: inline-block !important; vertical-align: middle !important;" viewBox="0 0 24 24" fill="none">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                <span class="whitespace-nowrap" style="white-space: nowrap !important;">Memproses...</span>
             </span>
         </button>
     </form>

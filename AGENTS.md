@@ -122,7 +122,7 @@ WhiMarket is engineered as a **Modular Monolith** on **Laravel 13** and **PHP 8.
 ```
 app/
 ├── Console/Commands/        # Scheduled tasks (AutoCompleteOrdersCommand.php)
-├── Enums/                   # Backed PHP enums (UserRole, PaymentStatus, PayoutStatus, SellerStatus, ProductStatus, ProductCondition)
+├── Enums/                   # Backed PHP enums (UserRole, Gender, PaymentStatus, PayoutStatus, SellerStatus, ProductStatus, ProductCondition)
 ├── Filament/                # Filament v5 admin panel configuration
 │   ├── Pages/               # Admin pages (Dashboard, Login)
 │   ├── Resources/           # Filament resources (Orders, Payments, Products, Sellers,
@@ -144,7 +144,7 @@ resources/
 ├── css/app.css              # Tailwind CSS v4 CSS-first theme tokens (@theme) & custom utilities
 ├── js/app.js                # Frontend bootstrapping (Alpine.js)
 └── views/
-    ├── components/          # Reusable Blade UI components (cards, badges, modals, selectors)
+    ├── components/          # Reusable Blade UI components (cards, badges, modals, terms/privacy)
     ├── layouts/             # App layouts (app.blade.php, navbar.blade.php, footer.blade.php)
     ├── checkout/            # Checkout form (index.blade.php) and payment instructions (payment.blade.php)
     ├── orders/              # Buyer order listing and detail views
@@ -242,6 +242,18 @@ php artisan config:show database.default
 - **Control Structures**: Always use curly braces for control structures, even for single-line bodies.
 - **Enums**: Backed string enums with PascalCase naming and user-facing Indonesian `label()` methods:
   ```php
+  enum Gender: string {
+      case PRIA = 'pria';
+      case WANITA = 'wanita';
+
+      public function label(): string {
+          return match ($this) {
+              self::PRIA => 'Pria',
+              self::WANITA => 'Wanita',
+          };
+      }
+  }
+
   enum SellerStatus: string {
       case VERIFIED = 'verified';
       case SUSPENDED = 'suspended';
@@ -312,6 +324,7 @@ php artisan config:show database.default
 |`app/Services/PlatformFeeService.php`|Dynamic platform admin fee calculation service|
 |`app/Models/PlatformSetting.php`|Dynamic key-value configuration model with auto-invalidating 24-hour cache|
 |`app/Models/SellerAccessCode.php`|VIP onboarding access codes with quota checks, concurrency locks, and email constraints|
+|`app/Enums/Gender.php`|Backed enum for user gender (`PRIA = 'pria'`, `WANITA = 'wanita'`)|
 |`resources/css/app.css`|Tailwind CSS v4 CSS-first design tokens (`--color-primary-purple: #4F26A6`, etc.)|
 |`scripts/compress-images.js`|Sharp image optimization script processing `public/assets` with dimension bounds|
 |`database/seeders/DatabaseSeeder.php`|Master database seeder invoking AdminSeeder & CategorySeeder|
@@ -347,8 +360,8 @@ php artisan config:show database.default
 - **Global CSRF Bypass**: `tests/TestCase.php` disables `PreventRequestForgery` middleware across all HTTP tests.
 
 ### Database Lifecycle Traits
-1. **`DatabaseMigrations`**: Applied for multi-step transaction and concurrency tests (`OrderLifecycleTest`, `CheckoutConcurrencyTest`, `DisputeResolutionTest`, `PlatformAdminFeeTest`, `CheckoutShippingCalculationTest`, `AuthenticationTest`).
-2. **`RefreshDatabase`**: Applied for standard CRUD, auth, review, and boundary feature tests (`ProductReviewTest`, `SellerFollowTest`, `SellerAccessCodeTest`, `InactiveProductPurchaseTest`, `SellerStoreStatusTest`, `PaymentRejectionAndStockRestorationTest`, `SellerOrdersTest`, `SellerPayoutAccountTest`).
+1. **`DatabaseMigrations`**: Applied for multi-step transaction and concurrency tests (`OrderLifecycleTest`, `CheckoutConcurrencyTest`, `DisputeResolutionTest`, `PlatformAdminFeeTest`, `CheckoutShippingCalculationTest`, `AuthenticationTest`, `ProductBrowseTest`).
+2. **`RefreshDatabase`**: Applied for standard CRUD, auth, review, and boundary feature tests (`ProductReviewTest`, `SellerFollowTest`, `SellerAccessCodeTest`, `InactiveProductPurchaseTest`, `SellerStoreStatusTest`, `PaymentRejectionAndStockRestorationTest`, `SellerOrdersTest`, `SellerPayoutAccountTest`, `AdminRoleStorefrontRestrictionsTest`, `ProfileSettingsTest`).
 
 ### Key Test Suites
 - `tests/Feature/OrderLifecycleTest.php`: Complete end-to-end flow from checkout to payment verification, shipment, buyer confirmation, and payout release.
@@ -361,9 +374,10 @@ php artisan config:show database.default
 - `tests/Feature/SellerFollowTest.php`: Store follow/unfollow toggle, guest rejection, self-follow guard, and followed stores page.
 - `tests/Feature/InactiveProductPurchaseTest.php`: Security boundaries preventing purchase and display of inactive catalog items.
 - `tests/Feature/SellerPayoutAccountTest.php`: Bank payout account submission, validation, and immutability rules.
+- `tests/Feature/AdminRoleStorefrontRestrictionsTest.php`: Admin restricted from consumer buying, carts, checkout, and store follows.
 
 ### Testing Rules for AI Agents
-1. **Always use Model Factories**: Leverage `User::factory()->buyer()`, `User::factory()->seller()`, `ProductVariant::factory()`, `ProductReview::factory()`, etc.
+1. **Always use Model Factories**: Leverage `User::factory()->buyer()`, `User::factory()->seller()`, `ProductVariant::factory()`, `ProductReviewFactory`, etc.
 2. **Assign Spatie Roles in Setup**: Ensure Spatie roles are created and assigned idempotently:
    ```php
    Role::firstOrCreate(['name' => 'buyer', 'guard_name' => 'web']);

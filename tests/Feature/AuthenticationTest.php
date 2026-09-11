@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\Gender;
 use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -84,5 +85,79 @@ class AuthenticationTest extends TestCase
             'recipient_name' => 'Budi Baru',
             'is_default' => true,
         ]);
+    }
+
+    public function test_buyer_registration_succeeds_with_gender(): void
+    {
+        $response = $this->post(route('register.submit'), [
+            'name' => 'Buyer Test Pria',
+            'email' => 'buyer.pria@whimarket.com',
+            'gender' => 'pria',
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
+            'terms' => '1',
+            'role' => 'buyer',
+        ]);
+
+        $response->assertRedirect('/');
+        $this->assertAuthenticated();
+
+        $user = User::where('email', 'buyer.pria@whimarket.com')->first();
+        $this->assertNotNull($user);
+        $this->assertEquals(Gender::PRIA, $user->gender);
+        $this->assertEquals('Pria', $user->gender->label());
+        $this->assertEquals(UserRole::BUYER, $user->role);
+    }
+
+    public function test_seller_registration_succeeds_with_gender(): void
+    {
+        $response = $this->post(route('register.submit'), [
+            'name' => 'Seller Test Wanita',
+            'email' => 'seller.wanita@whimarket.com',
+            'gender' => 'wanita',
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
+            'terms' => '1',
+            'role' => 'seller',
+        ]);
+
+        $response->assertRedirect(route('seller.register'));
+        $this->assertAuthenticated();
+
+        $user = User::where('email', 'seller.wanita@whimarket.com')->first();
+        $this->assertNotNull($user);
+        $this->assertEquals(Gender::WANITA, $user->gender);
+        $this->assertEquals('Wanita', $user->gender->label());
+    }
+
+    public function test_registration_fails_without_gender(): void
+    {
+        $response = $this->post(route('register.submit'), [
+            'name' => 'Buyer Tanpa Gender',
+            'email' => 'no.gender@whimarket.com',
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
+            'terms' => '1',
+            'role' => 'buyer',
+        ]);
+
+        $response->assertSessionHasErrors(['gender']);
+        $this->assertDatabaseMissing('users', ['email' => 'no.gender@whimarket.com']);
+    }
+
+    public function test_registration_fails_with_invalid_gender(): void
+    {
+        $response = $this->post(route('register.submit'), [
+            'name' => 'Buyer Invalid Gender',
+            'email' => 'invalid.gender@whimarket.com',
+            'gender' => 'other',
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
+            'terms' => '1',
+            'role' => 'buyer',
+        ]);
+
+        $response->assertSessionHasErrors(['gender']);
+        $this->assertDatabaseMissing('users', ['email' => 'invalid.gender@whimarket.com']);
     }
 }

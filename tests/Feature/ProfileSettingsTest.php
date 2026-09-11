@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\Gender;
 use App\Models\Address;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -53,6 +54,34 @@ class ProfileSettingsTest extends TestCase
             'email' => 'updated.budi@whimarket.com',
             'phone' => '+6281299999999',
         ]);
+    }
+
+    public function test_user_can_update_gender_in_profile_settings(): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Siti Nurhaliza',
+            'email' => 'siti@whimarket.com',
+            'gender' => Gender::PRIA,
+        ]);
+
+        $response = $this->actingAs($user)->put(route('profile.settings.update'), [
+            'name' => 'Siti Nurhaliza',
+            'email' => 'siti@whimarket.com',
+            'gender' => 'wanita',
+        ]);
+
+        $response->assertRedirect('/akun/pengaturan?tab=biodata');
+        $response->assertSessionHas('success');
+
+        $user->refresh();
+        $this->assertEquals(Gender::WANITA, $user->gender);
+        $this->assertEquals('Wanita', $user->gender->label());
+
+        // View profile settings and assert gender is displayed
+        $viewResponse = $this->actingAs($user)->get(route('profile.settings'));
+        $viewResponse->assertStatus(200);
+        $viewResponse->assertSee('Wanita');
+        $viewResponse->assertSee('Jenis Kelamin');
     }
 
     public function test_user_can_add_delivery_address(): void

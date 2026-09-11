@@ -49,10 +49,13 @@ class SellerPortalController extends Controller
         $validated = $request->validate([
             'code' => 'required|string',
             'store_name' => 'required|string|max:100',
+            'gender' => 'nullable|string|in:pria,wanita',
             'bio' => 'nullable|string|max:500',
             'bank_name' => 'required|string|max:50',
             'bank_account_number' => 'required|string|max:50',
             'bank_account_name' => 'required|string|max:100',
+        ], [
+            'gender.in' => 'Pilihan jenis kelamin harus Pria atau Wanita.',
         ]);
 
         $accessCode = SellerAccessCode::where('code', trim($validated['code']))
@@ -96,10 +99,13 @@ class SellerPortalController extends Controller
             'user_id' => $user->id,
         ]);
 
-        // Upgrade user role
-        $user->update(['role' => UserRole::SELLER]);
+        // Upgrade user role and update gender if provided
+        $userUpdates = ['role' => UserRole::SELLER];
+        if (! empty($validated['gender'])) {
+            $userUpdates['gender'] = $validated['gender'];
+        }
+        $user->update($userUpdates);
         $user->assignRole('seller');
-
         // Create Seller Profile
         $username = Str::slug($validated['store_name']);
         if (Seller::where('username', $username)->exists()) {

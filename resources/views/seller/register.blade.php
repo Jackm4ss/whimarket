@@ -72,6 +72,52 @@
                         />
                     </div>
 
+                    <!-- Owner Gender -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">
+                            Jenis Kelamin Pemilik Toko <span class="text-rose-500">*</span>
+                        </label>
+                        <div class="grid grid-cols-2 gap-3" x-data="{ gender: '{{ old('gender', auth()->user()?->gender?->value ?? '') }}' }">
+                            <label
+                                class="flex items-center justify-center gap-2.5 h-11 px-4 rounded-xl border cursor-pointer transition-all text-xs sm:text-sm font-semibold select-none"
+                                :class="gender === 'pria' ? 'bg-[#F3EEFF] border-[#4F26A6] text-[#4F26A6] ring-2 ring-[#4F26A6]/20 font-bold' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'"
+                            >
+                                <input
+                                    type="radio"
+                                    name="gender"
+                                    value="pria"
+                                    x-model="gender"
+                                    required
+                                    class="sr-only"
+                                />
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 3h5m0 0v5m0-5l-6 6M10 14a5 5 0 100-10 5 5 0 000 10z"/>
+                                </svg>
+                                <span>Pria</span>
+                            </label>
+                            <label
+                                class="flex items-center justify-center gap-2.5 h-11 px-4 rounded-xl border cursor-pointer transition-all text-xs sm:text-sm font-semibold select-none"
+                                :class="gender === 'wanita' ? 'bg-[#F3EEFF] border-[#4F26A6] text-[#4F26A6] ring-2 ring-[#4F26A6]/20 font-bold' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'"
+                            >
+                                <input
+                                    type="radio"
+                                    name="gender"
+                                    value="wanita"
+                                    x-model="gender"
+                                    required
+                                    class="sr-only"
+                                />
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 14a5 5 0 100-10 5 5 0 000 10zm0 0v7m-3-3h6"/>
+                                </svg>
+                                <span>Wanita</span>
+                            </label>
+                        </div>
+                        @error('gender')
+                            <p class="text-rose-500 text-xs mt-1.5">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <!-- Bio -->
                     <div>
                         <label class="block text-xs font-bold text-gray-900 uppercase tracking-wider mb-2">

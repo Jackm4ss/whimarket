@@ -287,6 +287,53 @@
                                 />
                             </div>
 
+                            <!-- Gender -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                    Jenis Kelamin
+                                </label>
+                                <div class="grid grid-cols-2 gap-3" x-data="{ gender: '{{ old('gender', $user->gender?->value ?? '') }}' }">
+                                    <label
+                                        class="flex items-center justify-center gap-2.5 h-12 px-4 rounded-2xl border cursor-pointer transition-all text-xs sm:text-sm font-semibold select-none"
+                                        :class="gender === 'pria' ? 'bg-[#F3EEFF] border-[#4F26A6] text-[#4F26A6] ring-2 ring-[#4F26A6]/20 font-bold' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'"
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="gender"
+                                            value="pria"
+                                            x-model="gender"
+                                            class="sr-only"
+                                        />
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 3h5m0 0v5m0-5l-6 6M10 14a5 5 0 100-10 5 5 0 000 10z"/>
+                                        </svg>
+                                        <span>Pria</span>
+                                    </label>
+                                    <label
+                                        class="flex items-center justify-center gap-2.5 h-12 px-4 rounded-2xl border cursor-pointer transition-all text-xs sm:text-sm font-semibold select-none"
+                                        :class="gender === 'wanita' ? 'bg-[#F3EEFF] border-[#4F26A6] text-[#4F26A6] ring-2 ring-[#4F26A6]/20 font-bold' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'"
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="gender"
+                                            value="wanita"
+                                            x-model="gender"
+                                            class="sr-only"
+                                        />
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 14a5 5 0 100-10 5 5 0 000 10zm0 0v7m-3-3h6"/>
+                                        </svg>
+                                        <span>Wanita</span>
+                                    </label>
+                                </div>
+                                <p class="text-[11.5px] text-gray-400 mt-1.5">
+                                    Digunakan untuk rekomendasi kurasi produk fashion &amp; apparel yang lebih relevan.
+                                </p>
+                                @error('gender')
+                                    <p class="text-rose-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
                             @php
                                 $rawUserPhone = old('phone', $user->phone ?? '');
                                 $initialPhoneDigits = '';
@@ -397,6 +444,12 @@
                                     <span class="text-xs text-gray-500 font-medium">Status Akun:</span>
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-[#F3EEFF] text-[#4F26A6]">
                                         {{ ucfirst($user->role?->value ?? 'Buyer') }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-gray-500 font-medium">Jenis Kelamin:</span>
+                                    <span class="text-xs text-gray-900 font-bold">
+                                        {{ $user->gender?->label() ?? 'Belum diatur' }}
                                     </span>
                                 </div>
                                 <div class="flex items-center gap-2">

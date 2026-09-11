@@ -4,7 +4,9 @@
         x-data="{
             role: '{{ old('role', $initialRole ?? 'buyer') }}',
             showPass: false,
-            showConfirm: false
+            showConfirm: false,
+            openTerms: false,
+            openPrivacy: false
         }"
     >
         <div class="w-full max-w-[480px] bg-white rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-6 sm:p-9 text-left">
@@ -112,6 +114,51 @@
                     />
                 </div>
 
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1.5">
+                        Jenis Kelamin <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="grid grid-cols-2 gap-3" x-data="{ gender: '{{ old('gender', '') }}' }">
+                        <label
+                            class="flex items-center justify-center gap-2.5 h-11 px-4 rounded-xl border cursor-pointer transition-all text-xs sm:text-sm font-semibold select-none"
+                            :class="gender === 'pria' ? 'bg-[#F3EEFF] border-[#4F26A6] text-[#4F26A6] ring-2 ring-[#4F26A6]/20 font-bold' : 'bg-[#F9FAFB] border-gray-200 text-gray-700 hover:bg-gray-50'"
+                        >
+                            <input
+                                type="radio"
+                                name="gender"
+                                value="pria"
+                                x-model="gender"
+                                required
+                                class="sr-only"
+                            />
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 3h5m0 0v5m0-5l-6 6M10 14a5 5 0 100-10 5 5 0 000 10z"/>
+                            </svg>
+                            <span>Pria</span>
+                        </label>
+                        <label
+                            class="flex items-center justify-center gap-2.5 h-11 px-4 rounded-xl border cursor-pointer transition-all text-xs sm:text-sm font-semibold select-none"
+                            :class="gender === 'wanita' ? 'bg-[#F3EEFF] border-[#4F26A6] text-[#4F26A6] ring-2 ring-[#4F26A6]/20 font-bold' : 'bg-[#F9FAFB] border-gray-200 text-gray-700 hover:bg-gray-50'"
+                        >
+                            <input
+                                type="radio"
+                                name="gender"
+                                value="wanita"
+                                x-model="gender"
+                                required
+                                class="sr-only"
+                            />
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 14a5 5 0 100-10 5 5 0 000 10zm0 0v7m-3-3h6"/>
+                            </svg>
+                            <span>Wanita</span>
+                        </label>
+                    </div>
+                    @error('gender')
+                        <p class="text-rose-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label for="password" class="block text-xs font-bold text-gray-700 mb-1.5">
@@ -171,7 +218,23 @@
                         class="w-4 h-4 mt-0.5 rounded text-[#4F26A6] accent-[#4F26A6] focus:ring-[#4F26A6]/20 border-gray-300 cursor-pointer"
                     >
                     <label for="terms" class="text-xs text-gray-600 font-medium leading-relaxed select-none">
-                        Saya menyetujui <a href="#" class="text-[#4F26A6] font-bold hover:underline">Syarat & Ketentuan</a> serta <a href="#" class="text-[#4F26A6] font-bold hover:underline">Kebijakan Privasi</a> WhiMarket.
+                        Saya menyetujui
+                        <button
+                            type="button"
+                            @click.stop.prevent="openPrivacy = false; openTerms = true;"
+                            class="text-[#4F26A6] font-bold hover:underline cursor-pointer inline p-0 bg-transparent border-0"
+                        >
+                            Syarat &amp; Ketentuan
+                        </button>
+                        serta
+                        <button
+                            type="button"
+                            @click.stop.prevent="openTerms = false; openPrivacy = true;"
+                            class="text-[#4F26A6] font-bold hover:underline cursor-pointer inline p-0 bg-transparent border-0"
+                        >
+                            Kebijakan Privasi
+                        </button>
+                        WhiMarket.
                     </label>
                 </div>
 
@@ -196,5 +259,11 @@
             </div>
 
         </div>
+
+        <!-- Syarat & Ketentuan Modal -->
+        <x-terms-modal />
+
+        <!-- Kebijakan Privasi Modal -->
+        <x-privacy-modal />
     </main>
 </x-layouts.app>
