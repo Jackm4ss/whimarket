@@ -145,6 +145,12 @@ class SellerPortalController extends Controller
         $orders = $seller->orders()->with(['items.variant', 'buyer', 'payment', 'shipment'])->latest()->get();
         $recentProducts = $seller->products()->with(['primaryImage', 'variants', 'category'])->latest()->take(6)->get();
 
+        $latestDisbursedPayout = Payout::where('seller_id', $seller->id)
+            ->where('status', PayoutStatus::PAID)
+            ->with(['order'])
+            ->latest('processed_at')
+            ->first();
+
         $metrics = [
             'active_products' => $seller->products()->where('status', ProductStatus::ACTIVE)->count(),
             'total_products' => $seller->products()->count(),
@@ -152,6 +158,7 @@ class SellerPortalController extends Controller
             'shipped_orders' => $orders->filter(fn ($o) => $o->status::$name === 'shipped')->count(),
             'completed_orders' => $orders->filter(fn ($o) => $o->status::$name === 'completed')->count(),
             'pending_payout' => (float) Payout::where('seller_id', $seller->id)->where('status', PayoutStatus::PENDING)->sum('amount'),
+            'total_paid_payout' => (float) Payout::where('seller_id', $seller->id)->where('status', PayoutStatus::PAID)->sum('amount'),
             'total_sales' => (float) $orders->filter(fn ($o) => in_array($o->status::$name, ['paid', 'processing', 'shipped', 'delivered', 'completed']))->sum('total_amount'),
         ];
 
@@ -180,10 +187,10 @@ class SellerPortalController extends Controller
             'metrics' => $metrics,
             'checklist' => $checklist,
             'stats' => $stats,
+            'latestDisbursedPayout' => $latestDisbursedPayout,
             'recentOrders' => $orders->take(5),
             'recentProducts' => $recentProducts,
             'title' => 'Ringkasan Toko - Dashboard Seller | WhiMarket',
-            'activeTab' => 'seller-dashboard',
         ]);
     }
 
@@ -199,7 +206,7 @@ class SellerPortalController extends Controller
         }
         $tab = $request->query('status', 'all');
 
-        $query = $seller->orders()->with(['items.variant.product', 'buyer', 'shipment', 'dispute']);
+        $query = $seller->orders()->with(['items.variant.product', 'buyer', 'shipment', 'dispute', 'payout']);
 
         if ($tab === 'processing') {
             $query->whereIn('status', ['paid', 'processing']);

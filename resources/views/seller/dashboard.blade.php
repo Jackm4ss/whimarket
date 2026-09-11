@@ -3,12 +3,24 @@
         class="max-w-[1536px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-8 sm:py-10"
         x-data="{
             isShareCopied: false,
+            proofModalOpen: false,
+            proofModalData: {
+                imageUrl: '',
+                orderNumber: '',
+                amount: '',
+                bank: '',
+                date: ''
+            },
             copyStoreLink(url) {
                 if (navigator.clipboard) {
                     navigator.clipboard.writeText(url);
                     this.isShareCopied = true;
                     setTimeout(() => { this.isShareCopied = false; }, 2500);
                 }
+            },
+            openProofModal(imageUrl, orderNumber, amount, bank, date) {
+                this.proofModalData = { imageUrl, orderNumber, amount, bank, date };
+                this.proofModalOpen = true;
             }
         }"
     >
@@ -59,6 +71,54 @@
                 </div>
             </div>
         @endif
+
+        {{-- Disbursed Payout Notification Banner --}}
+        @if(!empty($latestDisbursedPayout))
+            <div class="mb-6 rounded-3xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-100/70 border-2 border-emerald-300 p-5 sm:p-6 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-start gap-4">
+                        <div class="w-11 h-11 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-200 text-emerald-900 border border-emerald-300 uppercase tracking-wider">
+                                    Pencairan Dana Berhasil
+                                </span>
+                                <span class="text-xs text-emerald-800 font-semibold">
+                                    {{ $latestDisbursedPayout->processed_at?->diffForHumans() }}
+                                </span>
+                            </div>
+                            <h3 class="text-base sm:text-lg font-black text-gray-950 mt-1">
+                                Saldo Rp {{ number_format((float)$latestDisbursedPayout->amount, 0, ',', '.') }} Telah Ditransfer ke Rekening Anda!
+                            </h3>
+                            <p class="text-xs sm:text-sm text-gray-700 mt-0.5">
+                                Pencairan untuk pesanan <strong class="font-mono text-gray-900">#{{ $latestDisbursedPayout->order?->order_number ?? 'PO-'.$latestDisbursedPayout->id }}</strong> telah selesai ditransfer ke rekening <strong>{{ $latestDisbursedPayout->bank_details_snapshot['bank_name'] ?? 'Bank' }} - {{ $latestDisbursedPayout->bank_details_snapshot['account_number'] ?? '-' }}</strong>.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2.5 shrink-0 self-stretch md:self-auto">
+                        @if($latestDisbursedPayout->transfer_proof_path)
+                            <button
+                                type="button"
+                                @click="openProofModal('{{ asset('storage/'.$latestDisbursedPayout->transfer_proof_path) }}', '{{ $latestDisbursedPayout->order?->order_number }}', 'Rp {{ number_format((float)$latestDisbursedPayout->amount, 0, ',', '.') }}', '{{ ($latestDisbursedPayout->bank_details_snapshot['bank_name'] ?? 'Bank') . ' - ' . ($latestDisbursedPayout->bank_details_snapshot['account_number'] ?? '-') . ' (a/n ' . ($latestDisbursedPayout->bank_details_snapshot['account_name'] ?? '-') . ')' }}', '{{ $latestDisbursedPayout->processed_at?->translatedFormat('d F Y, H:i') }}')"
+                                class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                <span>Lihat Bukti Transfer</span>
+                            </button>
+                        @endif
+                        <a
+                            href="{{ route('seller.payout-account.index') }}"
+                            class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white hover:bg-gray-50 border border-emerald-300 text-emerald-900 font-bold text-xs sm:text-sm transition-all shadow-2xs flex items-center justify-center gap-1.5"
+                        >
+                            <span>Semua Riwayat Saldo</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- 1. Standalone Hero Banner matching Image #2 -->
         <div class="relative w-full h-[180px] sm:h-[240px] md:h-[280px] lg:h-[300px] xl:h-[320px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xs">
             <img
@@ -392,19 +452,30 @@
                 </div>
             </a>
 
-            <!-- Metric 4: Pending Payout -->
-            <div class="bg-white rounded-3xl p-5 sm:p-6 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+            <!-- Metric 4: Payout Account & Balance -->
+            <a href="{{ route('seller.payout-account.index') }}" class="bg-white rounded-3xl p-5 sm:p-6 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all flex flex-col justify-between group">
                 <div class="flex items-center justify-between mb-3">
-                    <span class="text-xs sm:text-[13px] font-bold text-gray-500">Saldo Siap Cair</span>
-                    <span class="w-8 h-8 rounded-xl bg-purple-50 text-[#4F26A6] flex items-center justify-center font-bold text-xs">Rp</span>
+                    <span class="text-xs sm:text-[13px] font-bold text-gray-500">Saldo Penjualan</span>
+                    <span class="w-8 h-8 rounded-xl bg-purple-50 text-[#4F26A6] group-hover:bg-[#4F26A6] group-hover:text-white transition-colors flex items-center justify-center font-bold text-xs">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </span>
                 </div>
                 <div>
-                    <span class="text-xl sm:text-2xl font-black text-[#4F26A6] leading-none">
-                        Rp {{ number_format((float)$metrics['pending_payout'], 0, ',', '.') }}
+                    <div class="flex items-baseline justify-between gap-2 flex-wrap">
+                        <span class="text-xl sm:text-2xl font-black text-[#4F26A6] leading-none">
+                            Rp {{ number_format((float)$metrics['total_paid_payout'], 0, ',', '.') }}
+                        </span>
+                        @if((float)$metrics['pending_payout'] > 0)
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 shrink-0">
+                                +Rp {{ number_format((float)$metrics['pending_payout'], 0, ',', '.') }} pending
+                            </span>
+                        @endif
+                    </div>
+                    <span class="text-xs text-gray-400 font-medium block mt-1 group-hover:text-[#4F26A6] transition-colors">
+                        Total dicairkan &bull; Kelola Rekening &rarr;
                     </span>
-                    <span class="text-xs text-gray-400 font-medium block mt-1">Menunggu transfer admin</span>
                 </div>
-            </div>
+            </a>
         </div>
 
         <!-- Navigation Tabs for Seller Portal -->
@@ -435,7 +506,7 @@
             </a>
             <a href="{{ route('seller.payout-account.index') }}" class="pb-3 text-sm font-semibold text-gray-500 hover:text-gray-900 px-3 whitespace-nowrap flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                <span>Rekening Bank</span>
+                <span>Saldo &amp; Rekening Bank</span>
             </a>
             <a href="{{ route('seller.settings') }}" class="pb-3 text-sm font-semibold text-gray-500 hover:text-gray-900 px-3 whitespace-nowrap flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -760,5 +831,6 @@
                 </div>
             </div>
         </div>
+        <x-payout-proof-modal />
     </main>
 </x-layouts.app>

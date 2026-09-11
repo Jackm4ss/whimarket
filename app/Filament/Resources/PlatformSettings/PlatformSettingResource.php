@@ -11,10 +11,10 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use UnitEnum;
 
@@ -30,7 +30,7 @@ class PlatformSettingResource extends Resource
 
     protected static ?string $navigationLabel = 'Biaya Layanan & Fee Admin';
 
-    protected static ?string $modelLabel = 'Pengaturan Biaya Layanan';
+    protected static ?string $modelLabel = 'Pengaturan Sistem';
 
     protected static ?string $pluralModelLabel = 'Pengaturan Fee Admin & Biaya Layanan';
 
@@ -41,95 +41,153 @@ class PlatformSettingResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->schema([
-            Section::make('Konfigurasi Biaya Layanan (Fee Admin)')
-                ->description('Atur nominal biaya penanganan transaksi escrow aman yang ditagihkan kepada pembeli saat checkout.')
-                ->schema([
-                    Grid::make(2)->schema([
-                        TextInput::make('name')
-                            ->label('Nama Pengaturan')
-                            ->required()
-                            ->maxLength(100),
-
-                        TextInput::make('key')
-                            ->label('Parameter Key')
-                            ->disabled()
-                            ->dehydrated(false)
-                            ->helperText('Identifier unik sistem (read-only).'),
-                    ]),
-
-                    Grid::make(2)->schema([
-                        TextInput::make('value')
-                            ->label('Besaran Biaya Layanan (Rp)')
-                            ->numeric()
-                            ->prefix('Rp')
-                            ->required()
-                            ->minValue(0)
-                            ->helperText('Nominal flat rupiah yang otomatis ditambahkan ke total transaksi pembeli saat checkout.'),
-
-                        Toggle::make('is_active')
-                            ->label('Aktifkan Pengenaan Fee Admin')
-                            ->helperText('Jika dinonaktifkan, pembeli tidak dikenakan fee admin (bebas biaya layanan / Rp 0).')
-                            ->default(true),
-                    ]),
-
-                    Textarea::make('description')
-                        ->label('Keterangan / Informasi Biaya')
-                        ->rows(3)
-                        ->helperText('Penjelasan peruntukan biaya layanan untuk dokumentasi internal marketplace.'),
-                ]),
-        ]);
+        return $schema
+            ->columns(1)
+            ->schema(self::getFormSchema());
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('id', 'asc')
+            ->recordActionsColumnLabel('Aksi')
+            ->recordActionsAlignment('center')
             ->columns([
                 TextColumn::make('name')
-                    ->label('Nama Pengaturan')
+                    ->label('Parameter')
                     ->weight('bold')
-                    ->icon('heroicon-o-receipt-percent')
-                    ->description(fn (PlatformSetting $record) => 'Parameter: '.$record->key)
+                    ->color('primary')
+                    ->icon(fn (PlatformSetting $record) => match ($record->type) {
+                        'currency' => 'heroicon-m-banknotes',
+                        'hours' => 'heroicon-m-clock',
+                        default => 'heroicon-m-adjustments-vertical',
+                    })
+                    ->description(fn (PlatformSetting $record) => "Key: {$record->key}")
                     ->searchable(),
 
                 TextColumn::make('value')
-                    ->label('Tarif Saat Ini')
-                    ->formatStateUsing(function ($state, PlatformSetting $record) {
+                    ->label('Nilai Parameter')
+                    ->weight('bold')
+                    ->color(fn (PlatformSetting $record) => $record->is_active ? 'success' : 'gray')
+                    ->formatStateUsing(function ($state, PlatformSetting $record): string {
                         if (! $record->is_active) {
-                            return 'Dinonaktifkan (Rp 0)';
+                            return 'Dinonaktifkan';
+                        }
+                        if ($record->type === 'currency') {
+                            return 'Rp '.number_format((float) $state, 0, ',', '.');
+                        }
+                        if ($record->type === 'hours') {
+                            return "{$state} Jam";
                         }
 
-                        return 'Rp '.number_format((float) $state, 0, ',', '.');
+                        return (string) $state;
                     })
-                    ->color(fn (PlatformSetting $record) => $record->is_active ? 'primary' : 'gray')
-                    ->weight('bold'),
+                    ->description(function (PlatformSetting $record): string {
+                        if (! $record->is_active) {
+                            return 'Bebas biaya / promo';
+                        }
+                        if ($record->key === 'admin_fee') {
+                            return 'Per transaksi';
+                        }
+                        if ($record->key === 'free_shipping_min_order') {
+                            return 'Min. keranjang';
+                        }
+                        if ($record->key === 'inspection_deadline_hours') {
+                            return 'Garansi komplain';
+                        }
+                        if ($record->key === 'payment_timeout_hours') {
+                            return 'Batas transfer';
+                        }
 
-                TextColumn::make('is_active')
-                    ->label('Status Pengenaan')
+                        return 'Nilai aktif';
+                    })
+                    ->sortable(),
+
+                TextColumn::make('type')
+                    ->label('Tipe')
                     ->badge()
-                    ->formatStateUsing(fn ($state) => $state ? 'Aktif Dikenakan' : 'Dinonaktifkan')
-                    ->color(fn ($state) => $state ? 'success' : 'gray'),
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'currency' => 'Rupiah (Rp)',
+                        'hours' => 'Waktu (Jam)',
+                        default => ucfirst((string) $state),
+                    })
+                    ->color(fn ($state) => match ($state) {
+                        'currency' => 'info',
+                        'hours' => 'warning',
+                        default => 'gray',
+                    }),
+
+                ToggleColumn::make('is_active')
+                    ->label('Status')
+                    ->alignCenter()
+                    ->tooltip('Toggle aktif/nonaktif parameter seketika'),
 
                 TextColumn::make('description')
-                    ->label('Keterangan Biaya')
-                    ->limit(65)
-                    ->wrap(),
+                    ->label('Keterangan')
+                    ->limit(30)
+                    ->tooltip(fn (PlatformSetting $record) => $record->description),
 
                 TextColumn::make('updated_at')
-                    ->label('Terakhir Diperbarui')
+                    ->label('Diperbarui')
                     ->since()
+                    ->tooltip(fn (PlatformSetting $record) => $record->updated_at?->translatedFormat('d M Y, H:i'))
                     ->sortable(),
             ])
+            ->emptyStateHeading('Belum Ada Pengaturan Sistem')
+            ->emptyStateDescription('Parameter sistem marketplace belum dikonfigurasi.')
+            ->emptyStateIcon('heroicon-o-adjustments-vertical')
             ->recordActions([
                 EditAction::make()
-                    ->label('Ubah Tarif / Status')
+                    ->label('Ubah')
                     ->icon('heroicon-o-pencil-square')
+                    ->iconButton()
                     ->color('primary')
-                    ->modalHeading('Ubah Pengaturan Biaya Layanan (Fee Admin)')
-                    ->modalDescription('Tentukan nominal fee admin yang dikenakan kepada pembeli saat checkout atau nonaktifkan pengenaan biaya.')
-                    ->successNotificationTitle('Pengaturan Fee Admin berhasil diperbarui!'),
+                    ->tooltip('Ubah Nilai / Konfigurasi')
+                    ->modalHeading(fn (PlatformSetting $record) => 'Ubah Parameter: '.$record->name)
+                    ->modalDescription('Sesuaikan besaran nilai parameter operasional marketplace atau ubah status pengenaan.')
+                    ->modalWidth('xl')
+                    ->modalSubmitActionLabel('Simpan Perubahan')
+                    ->modalCancelActionLabel('Batal')
+                    ->successNotificationTitle('Pengaturan sistem berhasil diperbarui!'),
             ]);
+    }
+
+    public static function getFormSchema(): array
+    {
+        return [
+            Grid::make(2)->schema([
+                TextInput::make('name')
+                    ->label('Nama Parameter')
+                    ->required()
+                    ->maxLength(100),
+
+                TextInput::make('key')
+                    ->label('Parameter Key Identifikasi')
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->helperText('Identifier unik sistem (hanya-baca).'),
+
+                TextInput::make('value')
+                    ->label('Besaran Nilai Parameter')
+                    ->numeric()
+                    ->required()
+                    ->minValue(0)
+                    ->prefix(fn (?PlatformSetting $record) => $record?->type === 'currency' ? 'Rp' : null)
+                    ->suffix(fn (?PlatformSetting $record) => $record?->type === 'hours' ? 'Jam' : null)
+                    ->helperText('Nilai yang digunakan untuk kalkulasi transaksi.'),
+
+                Toggle::make('is_active')
+                    ->label('Status Parameter Aktif')
+                    ->helperText('Jika dinonaktifkan, parameter tidak membebankan biaya.')
+                    ->default(true),
+
+                Textarea::make('description')
+                    ->label('Keterangan Operasional')
+                    ->rows(3)
+                    ->helperText('Penjelasan peruntukan dan dampak parameter pada alur checkout.')
+                    ->columnSpanFull(),
+            ]),
+        ];
     }
 
     public static function getPages(): array

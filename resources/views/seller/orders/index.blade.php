@@ -377,7 +377,66 @@
                                             class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5"
                                         >
                                             <span>Lihat Komplain &amp; Berikan Bukti</span>
-                                        </a>
+                                    @elseif(in_array($order->status::$name, ['delivered', 'completed']))
+                                        @php
+                                            $payout = $order->payout;
+                                        @endphp
+                                        @if($payout && $payout->status === \App\Enums\PayoutStatus::PAID)
+                                            <div class="p-3.5 rounded-2xl bg-emerald-50/90 border border-emerald-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                                <div class="flex items-start gap-2.5">
+                                                    <span class="w-7 h-7 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                                    </span>
+                                                    <div>
+                                                        <div class="flex items-center gap-2 flex-wrap">
+                                                            <span class="font-extrabold text-emerald-950">Saldo Telah Dicairkan</span>
+                                                            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-200 text-emerald-900 border border-emerald-300 uppercase tracking-wider">Sukses</span>
+                                                        </div>
+                                                        <p class="text-emerald-800 text-[11.5px] mt-0.5">
+                                                            Dana penjualan <strong>Rp {{ number_format((float)$payout->amount, 0, ',', '.') }}</strong> telah ditransfer ke {{ $payout->bank_details_snapshot['bank_name'] ?? ($seller->bank_name ?? 'Bank') }} ({{ $payout->bank_details_snapshot['account_number'] ?? ($seller->bank_account_number ?? '-') }}).
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                @if($payout->transfer_proof_path)
+                                                    <button
+                                                        type="button"
+                                                        @click="openProofModal('{{ asset('storage/' . $payout->transfer_proof_path) }}', '{{ $order->order_number }}', 'Rp {{ number_format((float)$payout->amount, 0, ',', '.') }}', '{{ ($payout->bank_details_snapshot['bank_name'] ?? $seller->bank_name) . ' - ' . ($payout->bank_details_snapshot['account_number'] ?? $seller->bank_account_number) . ' (a/n ' . ($payout->bank_details_snapshot['account_name'] ?? $seller->bank_account_name) . ')' }}', '{{ $payout->processed_at?->translatedFormat('d M Y, H:i') }}')"
+                                                        class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 shrink-0 cursor-pointer self-stretch sm:self-auto"
+                                                    >
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                                        <span>Lihat Bukti Transfer</span>
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        @elseif($payout && in_array($payout->status, [\App\Enums\PayoutStatus::PENDING, \App\Enums\PayoutStatus::PROCESSING]))
+                                            <div class="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                                <div class="flex items-start gap-2.5">
+                                                    <span class="w-7 h-7 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                    </span>
+                                                    <div>
+                                                        <div class="flex items-center gap-2 flex-wrap">
+                                                            <span class="font-extrabold text-amber-950">Dalam Antrean Pencairan Saldo</span>
+                                                            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-200 text-amber-900 border border-amber-300 uppercase tracking-wider">Menunggu Admin</span>
+                                                        </div>
+                                                        <p class="text-amber-800 text-[11.5px] mt-0.5">
+                                                            Dana penjualan <strong>Rp {{ number_format((float)$payout->amount, 0, ',', '.') }}</strong> sedang diproses admin untuk ditransfer ke rekening {{ $seller->bank_name }} ({{ $seller->bank_account_number }}).
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <a
+                                                    href="{{ route('seller.payout-account.index') }}"
+                                                    class="px-3.5 py-2 rounded-xl border border-amber-300 bg-white hover:bg-amber-50 text-amber-900 font-bold text-xs transition-all shadow-2xs shrink-0 self-stretch sm:self-auto text-center"
+                                                >
+                                                    <span>Cek Saldo</span>
+                                                </a>
+                                            </div>
+                                        @elseif($order->status::$name === 'completed')
+                                            <div class="p-3 rounded-2xl bg-purple-50/70 border border-purple-200/50 text-xs flex items-center justify-between gap-2">
+                                                <span class="font-bold text-purple-900">Pesanan Selesai &bull; Dana Penjualan: Rp {{ number_format((float)$order->total_amount, 0, ',', '.') }}</span>
+                                                <a href="{{ route('seller.payout-account.index') }}" class="text-[#4F26A6] font-extrabold hover:underline">Rekening Payout &rarr;</a>
+                                            </div>
+                                        @endif
                                     @endif
                                 </div>
                             </div>
@@ -734,6 +793,7 @@
                 </div>
             </div>
         </div>
+        <x-payout-proof-modal />
     </main>
 
     @push('scripts')
@@ -745,6 +805,18 @@
                 activeOrderNumber: '',
                 copiedKey: null,
                 copiedOrderId: null,
+                proofModalOpen: false,
+                proofModalData: {
+                    imageUrl: '',
+                    orderNumber: '',
+                    amount: '',
+                    bank: '',
+                    date: ''
+                },
+                openProofModal(imageUrl, orderNumber, amount, bank, date) {
+                    this.proofModalData = { imageUrl, orderNumber, amount, bank, date };
+                    this.proofModalOpen = true;
+                },
 
                 // Pre-shipment photo state
                 preShipmentPreview: null,
