@@ -19,12 +19,20 @@ class OrderStatusBreakdownWidget extends BreakdownWidget
         'xl' => 6,
     ];
 
+    protected ?string $emptyStateHeading = 'Belum ada pesanan';
+
+    protected ?string $emptyStateDescription = 'Distribusi status akan muncul setelah ada pesanan masuk.';
+
     protected function getItems(): array
     {
-        $delivered = Order::where('status', 'like', '%Delivered%')->orWhere('status', 'like', '%Completed%')->count() ?: 24;
-        $shipped = Order::where('status', 'like', '%Shipped%')->count() ?: 12;
-        $processing = Order::where('status', 'like', '%Processing%')->orWhere('status', 'like', '%Paid%')->count() ?: 8;
-        $dispute = Order::where('status', 'like', '%Disputed%')->count() ?: 2;
+        $delivered = Order::where('status', 'like', '%delivered%')->orWhere('status', 'like', '%completed%')->count();
+        $shipped = Order::where('status', 'like', '%shipped%')->count();
+        $processing = Order::where('status', 'like', '%processing%')->orWhere('status', 'like', '%paid%')->count();
+        $dispute = Order::where('status', 'like', '%disputed%')->count();
+
+        if (($delivered + $shipped + $processing + $dispute) === 0) {
+            return [];
+        }
 
         return [
             BreakdownItem::make('Selesai / Terkirim', $delivered)

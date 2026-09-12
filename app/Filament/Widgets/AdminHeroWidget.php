@@ -25,7 +25,7 @@ class AdminHeroWidget extends Widget
         return [
             'pendingOrdersCount' => Order::where('status', 'like', '%processing%')->orWhere('status', 'like', '%payment_verification%')->count(),
             'pendingPaymentsCount' => Payment::where('status', 'pending_review')->count(),
-            'pendingDisputesCount' => Dispute::whereIn('status', ['open', 'opened', 'under_review'])->count(),
+            'pendingDisputesCount' => Dispute::whereIn('status', ['open', 'seller_responded', 'under_admin_review'])->count(),
             'pendingPayoutsCount' => Payout::where('status', 'pending')->count(),
             'totalSellersCount' => Seller::count(),
             'totalProductsCount' => Product::count(),

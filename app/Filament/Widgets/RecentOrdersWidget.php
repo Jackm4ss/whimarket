@@ -20,6 +20,10 @@ class RecentOrdersWidget extends RecentItemsWidget
         'xl' => 6,
     ];
 
+    protected ?string $emptyStateHeading = 'Belum ada pesanan';
+
+    protected ?string $emptyStateDescription = 'Pesanan terbaru akan tampil di sini.';
+
     protected function getViewAllUrl(): ?string
     {
         return OrderResource::getUrl('index');
@@ -28,25 +32,6 @@ class RecentOrdersWidget extends RecentItemsWidget
     protected function getItems(): array
     {
         $orders = Order::with('buyer')->latest()->limit(5)->get();
-
-        if ($orders->isEmpty()) {
-            return [
-                RecentItem::make(
-                    title: '#WHI-ORD-2026-001',
-                    description: 'Pembeli: Budi Pratama',
-                )
-                    ->meta('Rp 450.000')
-                    ->badge('Processing')
-                    ->badgeColor('primary'),
-                RecentItem::make(
-                    title: '#WHI-ORD-2026-002',
-                    description: 'Pembeli: Siti Rahma',
-                )
-                    ->meta('Rp 1.200.000')
-                    ->badge('Delivered')
-                    ->badgeColor('success'),
-            ];
-        }
 
         return $orders->map(fn (Order $order) => RecentItem::make(
             title: "#{$order->order_number}",
