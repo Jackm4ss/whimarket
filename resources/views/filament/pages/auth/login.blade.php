@@ -32,10 +32,10 @@
                     type="email"
                     id="email"
                     wire:model="data.email"
-                    value="{{ $data['email'] ?? 'admin@whimarket.com' }}"
-                    placeholder="admin@whimarket.com"
+                    placeholder="Masukkan email admin"
                     required
                     autofocus
+                    autocomplete="username"
                     class="w-full pl-10 pr-4 py-3 text-xs sm:text-sm text-gray-900 placeholder-gray-400 bg-transparent border-none focus:outline-none focus:ring-0"
                 />
             </div>

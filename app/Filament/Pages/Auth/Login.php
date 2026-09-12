@@ -20,15 +20,6 @@ class Login extends BaseLogin
         return 'Login Admin | WhiMarket';
     }
 
-    public function mount(): void
-    {
-        parent::mount();
-
-        $this->form->fill([
-            'email' => 'admin@whimarket.com',
-        ]);
-    }
-
     protected function throwFailureValidationException(): never
     {
         throw ValidationException::withMessages([
