@@ -187,20 +187,20 @@
                     class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-[#4F26A6] focus:ring-2 focus:ring-[#4F26A6]/20 transition-all outline-none resize-none"
                 ></textarea>
             </div>
+
+            <!-- Sticky Note Decoration -->
+            <div class="mt-2 p-3 rounded-xl bg-amber-50/80 border border-amber-200/60 flex items-center gap-2 text-xs text-amber-900">
+                <span class="font-handwriting text-base text-[#F59E0B] font-bold shrink-0">Catatan:</span>
+                <span>Alamat ini bisa diubah kapan saja di profil atau saat checkout.</span>
+            </div>
         </div>
 
-        <!-- Sticky Note Decoration -->
-        <div class="mt-4 p-3 rounded-xl bg-amber-50/80 border border-amber-200/60 flex items-center gap-2 text-xs text-amber-900">
-            <span class="font-handwriting text-base text-[#F59E0B] font-bold shrink-0">Catatan:</span>
-            <span>Alamat ini bisa diubah kapan saja di profil atau saat checkout.</span>
-        </div>
-        </div>
         <!-- Action Buttons -->
-        <div class="flex flex-col sm:flex-row items-center justify-end gap-2.5 sm:gap-3 mt-3 pt-3 sm:mt-4 sm:pt-4 border-t border-gray-100 shrink-0">
+        <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 sm:gap-3 mt-3 pt-3 sm:mt-4 sm:pt-4 border-t border-gray-100 shrink-0">
             <button
                 type="button"
                 @click="skip()"
-                class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors cursor-pointer"
+                class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors cursor-pointer text-center"
             >
                 Lewati / Nanti Saja
             </button>
