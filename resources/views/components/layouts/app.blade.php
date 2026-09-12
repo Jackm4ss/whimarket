@@ -12,11 +12,16 @@
     <meta property="og:title" content="{{ $title ?? 'WhiMarket - Marketplace Pre-loved & Merchandise' }}">
     <meta property="og:description" content="WhiMarket adalah marketplace terpercaya untuk belanja dan jual barang pre-loved serta merchandise eksklusif langsung dari kreator, artis, dan figur publik favoritmu.">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:image" content="{{ rtrim(config('app.url'), '/').'/assets/logo-whimarket.png' }}">
+    <meta property="og:image" content="{{ rtrim(config('app.url'), '/').'/assets/og-cover.png' }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:alt" content="WhiMarket - Marketplace Pre-loved & Merchandise">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $title ?? 'WhiMarket - Marketplace Pre-loved & Merchandise' }}">
     <meta name="twitter:description" content="WhiMarket adalah marketplace terpercaya untuk belanja dan jual barang pre-loved serta merchandise eksklusif langsung dari kreator, artis, dan figur publik favoritmu.">
-    <meta name="twitter:image" content="{{ rtrim(config('app.url'), '/').'/assets/logo-whimarket.png' }}">
+    <meta name="twitter:image" content="{{ rtrim(config('app.url'), '/').'/assets/og-cover.png' }}">
+    <meta name="twitter:image:alt" content="WhiMarket - Marketplace Pre-loved & Merchandise">
     
     @if(request()->is('/'))
         <!-- Preload LCP Hero Product Image (Homepage Only) -->
